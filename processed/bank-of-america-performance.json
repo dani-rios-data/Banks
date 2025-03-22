@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "totalInvestment": 0,
+    "averageMarketShare": 0,
+    "peakInvestment": {
+      "month": "",
+      "value": 0
+    },
+    "lowestInvestment": {
+      "month": "",
+      "value": 9007199254740991
+    },
+    "investmentTrend": 0,
+    "marketShareTrend": 0
+  },
+  "monthlyPerformance": []
+}

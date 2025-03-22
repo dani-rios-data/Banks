@@ -1,0 +1,34 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# data files
+/public/data/*.csv
+/public/data/wells-fargo-bank-benchmark-v3-1.csv
+/public/data/td-bank-benchmark-v3.csv
+/public/data/pnc-bank-benchmark-v3.csv
+/public/data/capital-one-benchmark-v3.csv
+/public/data/bank-of-america-benchmark-v2.csv
+
+# Keep processed data
+!/public/processed/*.json
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
