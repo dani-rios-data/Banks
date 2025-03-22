@@ -5,7 +5,7 @@
   "homepage": "https://dani-rios-data.github.io/Banks",
   "scripts": {
     "start": "react-scripts start",
-    "build": "npm run preprocess && react-scripts build",
+    "build": "npm run preprocess && react-scripts build && del /s /q build\\data\\*.csv",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "preprocess": "node scripts/preprocessData.js",
