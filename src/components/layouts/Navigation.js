@@ -28,13 +28,21 @@ const Navigation = () => {
   // Style for tabs
   const getTabStyle = (tabName) => {
     const summaryColor = bankColors['Wells Fargo'];
+    const isActive = activeTab === tabName;
     
-    return activeTab === tabName ? {
-      backgroundColor: '#f0f9ff',
-      borderBottom: `3px solid ${tabName === 'summary' ? summaryColor : tabName === 'media' ? '#10b981' : bankColors[tabName] || '#3b82f6'}`,
-      color: tabName === 'summary' ? summaryColor : tabName === 'media' ? '#10b981' : bankColors[tabName] || '#3b82f6',
-      fontWeight: 'bold'
-    } : {};
+    const baseStyle = {
+      backgroundColor: isActive ? '#f8fafc' : 'transparent',
+      color: isActive 
+        ? (tabName === 'summary' ? summaryColor : tabName === 'media' ? '#10b981' : bankColors[tabName] || '#3b82f6')
+        : '#64748b',
+      borderBottom: isActive 
+        ? `3px solid ${tabName === 'summary' ? summaryColor : tabName === 'media' ? '#10b981' : bankColors[tabName] || '#3b82f6'}`
+        : '3px solid transparent',
+      fontWeight: isActive ? '600' : '500',
+      transition: 'all 0.2s ease-in-out'
+    };
+
+    return baseStyle;
   };
 
   // Function to format bank name
@@ -58,11 +66,11 @@ const Navigation = () => {
   };
 
   return (
-    <div className="w-full bg-white border-b">
+    <div className="w-full bg-white border-b border-gray-200">
       <div className="w-full">
         <div className="flex overflow-x-auto px-6">
           <button 
-            className="px-8 py-3 text-gray-700 focus:outline-none transition duration-200 flex items-center gap-3 text-lg whitespace-nowrap"
+            className="px-6 py-4 focus:outline-none transition-all duration-200 ease-in-out flex items-center gap-2 text-base whitespace-nowrap hover:bg-gray-50"
             onClick={() => setActiveTab('summary')}
             style={getTabStyle('summary')}
           >
@@ -71,7 +79,7 @@ const Navigation = () => {
           </button>
           
           <button 
-            className="px-8 py-3 text-gray-700 focus:outline-none transition duration-200 flex items-center gap-3 text-lg whitespace-nowrap"
+            className="px-6 py-4 focus:outline-none transition-all duration-200 ease-in-out flex items-center gap-2 text-base whitespace-nowrap hover:bg-gray-50"
             onClick={() => setActiveTab('media')}
             style={getTabStyle('media')}
           >
@@ -82,7 +90,7 @@ const Navigation = () => {
           {dashboardData.banks.map((bank) => (
             <button 
               key={bank.name}
-              className="px-8 py-3 text-gray-700 focus:outline-none transition duration-200 flex items-center gap-3 text-lg whitespace-nowrap"
+              className="px-6 py-4 focus:outline-none transition-all duration-200 ease-in-out flex items-center gap-2 text-base whitespace-nowrap hover:bg-gray-50"
               onClick={() => setActiveTab(bank.name)}
               style={getTabStyle(bank.name)}
             >

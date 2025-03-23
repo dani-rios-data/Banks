@@ -10,20 +10,27 @@ const Header = () => {
       <div className="w-full px-8 py-3 border-b border-gray-100">
         <div className="flex items-center">
           <div className="flex items-center space-x-6 min-w-[300px]">
-            <div className="p-2 rounded-lg" style={{ backgroundColor: '#CD1309' }}>
+            <div className="p-2 rounded-lg" style={{ 
+              backgroundColor: '#CD1309',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              borderRadius: '8px'
+            }}>
               <img 
                 src="/assets/Wells-Fargo-Embleme.svg" 
                 alt="Wells Fargo Logo" 
                 className="h-8 w-auto"
-                style={{ filter: 'brightness(0) saturate(100%) invert(73%) sepia(88%) saturate(1128%) hue-rotate(359deg) brightness(105%) contrast(106%)' }}
+                style={{ 
+                  filter: 'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)',
+                  transform: 'scale(1.1)'
+                }}
               />
             </div>
-            <p className="text-xs text-black font-medium">
+            <p className="text-xs text-gray-600 font-medium">
               January 2024 - February 2025
             </p>
           </div>
           <div className="flex-1 flex justify-center">
-            <h1 className="text-2xl font-bold" style={{ color: bankColors['Wells Fargo'] }}>
+            <h1 className="text-2xl font-bold text-gray-800">
               Banking Advertising Investment Analysis
             </h1>
           </div>
