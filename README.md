@@ -1,124 +1,93 @@
-# Dashboard de Publicidad Bancaria
+# Banking Advertisement Dashboard
 
-Este proyecto es un dashboard interactivo para analizar y visualizar datos de publicidad del sector bancario.
+Un dashboard interactivo para analizar y visualizar datos de inversión publicitaria de los principales bancos, incluyendo Bank of America, Wells Fargo, TD Bank, Capital One y PNC Bank.
 
 ## Características
 
-- Análisis de cuota de mercado
-- Métricas clave del sector
-- Gráficos de distribución
-- Tendencias mensuales
-- Análisis de canales de medios
-- Detalles por banco
-
-## Estructura del Proyecto
-
-```
-src/
-├── components/
-│   ├── common/       # Componentes reutilizables
-│   ├── layouts/      # Componentes de diseño
-│   ├── summary/      # Componentes del dashboard principal
-│   ├── media/        # Componentes de análisis de medios
-│   └── bank/         # Componentes específicos de bancos
-├── utils/            # Utilidades y funciones auxiliares
-└── context/          # Contexto de React y estado global
-```
+- 📊 Visualización de distribución de medios por banco
+- 📈 Análisis de tendencias mensuales
+- 🎯 Insights estratégicos por banco
+- 🔄 Filtrado por períodos específicos
+- 📱 Diseño responsivo
+- 🎨 Esquemas de colores personalizados por banco
 
 ## Tecnologías Utilizadas
 
 - React.js
-- Material-UI
-- D3.js para visualizaciones
-- React Router para navegación
+- Recharts para visualizaciones
+- Tailwind CSS para estilos
+- Context API para manejo de estado
+
+## Requisitos Previos
+
+- Node.js (versión 14 o superior)
+- npm o yarn
 
 ## Instalación
 
-1. Clonar el repositorio
-2. Instalar dependencias: `npm install`
-3. Iniciar el servidor de desarrollo: `npm start`
+1. Clona el repositorio:
+```bash
+git clone https://github.com/tu-usuario/banking-ad-dashboard.git
+cd banking-ad-dashboard
+```
 
-## Scripts Disponibles
+2. Instala las dependencias:
+```bash
+npm install
+# o
+yarn install
+```
 
-- `npm start`: Inicia el servidor de desarrollo
-- `npm test`: Ejecuta las pruebas
-- `npm run build`: Construye la aplicación para producción
+3. Crea un archivo `.env` en la raíz del proyecto y configura las variables de entorno necesarias:
+```env
+REACT_APP_API_URL=tu_url_api
+```
+
+4. Inicia el servidor de desarrollo:
+```bash
+npm start
+# o
+yarn start
+```
+
+## Estructura de Datos
+
+El dashboard espera los siguientes archivos CSV en el directorio `/public/data/`:
+- `wells-fargo-bank-benchmark-v3-1.csv`
+- `td-bank-benchmark-v3.csv`
+- `pnc-bank-benchmark-v3.csv`
+- `capital-one-benchmark-v3.csv`
+- `bank-of-america-benchmark-v2.csv`
+
+## Despliegue
+
+Este proyecto está configurado para ser desplegado en Vercel. Para desplegar:
+
+1. Crea una cuenta en [Vercel](https://vercel.com)
+2. Instala Vercel CLI:
+```bash
+npm i -g vercel
+```
+
+3. Despliega el proyecto:
+```bash
+vercel
+```
 
 ## Contribuir
 
-1. Fork el proyecto
-2. Crear una rama para tu feature
-3. Commit tus cambios
-4. Push a la rama
-5. Crear un Pull Request
+1. Haz fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Haz commit de tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-# Getting Started with Create React App
+## Licencia
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
 
-## Available Scripts
+## Contacto
 
-In the project directory, you can run:
+Tu Nombre - [@tu_twitter](https://twitter.com/tu_twitter)
 
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Link del Proyecto: [https://github.com/tu-usuario/banking-ad-dashboard](https://github.com/tu-usuario/banking-ad-dashboard)

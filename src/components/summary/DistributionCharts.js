@@ -292,7 +292,7 @@ const DistributionCharts = () => {
               <div className="relative h-6 bg-gray-200 rounded-lg overflow-hidden">
                 {distributions.bankData.map((bank, index) => {
                   const startPos = distributions.bankData.slice(0, index).reduce((acc, b) => acc + b.share, 0);
-                  return (
+  return (
                     <div
                       key={index}
                       className="absolute top-0 h-full flex items-center justify-center text-xs text-white font-medium"
@@ -362,14 +362,14 @@ const DistributionCharts = () => {
           
           <div className="bg-gray-50 rounded-lg p-5">
             <div className="h-56 mb-6">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
                   <Pie
                     data={bankMediaMix}
                     dataKey="percentage"
                     nameKey="category"
-                    cx="50%"
-                    cy="50%"
+                cx="50%"
+                cy="50%"
                     innerRadius={60}
                     outerRadius={90}
                     paddingAngle={2}
@@ -383,8 +383,8 @@ const DistributionCharts = () => {
                         stroke="white"
                         strokeWidth={1}
                       />
-                    ))}
-                  </Pie>
+                ))}
+              </Pie>
                   <Tooltip 
                     formatter={(value) => `${value.toFixed(1)}%`}
                     contentStyle={{ 
@@ -393,10 +393,10 @@ const DistributionCharts = () => {
                       padding: '0.75rem',
                       border: `1px solid ${chartColors[activeTab]}`
                     }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
             
             <div className="mt-6">
               <h4 className="text-sm font-medium text-gray-600 mb-3">Distribution by Category</h4>
@@ -534,8 +534,8 @@ const DistributionCharts = () => {
               <div className="border border-gray-100 rounded-lg p-4">
                 <h3 className="text-lg font-medium text-gray-700 mb-2">Investment by Bank</h3>
                 <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
                       <Pie
                         data={distributions.bankData}
                         dataKey="investment"
@@ -607,8 +607,8 @@ const DistributionCharts = () => {
                           data={distributions.mediaData}
                           dataKey="investment"
                           nameKey="name"
-                          cx="50%"
-                          cy="50%"
+                cx="50%"
+                cy="50%"
                           innerRadius={60}
                           outerRadius={90}
                           paddingAngle={1}
@@ -621,13 +621,13 @@ const DistributionCharts = () => {
                               key={`cell-${index}`} 
                               fill={categoryColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
                               stroke="white"
-                              strokeWidth={2}
+                strokeWidth={2}
                             />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
 
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-gray-700 mb-3">Media Investment Insights</h4>
