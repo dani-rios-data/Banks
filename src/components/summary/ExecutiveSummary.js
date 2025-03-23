@@ -40,16 +40,16 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
 
       {/* Market Overview - Second Part */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-800">Market Overview</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Today&apos;s Market Overview</h2>
         <p className="text-gray-600 mt-2">
-          This executive summary provides a comprehensive analysis of banking sector media investments, focusing on key metrics, market share distribution, and investment trends across various channels. Wells Fargo's positioning is highlighted against major competitors in the financial services industry.
+          This executive summary provides a comprehensive analysis of banking sector media investments, focusing on key metrics, market share distribution, and investment trends across various channels. Wells Fargo&apos;s positioning is highlighted against major competitors in the financial services industry.
         </p>
       </div>
       
       {/* Key Metrics - Third Part */}
       <div className="mb-8">
         <div className="flex items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Key Metrics</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Bank&apos;s Performance Metrics</h2>
           <div className="ml-4 px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full">
             {selectedMonths === 'All Period' ? 'Full Year Analysis' : selectedMonths}
           </div>
@@ -119,7 +119,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
               <h4 className="text-md font-semibold text-blue-700 mb-3">Key Market Trends</h4>
               <p className="text-blue-700 mb-4">
-                The analysis reveals a significant shift toward digital channels, with traditional media still maintaining strategic importance. Wells Fargo's position shows strong performance in specific channels with opportunities in others.
+                The analysis reveals a significant shift toward digital channels, with traditional media still maintaining strategic importance. Wells Fargo&apos;s position shows strong performance in specific channels with opportunities in others.
               </p>
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-start">
@@ -233,7 +233,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                 No significant gaps found
               </div>
               <p className="text-gray-500">
-                Wells Fargo's media allocation is well aligned with industry standards.
+                Wells Fargo&apos;s media allocation is well aligned with industry standards.
               </p>
             </div>
           )}
@@ -262,7 +262,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Wells Fargo's investment in Digital is under-indexed compared to industry benchmarks by 15.8% - representing highest growth opportunity</span>
+                  <span>Wells Fargo&apos;s investment in Digital is under-indexed compared to industry benchmarks by 15.8% - representing highest growth opportunity</span>
                 </li>
               </ul>
             </div>

@@ -186,135 +186,100 @@ async function processCSVFile(filePath) {
 
 async function main() {
   console.log('Starting data preprocessing...');
-  
-  const dataDir = path.join(__dirname, '../public/data');
-  const processedDir = path.join(__dirname, '../public/processed');
-  
-  // Crear directorios si no existen
-  if (!fs.existsSync(dataDir)) {
-    console.log('Data directory does not exist, creating...');
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  
-  if (!fs.existsSync(processedDir)) {
-    console.log('Processed directory does not exist, creating...');
-    fs.mkdirSync(processedDir, { recursive: true });
-  }
-  
-  try {
-    const files = fs.readdirSync(dataDir);
-    if (files.length === 0) {
-      console.log('No data files found, using sample data...');
-      // Crear datos de muestra
-      const sampleData = {
-        banks: [
-          { name: 'Bank of America', totalInvestment: 362000000 },
-          { name: 'Wells Fargo', totalInvestment: 284000000 },
-          { name: 'TD Bank', totalInvestment: 74000000 },
-          { name: 'Capital One', totalInvestment: 872000000 },
-          { name: 'PNC Bank', totalInvestment: 24000000 }
-        ],
-        monthlyTrends: [],
-        mediaCategories: []
-      };
-      
-      // Guardar datos de muestra
-      fs.writeFileSync(
-        path.join(processedDir, 'dashboard-data.json'),
-        JSON.stringify(sampleData, null, 2)
-      );
-      console.log('Sample data created successfully');
-    } else {
-      // Procesar archivos reales si existen
-      console.log('Processing data files...');
-      // Process all CSV files
-      const files = fs.readdirSync(dataDir).filter(file => file.endsWith('.csv'));
-      console.log(`Files found: ${files.join(', ')}`);
-      
-      // Process files one by one for better visibility
-      for (const file of files) {
-        await processCSVFile(path.join(dataDir, file));
-      }
 
-      // Prepare aggregated data
-      aggregatedData.banks = Object.values(bankData).map(bank => ({
-        name: bank.name,
-        totalInvestment: bank.totalInvestment,
-        mediaBreakdown: Object.entries(bank.mediaBreakdown)
-          .map(([category, amount]) => ({
-            category,
+  try {
+    // Process all CSV files
+    const files = fs.readdirSync(INPUT_DIR).filter(file => file.endsWith('.csv'));
+    console.log(`Files found: ${files.join(', ')}`);
+    
+    if (files.length === 0) {
+      console.error('No CSV files found in the data directory.');
+      process.exit(1);
+    }
+
+    // Process files one by one for better visibility
+    for (const file of files) {
+      await processCSVFile(path.join(INPUT_DIR, file));
+    }
+
+    // Prepare aggregated data
+    aggregatedData.banks = Object.values(bankData).map(bank => ({
+      name: bank.name,
+      totalInvestment: bank.totalInvestment,
+      mediaBreakdown: Object.entries(bank.mediaBreakdown)
+        .map(([category, amount]) => ({
+          category,
+          amount,
+          percentage: (amount / bank.totalInvestment) * 100
+        }))
+        .sort((a, b) => b.amount - a.amount)
+    })).sort((a, b) => b.totalInvestment - a.totalInvestment);
+
+    // Sort monthly data
+    aggregatedData.monthlyTrends = Object.entries(monthlyData)
+      .map(([month, data]) => ({
+        month,
+        total: data.total,
+        bankShares: Object.entries(data.bankShares)
+          .map(([bank, investment]) => ({
+            bank,
+            investment,
+            percentage: (investment / data.total) * 100
+          }))
+          .sort((a, b) => b.investment - a.investment)
+      }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+
+    // Prepare media categories data
+    aggregatedData.mediaCategories = Object.entries(mediaData)
+      .map(([category, data]) => ({
+        name: category,
+        total: data.total,
+        bankShares: Object.entries(data.bankShares)
+          .map(([bank, amount]) => ({
+            bank,
             amount,
-            percentage: (amount / bank.totalInvestment) * 100
+            percentage: (amount / data.total) * 100
           }))
           .sort((a, b) => b.amount - a.amount)
-      })).sort((a, b) => b.totalInvestment - a.totalInvestment);
+      }))
+      .sort((a, b) => b.total - a.total);
 
-      // Sort monthly data
-      aggregatedData.monthlyTrends = Object.entries(monthlyData)
-        .map(([month, data]) => ({
-          month,
-          total: data.total,
-          bankShares: Object.entries(data.bankShares)
-            .map(([bank, investment]) => ({
-              bank,
-              investment,
-              percentage: (investment / data.total) * 100
-            }))
-            .sort((a, b) => b.investment - a.investment)
-        }))
-        .sort((a, b) => a.month.localeCompare(b.month));
+    // Calculate total investment
+    aggregatedData.totalInvestment = aggregatedData.banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
 
-      // Prepare media categories data
-      aggregatedData.mediaCategories = Object.entries(mediaData)
-        .map(([category, data]) => ({
-          name: category,
-          total: data.total,
-          bankShares: Object.entries(data.bankShares)
-            .map(([bank, amount]) => ({
-              bank,
-              amount,
-              percentage: (amount / data.total) * 100
-            }))
-            .sort((a, b) => b.amount - a.amount)
-        }))
-        .sort((a, b) => b.total - a.total);
+    // Save processed data
+    console.log('\nSaving processed data...');
+    fs.writeFileSync(
+      path.join(OUTPUT_DIR, 'dashboard-data.json'),
+      JSON.stringify(aggregatedData, null, 2)
+    );
 
-      // Calculate total investment
-      aggregatedData.totalInvestment = aggregatedData.banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
+    console.log('Preprocessing completed successfully.');
+    console.log(`Data saved to ${path.join(OUTPUT_DIR, 'dashboard-data.json')}`);
+    
+    // Print some statistics
+    console.log('\nFinal statistics:');
+    console.log(`- Number of banks processed: ${aggregatedData.banks.length}`);
+    console.log(`- Number of months with data: ${aggregatedData.monthlyTrends.length}`);
+    console.log(`- Number of media categories: ${aggregatedData.mediaCategories.length}`);
+    console.log(`- Total investment: $${(aggregatedData.totalInvestment / 1000000).toFixed(2)}M`);
 
-      // Save processed data
-      console.log('\nSaving processed data...');
-      fs.writeFileSync(
-        path.join(processedDir, 'dashboard-data.json'),
-        JSON.stringify(aggregatedData, null, 2)
-      );
+    // Print top 5 media categories by investment
+    console.log('\nTop 5 media categories by investment:');
+    aggregatedData.mediaCategories.slice(0, 5).forEach(category => {
+      console.log(`- ${category.name}: $${(category.total / 1000000).toFixed(2)}M`);
+    });
 
-      console.log('Preprocessing completed successfully.');
-      console.log(`Data saved to ${path.join(processedDir, 'dashboard-data.json')}`);
-      
-      // Print some statistics
-      console.log('\nFinal statistics:');
-      console.log(`- Number of banks processed: ${aggregatedData.banks.length}`);
-      console.log(`- Number of months with data: ${aggregatedData.monthlyTrends.length}`);
-      console.log(`- Number of media categories: ${aggregatedData.mediaCategories.length}`);
-      console.log(`- Total investment: $${(aggregatedData.totalInvestment / 1000000).toFixed(2)}M`);
+    // Print banks sorted by total investment
+    console.log('\nBanks sorted by total investment:');
+    aggregatedData.banks.forEach(bank => {
+      console.log(`- ${bank.name}: $${(bank.totalInvestment / 1000000).toFixed(2)}M`);
+    });
 
-      // Print top 5 media categories by investment
-      console.log('\nTop 5 media categories by investment:');
-      aggregatedData.mediaCategories.slice(0, 5).forEach(category => {
-        console.log(`- ${category.name}: $${(category.total / 1000000).toFixed(2)}M`);
-      });
-
-      // Print banks sorted by total investment
-      console.log('\nBanks sorted by total investment:');
-      aggregatedData.banks.forEach(bank => {
-        console.log(`- ${bank.name}: $${(bank.totalInvestment / 1000000).toFixed(2)}M`);
-      });
-    }
   } catch (error) {
     console.error('Error processing data:', error);
-    // No fallar el build, usar datos de muestra
-    process.exit(0);
+    process.exit(1);
   }
 }
 
