@@ -7,37 +7,34 @@ import { bankColors, bankSecondaryColors } from '../../utils/colorSchemes';
 const Header = () => {
   return (
     <div className="w-full bg-white">
-      <div className="w-full px-4 sm:px-8 py-3 border-b border-gray-100">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center space-x-4 sm:space-x-6">
-            <div 
-              className="flex items-center justify-center rounded-xl overflow-hidden flex-shrink-0" 
-              style={{ 
-                backgroundColor: '#CD1309',
-                width: '90px',
-                height: '40px',
-                padding: '6px'
-              }}
-            >
+      <div className="w-full px-8 py-3 border-b border-gray-100">
+        <div className="flex items-center">
+          <div className="flex items-center space-x-6 min-w-[300px]">
+            <div className="p-2 rounded-lg" style={{ 
+              backgroundColor: '#CD1309',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              borderRadius: '8px'
+            }}>
               <img 
                 src="/assets/Wells-Fargo-Embleme.svg" 
                 alt="Wells Fargo Logo" 
-                className="h-full w-auto"
+                className="h-8 w-auto"
                 style={{ 
-                  filter: 'brightness(0) saturate(100%) invert(93%) sepia(100%) saturate(1200%) hue-rotate(359deg) brightness(105%) contrast(95%)'
+                  filter: 'brightness(0) saturate(100%) invert(73%) sepia(88%) saturate(1128%) hue-rotate(359deg) brightness(105%) contrast(106%)',
+                  transform: 'scale(1.1)'
                 }}
               />
             </div>
-            <p className="text-xs text-gray-600 font-medium whitespace-nowrap">
+            <p className="text-xs text-gray-600 font-medium">
               January 2024 - February 2025
             </p>
           </div>
-          <div className="flex-1 flex justify-center min-w-0 px-4">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 truncate">
+          <div className="flex-1 flex justify-center">
+            <h1 className="text-2xl font-bold text-gray-800">
               Banking Advertising Investment Analysis
             </h1>
           </div>
-          <div className="hidden lg:block w-[90px]"></div>
+          <div className="min-w-[300px]"></div>
         </div>
       </div>
       <div 

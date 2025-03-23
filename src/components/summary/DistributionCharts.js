@@ -599,87 +599,36 @@ const DistributionCharts = () => {
               {/* Media Distribution */}
               <div className="border border-gray-100 rounded-lg p-4">
                 <h3 className="text-lg font-medium text-gray-700 mb-2">Investment by Media Category</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="h-72">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={distributions.mediaData}
-                          dataKey="investment"
-                          nameKey="name"
-                cx="50%"
-                cy="50%"
-                          innerRadius={60}
-                          outerRadius={90}
-                          paddingAngle={1}
-                          fill="#8884d8"
-                          label={false}
-                          labelLine={false}
-                        >
-                          {distributions.mediaData.map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={categoryColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
-                              stroke="white"
-                strokeWidth={2}
-                            />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Media Investment Insights</h4>
-                    <div className="space-y-3">
-                      <div className="bg-white p-3 rounded-lg border border-gray-100">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <div className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: categoryColors['Television']}}></div>
-                          <span>Television leads with {formatPercentage(distributions.mediaData.find(m => m.name === 'Television')?.share || 0)} share, indicating strong focus on mass reach</span>
-                        </div>
-                      </div>
-                      <div className="bg-white p-3 rounded-lg border border-gray-100">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <div className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: categoryColors['Digital']}}></div>
-                          <span>Digital represents {formatPercentage(distributions.mediaData.find(m => m.name === 'Digital')?.share || 0)} of total investment</span>
-                        </div>
-                      </div>
-                      <div className="bg-white p-3 rounded-lg border border-gray-100">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <div className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: categoryColors['Audio']}}></div>
-                          <span>Audio and Print combined: {formatPercentage((distributions.mediaData.find(m => m.name === 'Audio')?.share || 0) + (distributions.mediaData.find(m => m.name === 'Print')?.share || 0))}</span>
-                        </div>
-                      </div>
-                      <div className="bg-white p-3 rounded-lg border border-gray-100">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <div className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: categoryColors['Outdoor']}}></div>
-                          <span>Outdoor and Cinema: {formatPercentage((distributions.mediaData.find(m => m.name === 'Outdoor')?.share || 0) + (distributions.mediaData.find(m => m.name === 'Cinema')?.share || 0))}</span>
-                        </div>
-                      </div>
-                      <div className="bg-white p-3 rounded-lg border border-gray-100">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <span className="text-blue-600 mr-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                            </svg>
-                          </span>
-                          <span>Traditional media: {formatPercentage(100 - (distributions.mediaData.find(m => m.name === 'Digital')?.share || 0))} of mix</span>
-                        </div>
-                      </div>
-                      <div className="bg-white p-3 rounded-lg border border-gray-100">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <span className="text-purple-600 mr-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" />
-                            </svg>
-                          </span>
-                          <span>Emerging channels (Streaming): {formatPercentage(distributions.mediaData.find(m => m.name === 'Streaming')?.share || 0)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={distributions.mediaData}
+                        dataKey="investment"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={1}
+                        fill="#8884d8"
+                        label={false}
+                        labelLine={false}
+                      >
+                        {distributions.mediaData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={categoryColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
+                            stroke="white"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-
+                
                 {/* Media Category Table */}
                 <div className="mt-3">
                   <table className="w-full text-sm">
