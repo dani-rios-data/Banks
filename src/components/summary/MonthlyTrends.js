@@ -922,24 +922,6 @@ const MonthlyTrends = () => {
           </div>
         </div>
       </div>
-
-      {/* Metodología section - change to English */}
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-sm text-gray-600">
-        <h4 className="font-medium text-gray-700 mb-2">Calculation Methodology</h4>
-        <p>
-          Comparative growth percentages (such as &ldquo;PNC Bank is growing 842.6% faster than Wells Fargo&rdquo;) 
-          are calculated using the <code>findCompetitiveAdvantages</code> function that:
-        </p>
-        <ol className="list-decimal pl-5 mt-2 space-y-1">
-          <li>Calculates growth trend for each bank using simple linear regression</li>
-          <li>Compares Wells Fargo&apos;s growth slope with each competitor</li>
-          <li>Calculates the percentage difference between both slopes</li>
-          <li>Identifies banks growing faster (threats) or declining (opportunities)</li>
-        </ol>
-        <p className="mt-2">
-          This value indicates how much faster a competitor is growing compared to Wells Fargo during the analyzed period.
-        </p>
-      </div>
     </div>
   );
 };
