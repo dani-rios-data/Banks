@@ -606,8 +606,8 @@ const DistributionCharts = () => {
                         data={distributions.mediaData}
                         dataKey="investment"
                         nameKey="name"
-                        cx="50%"
-                        cy="50%"
+                cx="50%"
+                cy="50%"
                         innerRadius={60}
                         outerRadius={90}
                         paddingAngle={1}
@@ -620,14 +620,14 @@ const DistributionCharts = () => {
                             key={`cell-${index}`} 
                             fill={categoryColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
                             stroke="white"
-                            strokeWidth={2}
+                strokeWidth={2}
                           />
-                        ))}
-                      </Pie>
+                ))}
+              </Pie>
                       <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
                 
                 {/* Media Category Table */}
                 <div className="mt-3">
