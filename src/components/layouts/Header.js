@@ -14,18 +14,19 @@ const Header = () => {
               backgroundColor: '#CD1309',
               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
               borderRadius: '8px',
-              width: '120px',
-              height: '40px'
+              width: '140px',
+              height: '45px'
             }}>
               <img 
                 src="/assets/Wells-Fargo-Embleme.svg" 
                 alt="Wells Fargo Logo" 
-                className="h-8 w-auto object-contain"
+                className="h-10 w-auto object-contain"
                 style={{ 
                   filter: 'brightness(0) saturate(100%) invert(73%) sepia(88%) saturate(1128%) hue-rotate(359deg) brightness(105%) contrast(106%)',
-                  transform: 'scale(1.1)',
+                  transform: 'scale(1.2)',
                   maxWidth: '100%',
-                  maxHeight: '100%'
+                  maxHeight: '100%',
+                  display: 'block'
                 }}
               />
             </div>
