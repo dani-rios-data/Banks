@@ -1,5 +1,6 @@
 import React from 'react';
 import { bankColors, bankSecondaryColors } from '../../utils/colorSchemes';
+import Image from 'next/image';
 
 /**
  * Header component for the dashboard
@@ -10,25 +11,26 @@ const Header = () => {
       <div className="w-full px-8 py-3 border-b border-gray-100">
         <div className="flex items-center">
           <div className="flex items-center space-x-6 min-w-[300px]">
-            <div className="p-2 rounded-lg flex items-center justify-center" style={{ 
+            <div className="relative p-2 rounded-lg flex items-center justify-center" style={{ 
               backgroundColor: '#CD1309',
               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
               borderRadius: '8px',
               width: '140px',
-              height: '45px'
+              height: '45px',
+              overflow: 'hidden'
             }}>
-              <img 
-                src="/assets/Wells-Fargo-Embleme.svg" 
-                alt="Wells Fargo Logo" 
-                className="h-10 w-auto object-contain"
-                style={{ 
-                  filter: 'brightness(0) saturate(100%) invert(73%) sepia(88%) saturate(1128%) hue-rotate(359deg) brightness(105%) contrast(106%)',
-                  transform: 'scale(1.2)',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  display: 'block'
-                }}
-              />
+              <div className="relative w-full h-full">
+                <img 
+                  src="/assets/Wells-Fargo-Embleme.svg" 
+                  alt="Wells Fargo Logo"
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-auto"
+                  style={{ 
+                    filter: 'brightness(0) saturate(100%) invert(73%) sepia(88%) saturate(1128%) hue-rotate(359deg) brightness(105%) contrast(106%)',
+                    objectFit: 'contain',
+                    maxWidth: 'none'
+                  }}
+                />
+              </div>
             </div>
             <p className="text-xs text-gray-600 font-medium">
               January 2024 - February 2025
