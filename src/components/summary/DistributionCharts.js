@@ -1,9 +1,19 @@
 import React, { useMemo, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
-import { chartColors } from '../../utils/bankColors';
+import { mediaCategoryColors } from '../../utils/colorSchemes';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import _ from 'lodash';
+
+// Bank colors definition
+const bankColors = {
+  'Capital One': '#004977',
+  'Chase Bank': '#117ACA',
+  'Bank Of America': '#012169',
+  'Wells Fargo Bank': '#D71E2B',
+  'Pnc Bank': '#F58025',
+  'Td Bank': '#2D8B2A'
+};
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -48,16 +58,6 @@ const CustomLegend = ({ data, colors }) => {
 const DistributionCharts = () => {
   const { dashboardData, loading, selectedMonths, focusedBank } = useDashboard();
   const [activeTab, setActiveTab] = React.useState('overview');
-
-  // Media category colors
-  const categoryColors = useMemo(() => ({
-    'Digital': '#4F46E5',    // Indigo
-    'Television': '#2563EB', // Azul
-    'Audio': '#0EA5E9',      // Sky blue
-    'Print': '#8B5CF6',      // Violeta
-    'Outdoor': '#A855F7',    // Morado
-    'Other': '#D946EF'       // Fucsia
-  }), []);
 
   // Calculate distributions based on selected months
   const distributions = useMemo(() => {
@@ -135,7 +135,7 @@ const DistributionCharts = () => {
       name: media.category,
       investment: (media.percentage / 100) * wellsFargoTotal,
       share: media.percentage,
-      color: categoryColors[media.category] || '#9CA3AF'
+      color: mediaCategoryColors[media.category] || '#9CA3AF'
     })) || [];
 
     // Create media comparison data between Wells Fargo and industry average
@@ -196,7 +196,7 @@ const DistributionCharts = () => {
       mediaComparison: _.orderBy(mediaComparison, ['industry'], ['desc']),
       overallTotals
     };
-  }, [dashboardData, selectedMonths, categoryColors]);
+  }, [dashboardData, selectedMonths]);
 
   // Establecer la pestaña activa cuando cambia el focusedBank
   useEffect(() => {
@@ -247,7 +247,7 @@ const DistributionCharts = () => {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${chartColors[activeTab]}` }}>
+        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${bankColors[activeTab]}` }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="bg-blue-100 rounded-full p-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,7 +262,7 @@ const DistributionCharts = () => {
             <div className="flex flex-col md:flex-row justify-between mb-6">
               <div className="mb-4 md:mb-0">
                 <div className="text-sm text-gray-500 mb-1">Total Investment</div>
-                <div className="text-3xl font-bold" style={{ color: chartColors[activeTab] }}>
+                <div className="text-3xl font-bold" style={{ color: bankColors[activeTab] }}>
                   {formatCurrency(bankData.investment)}
                 </div>
                 <div className="mt-2 text-sm">
@@ -278,7 +278,7 @@ const DistributionCharts = () => {
               
               <div>
                 <div className="text-sm text-gray-500 mb-1">Market Share</div>
-                <div className="text-3xl font-bold" style={{ color: chartColors[activeTab] }}>
+                <div className="text-3xl font-bold" style={{ color: bankColors[activeTab] }}>
                   {formatPercentage(bankData.share)}
                 </div>
                 <div className="mt-2 text-sm text-gray-500">
@@ -297,7 +297,7 @@ const DistributionCharts = () => {
                       key={index}
                       className="absolute top-0 h-full flex items-center justify-center text-xs text-white font-medium"
                       style={{
-                        backgroundColor: chartColors[bank.name],
+                        backgroundColor: bankColors[bank.name],
                         left: `${startPos}%`,
                         width: `${bank.share}%`,
                         opacity: bank.name === activeTab ? 1 : (bank.name === 'Wells Fargo Bank' ? 0.9 : 0.7),
@@ -342,12 +342,12 @@ const DistributionCharts = () => {
                         backgroundColor: 'white',
                         borderRadius: '0.5rem',
                         padding: '0.75rem',
-                        border: `1px solid ${chartColors[activeTab]}`
+                        border: `1px solid ${bankColors[activeTab]}`
                       }}
                     />
                     <Bar 
                       dataKey="investment" 
-                      fill={chartColors[activeTab]} 
+                      fill={bankColors[activeTab]} 
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
@@ -357,8 +357,8 @@ const DistributionCharts = () => {
           </div>
         </div>
         
-        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${chartColors[activeTab]}` }}>
-          <h3 className="text-lg font-medium mb-4" style={{ color: chartColors[activeTab] }}>{activeTab} - Media Mix</h3>
+        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${bankColors[activeTab]}` }}>
+          <h3 className="text-lg font-medium mb-4" style={{ color: bankColors[activeTab] }}>{activeTab} - Media Mix</h3>
           
           <div className="bg-gray-50 rounded-lg p-5">
             <div className="h-56 mb-6">
@@ -379,7 +379,7 @@ const DistributionCharts = () => {
                     {bankMediaMix.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
-                        fill={categoryColors[entry.category]} 
+                        fill={mediaCategoryColors[entry.category]} 
                         stroke="white"
                         strokeWidth={1}
                       />
@@ -391,7 +391,7 @@ const DistributionCharts = () => {
                       backgroundColor: 'white',
                       borderRadius: '0.5rem',
                       padding: '0.75rem',
-                      border: `1px solid ${chartColors[activeTab]}`
+                      border: `1px solid ${bankColors[activeTab]}`
                     }}
               />
             </PieChart>
@@ -420,7 +420,7 @@ const DistributionCharts = () => {
                             <div className="flex items-center">
                               <div 
                                 className="w-3 h-3 rounded-full mr-2" 
-                                style={{backgroundColor: categoryColors[media.category]}}
+                                style={{backgroundColor: mediaCategoryColors[media.category]}}
                               />
                               <span>{media.category}</span>
                             </div>
@@ -445,12 +445,12 @@ const DistributionCharts = () => {
             </div>
             
             <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
-              <h4 className="text-sm font-medium mb-2" style={{ color: chartColors[activeTab] }}>
+              <h4 className="text-sm font-medium mb-2" style={{ color: bankColors[activeTab] }}>
                 Strategic Insights
               </h4>
               <div className="text-sm text-gray-600 space-y-2">
                 <p className="flex items-start">
-                  <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: chartColors[activeTab] }}>
+                  <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: bankColors[activeTab] }}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
@@ -466,7 +466,7 @@ const DistributionCharts = () => {
                     return Math.abs(m.percentage - industryAvg) > 10;
                   }) && (
                     <p className="flex items-start">
-                      <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: chartColors[activeTab] }}>
+                      <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: bankColors[activeTab] }}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
@@ -552,7 +552,7 @@ const DistributionCharts = () => {
                         {distributions.bankData.map((entry, index) => (
                           <Cell 
                             key={`cell-${index}`} 
-                            fill={chartColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
+                            fill={bankColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
                             stroke="white"
                             strokeWidth={2}
                           />
@@ -580,7 +580,7 @@ const DistributionCharts = () => {
                             <div className="flex items-center">
                               <div 
                                 className="w-2 h-2 rounded-full mr-2" 
-                                style={{backgroundColor: chartColors[bank.name]}}
+                                style={{backgroundColor: bankColors[bank.name]}}
                               ></div>
                               <span className={bank.name === 'Wells Fargo Bank' ? 'font-medium' : ''}>
                                 {bank.name}
@@ -618,7 +618,7 @@ const DistributionCharts = () => {
                         {distributions.mediaData.map((entry, index) => (
                           <Cell 
                             key={`cell-${index}`} 
-                            fill={categoryColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
+                            fill={mediaCategoryColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
                             stroke="white"
                 strokeWidth={2}
                           />
@@ -646,7 +646,7 @@ const DistributionCharts = () => {
                             <div className="flex items-center">
                               <div 
                                 className="w-2 h-2 rounded-full mr-2" 
-                                style={{backgroundColor: categoryColors[media.name]}}
+                                style={{backgroundColor: mediaCategoryColors[media.name]}}
                               ></div>
                               <span>{media.name}</span>
                             </div>
@@ -683,7 +683,7 @@ const DistributionCharts = () => {
                       <div>
                         {distributions.bankData.length > 0 && distributions.bankData[0].name === 'Wells Fargo Bank'
                           ? <span>Wells Fargo leads with a <span className="font-bold text-blue-700">{formatPercentage(distributions.bankData[0].share)}</span> market share, capturing the majority of banking media investments.</span>
-                          : <span><span className="font-bold" style={{color: distributions.bankData.length > 0 ? chartColors[distributions.bankData[0].name] : null}}>{distributions.bankData.length > 0 ? distributions.bankData[0].name : ''}</span> leads with {formatPercentage(distributions.bankData.length > 0 ? distributions.bankData[0].share : 0)} market share, surpassing Wells Fargo by <span className="font-semibold text-red-600">{formatPercentage(distributions.bankData.length > 0 ? (distributions.bankData[0].share - (distributions.bankData.find(b => b.name === 'Wells Fargo Bank')?.share || 0)) : 0)}</span>.</span>
+                          : <span><span className="font-bold" style={{color: distributions.bankData.length > 0 ? bankColors[distributions.bankData[0].name] : null}}>{distributions.bankData.length > 0 ? distributions.bankData[0].name : ''}</span> leads with {formatPercentage(distributions.bankData.length > 0 ? distributions.bankData[0].share : 0)} market share, surpassing Wells Fargo by <span className="font-semibold text-red-600">{formatPercentage(distributions.bankData.length > 0 ? (distributions.bankData[0].share - (distributions.bankData.find(b => b.name === 'Wells Fargo Bank')?.share || 0)) : 0)}</span>.</span>
                         }
                       </div>
                     </li>
@@ -706,7 +706,7 @@ const DistributionCharts = () => {
                       </div>
                       <div>
                         {distributions.bankData.find(b => b.name === "Wells Fargo Bank")
-                          ? <span>The investment intensity of Wells Fargo (<span style={{color: chartColors['Wells Fargo Bank']}}>{formatPercentage(distributions.bankData.find(b => b.name === "Wells Fargo Bank").share)}</span>) is <span className="font-bold px-2 py-0.5 rounded" style={{
+                          ? <span>The investment intensity of Wells Fargo (<span style={{color: bankColors['Wells Fargo Bank']}}>{formatPercentage(distributions.bankData.find(b => b.name === "Wells Fargo Bank").share)}</span>) is <span className="font-bold px-2 py-0.5 rounded" style={{
                               color: 'white',
                               backgroundColor: distributions.bankData.find(b => b.name === "Wells Fargo Bank").share > 20 
                                 ? '#047857' 
@@ -796,7 +796,7 @@ const DistributionCharts = () => {
             {/* Wells Fargo Media Mix vs Industry y Media Strategy Insights en grid */}
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Wells Fargo Media Mix vs Industry Average */}
-              <div className="border border-gray-100 rounded-lg p-4 bg-gradient-to-br from-white to-indigo-50" style={{ borderLeft: `4px solid ${chartColors['Wells Fargo Bank']}` }}>
+              <div className="border border-gray-100 rounded-lg p-4 bg-gradient-to-br from-white to-indigo-50" style={{ borderLeft: `4px solid #D71E2B` }}>
                 <h3 className="text-lg font-medium text-indigo-800 mb-4 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
@@ -812,8 +812,8 @@ const DistributionCharts = () => {
                     >
                       <defs>
                         <linearGradient id="wellsFargoGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor={chartColors['Wells Fargo Bank']} />
-                          <stop offset="100%" stopColor={`${chartColors['Wells Fargo Bank']}99`} />
+                          <stop offset="0%" stopColor="#D71E2B" />
+                          <stop offset="100%" stopColor="#D71E2B99" />
                         </linearGradient>
                         <linearGradient id="industryGradient" x1="0" y1="0" x2="1" y2="0">
                           <stop offset="0%" stopColor="#93C5FD" />
@@ -848,7 +848,7 @@ const DistributionCharts = () => {
                           borderRadius: '0.5rem', 
                           padding: '0.75rem', 
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', 
-                          border: `1px solid ${chartColors['Wells Fargo Bank']}` 
+                          border: `1px solid ${bankColors['Wells Fargo Bank']}` 
                         }}
                       />
                       <Bar 

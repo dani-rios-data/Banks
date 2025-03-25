@@ -42,6 +42,37 @@
       ]
     },
     {
+      "name": "Chase Bank",
+      "totalInvestment": 410786000,
+      "mediaBreakdown": [
+        {
+          "category": "Digital",
+          "amount": 241834326,
+          "percentage": 58.87112170327129
+        },
+        {
+          "category": "Television",
+          "amount": 131743559,
+          "percentage": 32.07109273441646
+        },
+        {
+          "category": "Audio",
+          "amount": 35445205,
+          "percentage": 8.628630235694498
+        },
+        {
+          "category": "Outdoor",
+          "amount": 1757440,
+          "percentage": 0.42782373303861376
+        },
+        {
+          "category": "Cinema",
+          "amount": 5470,
+          "percentage": 0.0013315935791385295
+        }
+      ]
+    },
+    {
       "name": "Bank Of America",
       "totalInvestment": 286254322,
       "mediaBreakdown": [
@@ -169,466 +200,541 @@
   "monthlyTrends": [
     {
       "month": "2024-01",
-      "total": 92929356,
+      "total": 116499582,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 46026220,
-          "percentage": 49.528181385438636
+          "percentage": 39.50762673122724
         },
         {
           "bank": "Bank Of America",
           "investment": 23641081,
-          "percentage": 25.439841636264006
+          "percentage": 20.29284620094173
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 23570226,
+          "percentage": 20.232026240231487
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 21620764,
-          "percentage": 23.265806340033176
+          "percentage": 18.55866229631622
         },
         {
           "bank": "Td Bank",
           "investment": 1468396,
-          "percentage": 1.5801207101876398
+          "percentage": 1.2604302734751442
         },
         {
           "bank": "Pnc Bank",
           "investment": 172895,
-          "percentage": 0.18604992807654883
+          "percentage": 0.14840825780816966
         }
       ]
     },
     {
       "month": "2024-02",
-      "total": 60126167,
+      "total": 83845312,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 33375275,
-          "percentage": 55.50873548949162
+          "percentage": 39.80577351778475
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 23719145,
+          "percentage": 28.289172565784
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 13880242,
-          "percentage": 23.085193506514393
+          "percentage": 16.554583278311373
         },
         {
           "bank": "Bank Of America",
           "investment": 11225770,
-          "percentage": 18.67035695124221
+          "percentage": 13.388667454657451
         },
         {
           "bank": "Td Bank",
           "investment": 1455445,
-          "percentage": 2.420651560908581
+          "percentage": 1.7358692636268085
         },
         {
           "bank": "Pnc Bank",
           "investment": 189435,
-          "percentage": 0.3150624918431937
+          "percentage": 0.22593391983561348
         }
       ]
     },
     {
       "month": "2024-03",
-      "total": 157420172,
+      "total": 189100396,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 99418287,
-          "percentage": 63.15473152957806
+          "percentage": 52.57434098657308
         },
         {
           "bank": "Bank Of America",
           "investment": 39229505,
-          "percentage": 24.920252913965815
+          "percentage": 20.745332019294132
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 31680224,
+          "percentage": 16.7531240918184
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 9702187,
-          "percentage": 6.16324253539756
+          "percentage": 5.130706865362672
         },
         {
           "bank": "Pnc Bank",
           "investment": 6918772,
-          "percentage": 4.395098742491528
+          "percentage": 3.658782396203972
         },
         {
           "bank": "Td Bank",
           "investment": 2151421,
-          "percentage": 1.366674278567044
+          "percentage": 1.1377136407477433
         }
       ]
     },
     {
       "month": "2024-04",
-      "total": 100691774,
+      "total": 122229901,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 49740991,
-          "percentage": 49.399259764754966
+          "percentage": 40.69461775969204
         },
         {
           "bank": "Bank Of America",
           "investment": 28712652,
-          "percentage": 28.51538994635252
+          "percentage": 23.49069398329955
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 21538127,
+          "percentage": 17.62099684593543
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 11857806,
-          "percentage": 11.776340339380653
+          "percentage": 9.701231779611765
         },
         {
           "bank": "Pnc Bank",
           "investment": 8505679,
-          "percentage": 8.447243168046677
+          "percentage": 6.958754715836675
         },
         {
           "bank": "Td Bank",
           "investment": 1874646,
-          "percentage": 1.861766781465187
+          "percentage": 1.5337049156245328
         }
       ]
     },
     {
       "month": "2024-05",
-      "total": 84507270,
+      "total": 109821351,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 39247645,
-          "percentage": 46.4429214196601
+          "percentage": 35.73771825116229
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 25314081,
+          "percentage": 23.050236378898674
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 18153788,
-          "percentage": 21.481924572879944
+          "percentage": 16.530290180094397
         },
         {
           "bank": "Bank Of America",
           "investment": 17778920,
-          "percentage": 21.038331968362012
+          "percentage": 16.188946719477162
         },
         {
           "bank": "Pnc Bank",
           "investment": 7281356,
-          "percentage": 8.616248045878184
+          "percentage": 6.6301825043110245
         },
         {
           "bank": "Td Bank",
           "investment": 2045561,
-          "percentage": 2.420573993219755
+          "percentage": 1.8626259660564546
         }
       ]
     },
     {
       "month": "2024-06",
-      "total": 77725670,
+      "total": 108454620,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 39421672,
-          "percentage": 50.71898640436293
+          "percentage": 36.34854098423838
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 30728950,
+          "percentage": 28.333463341626203
         },
         {
           "bank": "Bank Of America",
           "investment": 19412686,
-          "percentage": 24.97590049722312
+          "percentage": 17.89936288560137
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 11567721,
-          "percentage": 14.88275495084185
+          "percentage": 10.665955032621017
         },
         {
           "bank": "Pnc Bank",
           "investment": 4473125,
-          "percentage": 5.7550163285823075
+          "percentage": 4.124420886818838
         },
         {
           "bank": "Td Bank",
           "investment": 2850466,
-          "percentage": 3.667341818989788
+          "percentage": 2.628256869094189
         }
       ]
     },
     {
       "month": "2024-07",
-      "total": 81173808,
+      "total": 101470681,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 37799580,
-          "percentage": 46.56622737225781
+          "percentage": 37.25172594436417
         },
         {
           "bank": "Bank Of America",
           "investment": 23659950,
-          "percentage": 29.147271247888234
+          "percentage": 23.317030857415848
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 20296873,
+          "percentage": 20.002697133766155
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 16205602,
-          "percentage": 19.96407757536766
+          "percentage": 15.970723602416742
         },
         {
           "bank": "Td Bank",
           "investment": 2008788,
-          "percentage": 2.4746750823861805
+          "percentage": 1.9796733206116948
         },
         {
           "bank": "Pnc Bank",
           "investment": 1499888,
-          "percentage": 1.8477487221001139
+          "percentage": 1.4781491414253936
         }
       ]
     },
     {
       "month": "2024-08",
-      "total": 100942116,
+      "total": 145904850,
       "bankShares": [
+        {
+          "bank": "Chase Bank",
+          "investment": 44962734,
+          "percentage": 30.81647662843284
+        },
         {
           "bank": "Capital One",
           "investment": 35332409,
-          "percentage": 35.00264349520868
+          "percentage": 24.216062043174027
         },
         {
           "bank": "Bank Of America",
           "investment": 33222782,
-          "percentage": 32.9127061295208
+          "percentage": 22.770169737332242
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 21015905,
-          "percentage": 20.819758721919403
+          "percentage": 14.403842641283001
         },
         {
           "bank": "Td Bank",
           "investment": 8441808,
-          "percentage": 8.363018663092024
+          "percentage": 5.785830971348793
         },
         {
           "bank": "Pnc Bank",
           "investment": 2929212,
-          "percentage": 2.9018729902590907
+          "percentage": 2.0076179784290926
         }
       ]
     },
     {
       "month": "2024-09",
-      "total": 114927324,
+      "total": 174042135,
       "bankShares": [
+        {
+          "bank": "Chase Bank",
+          "investment": 59114811,
+          "percentage": 33.96580431514472
+        },
         {
           "bank": "Capital One",
           "investment": 58575076,
-          "percentage": 50.96705810360641
+          "percentage": 33.65568688294935
         },
         {
           "bank": "Bank Of America",
           "investment": 30936259,
-          "percentage": 26.918106089375232
+          "percentage": 17.775154849714983
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 11523614,
-          "percentage": 10.026870546468132
+          "percentage": 6.6211633177218845
         },
         {
           "bank": "Pnc Bank",
           "investment": 7425423,
-          "percentage": 6.460972675218645
+          "percentage": 4.266451339498909
         },
         {
           "bank": "Td Bank",
           "investment": 6466952,
-          "percentage": 5.626992585331578
+          "percentage": 3.7157392949701515
         }
       ]
     },
     {
       "month": "2024-10",
-      "total": 92117253,
+      "total": 125830118,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 57419180,
-          "percentage": 62.3327098127861
+          "percentage": 45.63230243493851
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 33712865,
+          "percentage": 26.79236540173951
         },
         {
           "bank": "Pnc Bank",
           "investment": 13619265,
-          "percentage": 14.784705965993144
+          "percentage": 10.823533520011482
         },
         {
           "bank": "Bank Of America",
           "investment": 10022060,
-          "percentage": 10.879677447611252
+          "percentage": 7.964754511316599
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 9664082,
-          "percentage": 10.491066206674661
+          "percentage": 7.680261414043973
         },
         {
           "bank": "Td Bank",
           "investment": 1392666,
-          "percentage": 1.5118405669348391
+          "percentage": 1.1067827179499268
         }
       ]
     },
     {
       "month": "2024-11",
-      "total": 89753272,
+      "total": 121300265,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 66425191,
-          "percentage": 74.00865675404013
+          "percentage": 54.76096115700984
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 31546993,
+          "percentage": 26.007357032567075
         },
         {
           "bank": "Pnc Bank",
           "investment": 9696597,
-          "percentage": 10.803613933985606
+          "percentage": 7.993879485753803
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 7385950,
-          "percentage": 8.229170742655487
+          "percentage": 6.088980926793523
         },
         {
           "bank": "Bank Of America",
           "investment": 4707092,
-          "percentage": 5.24447955501834
+          "percentage": 3.8805290326447346
         },
         {
           "bank": "Td Bank",
           "investment": 1538442,
-          "percentage": 1.7140790143004478
+          "percentage": 1.268292365231024
         }
       ]
     },
     {
       "month": "2024-12",
-      "total": 163011816,
+      "total": 194454339,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 134416688,
-          "percentage": 82.45824830268745
+          "percentage": 69.12506488219839
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 31442523,
+          "percentage": 16.169617588219516
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 14801941,
-          "percentage": 9.08028716151472
+          "percentage": 7.612039451585598
         },
         {
           "bank": "Bank Of America",
           "investment": 6524596,
-          "percentage": 4.002529485347246
+          "percentage": 3.3553357737108658
         },
         {
           "bank": "Pnc Bank",
           "investment": 5094372,
-          "percentage": 3.125155050109987
+          "percentage": 2.6198294294682722
         },
         {
           "bank": "Td Bank",
           "investment": 2174219,
-          "percentage": 1.3337800003405889
+          "percentage": 1.1181128748173625
         }
       ]
     },
     {
       "month": "2025-01",
-      "total": 112900275,
+      "total": 121839094,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 85397620,
-          "percentage": 75.63986890200223
+          "percentage": 70.09049164466046
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 17830970,
-          "percentage": 15.79355763305271
+          "percentage": 14.634851109447677
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 8938819,
+          "percentage": 7.336577043161532
         },
         {
           "bank": "Pnc Bank",
           "investment": 4670389,
-          "percentage": 4.136738373755068
+          "percentage": 3.8332433758905
         },
         {
           "bank": "Bank Of America",
           "investment": 2607802,
-          "percentage": 2.3098278547151456
+          "percentage": 2.1403655545895637
         },
         {
           "bank": "Td Bank",
           "investment": 2393494,
-          "percentage": 2.120007236474845
+          "percentage": 1.9644712722502682
         }
       ]
     },
     {
       "month": "2025-02",
-      "total": 93178026,
+      "total": 113900109,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 48399000,
-          "percentage": 51.94250412645574
+          "percentage": 42.4924966489716
         },
         {
           "bank": "Bank Of America",
           "investment": 29122867,
-          "percentage": 31.25508046285505
+          "percentage": 25.568778867454817
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 20722083,
+          "percentage": 18.193207348028086
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 10252842,
-          "percentage": 11.003497756005261
+          "percentage": 9.001608593719608
         },
         {
           "bank": "Pnc Bank",
           "investment": 3558964,
-          "percentage": 3.8195314418873827
+          "percentage": 3.124636166941684
         },
         {
           "bank": "Td Bank",
           "investment": 1844353,
-          "percentage": 1.9793862127965665
+          "percentage": 1.6192723748842068
         }
       ]
     },
     {
       "month": "2025-03",
-      "total": 13141007,
+      "total": 16638553,
       "bankShares": [
         {
           "bank": "Capital One",
           "investment": 6607770,
-          "percentage": 50.283589377891666
+          "percentage": 39.71360971113293
         },
         {
           "bank": "Bank Of America",
           "investment": 5450300,
-          "percentage": 41.47551249306846
+          "percentage": 32.75705525594684
+        },
+        {
+          "bank": "Chase Bank",
+          "investment": 3497546,
+          "percentage": 21.020734194854565
         },
         {
           "bank": "Wells Fargo Bank",
           "investment": 812709,
-          "percentage": 6.184526041269136
+          "percentage": 4.8844932609223894
         },
         {
           "bank": "Td Bank",
           "investment": 216066,
-          "percentage": 1.6442118933503347
+          "percentage": 1.2985864816489752
         },
         {
           "bank": "Pnc Bank",
           "investment": 54162,
-          "percentage": 0.41216019442041235
+          "percentage": 0.3255210954943017
         }
       ]
     }
@@ -636,94 +742,109 @@
   "mediaCategories": [
     {
       "name": "Television",
-      "total": 765166402,
+      "total": 896909961,
       "bankShares": [
         {
           "bank": "Capital One",
           "amount": 425027359,
-          "percentage": 55.54704935933661
+          "percentage": 47.38796283699652
         },
         {
           "bank": "Wells Fargo Bank",
           "amount": 132538410,
-          "percentage": 17.32151459520043
+          "percentage": 14.777225782198666
+        },
+        {
+          "bank": "Chase Bank",
+          "amount": 131743559,
+          "percentage": 14.688604734985212
         },
         {
           "bank": "Bank Of America",
           "amount": 123813974,
-          "percentage": 16.181313460232143
+          "percentage": 13.804504285129687
         },
         {
           "bank": "Pnc Bank",
           "amount": 67376577,
-          "percentage": 8.805480327402039
+          "percentage": 7.512078127093072
         },
         {
           "bank": "Td Bank",
           "amount": 16410082,
-          "percentage": 2.144642257828775
+          "percentage": 1.8296242335968438
         }
       ]
     },
     {
       "name": "Digital",
-      "total": 541577493,
+      "total": 783411819,
       "bankShares": [
         {
           "bank": "Capital One",
           "amount": 350952125,
-          "percentage": 64.8018297540293
+          "percentage": 44.79791043336302
+        },
+        {
+          "bank": "Chase Bank",
+          "amount": 241834326,
+          "percentage": 30.86937420840724
         },
         {
           "bank": "Bank Of America",
           "amount": 115345939,
-          "percentage": 21.298141169245376
+          "percentage": 14.723538272276182
         },
         {
           "bank": "Wells Fargo Bank",
           "amount": 49642595,
-          "percentage": 9.166295800996295
+          "percentage": 6.336717649137229
         },
         {
           "bank": "Td Bank",
           "amount": 20435762,
-          "percentage": 3.7733772662520892
+          "percentage": 2.6085593176377646
         },
         {
           "bank": "Pnc Bank",
           "amount": 5201072,
-          "percentage": 0.9603560094769301
+          "percentage": 0.6639001191785696
         }
       ]
     },
     {
       "name": "Audio",
-      "total": 81296819,
+      "total": 116742024,
       "bankShares": [
         {
           "bank": "Capital One",
           "amount": 35619272,
-          "percentage": 43.8138569726818
+          "percentage": 30.511096843755254
+        },
+        {
+          "bank": "Chase Bank",
+          "amount": 35445205,
+          "percentage": 30.36199286728145
         },
         {
           "bank": "Bank Of America",
           "amount": 32453957,
-          "percentage": 39.920328248021605
+          "percentage": 27.799721032761948
         },
         {
           "bank": "Wells Fargo Bank",
           "amount": 11852786,
-          "percentage": 14.579643023917086
+          "percentage": 10.152972848920284
         },
         {
           "bank": "Pnc Bank",
           "amount": 1329309,
-          "percentage": 1.6351303979064666
+          "percentage": 1.1386722231233544
         },
         {
           "bank": "Td Bank",
           "amount": 41495,
-          "percentage": 0.051041357473039624
+          "percentage": 0.03554418415771171
         }
       ]
     },
@@ -760,32 +881,37 @@
     },
     {
       "name": "Outdoor",
-      "total": 12113525,
+      "total": 13870965,
       "bankShares": [
         {
           "bank": "Capital One",
           "amount": 6046668,
-          "percentage": 49.91666752658702
+          "percentage": 43.5922662914945
+        },
+        {
+          "bank": "Chase Bank",
+          "amount": 1757440,
+          "percentage": 12.669918783588596
         },
         {
           "bank": "Wells Fargo Bank",
           "amount": 1595520,
-          "percentage": 13.17139313288246
+          "percentage": 11.502588320279086
         },
         {
           "bank": "Pnc Bank",
           "amount": 1555611,
-          "percentage": 12.84193494461769
+          "percentage": 11.214872216893346
         },
         {
           "bank": "Bank Of America",
           "amount": 1494341,
-          "percentage": 12.336136673676737
+          "percentage": 10.773158176089407
         },
         {
           "bank": "Td Bank",
           "amount": 1421385,
-          "percentage": 11.733867722236095
+          "percentage": 10.247196211655066
         }
       ]
     },
@@ -802,15 +928,20 @@
     },
     {
       "name": "Cinema",
-      "total": 1689912,
+      "total": 1695382,
       "bankShares": [
         {
           "bank": "Capital One",
           "amount": 1689912,
-          "percentage": 100
+          "percentage": 99.67735884892018
+        },
+        {
+          "bank": "Chase Bank",
+          "amount": 5470,
+          "percentage": 0.32264115107981567
         }
       ]
     }
   ],
-  "totalInvestment": 1434545306
+  "totalInvestment": 1845331306
 }

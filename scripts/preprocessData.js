@@ -23,6 +23,13 @@ const bankData = {};
 const monthlyData = {};
 const mediaData = {};
 
+const inputFiles = {
+  'Wells Fargo': '../public/data/wells-fargo-bank-benchmark.csv',
+  'Bank of America': '../public/data/bank-of-america-benchmark.csv',
+  'Capital One': '../public/data/capital-one-benchmark.csv',
+  'Chase': '../public/data/chase-bank-benchmark-v3.csv'
+};
+
 // Function to normalize month (January 2024 -> 2024-01)
 function normalizeMonth(monthStr) {
   try {
