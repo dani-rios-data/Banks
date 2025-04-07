@@ -52,18 +52,17 @@ const KeyMetrics = () => {
       ? dashboardData.monthlyTrends.filter(month => selectedMonths.includes(month.month))
       : dashboardData.monthlyTrends;
 
-    // Calculate total investment and bank totals
-    let totalInvestment = 0;
-    const bankInvestments = new Map();
+    // Calculate total investment based on selected months
+    const totalInvestment = relevantMonths.reduce((sum, month) => sum + month.total, 0);
 
-    // Initialize bank investments
+    // Calculate bank totals
+    const bankInvestments = new Map();
     dashboardData.banks.forEach(bank => {
       bankInvestments.set(bank.name, 0);
     });
 
     // Calculate totals from monthly data
     relevantMonths.forEach(month => {
-      totalInvestment += month.total;
       month.bankShares.forEach(share => {
         const currentTotal = bankInvestments.get(share.bank) || 0;
         bankInvestments.set(share.bank, currentTotal + share.investment);
@@ -233,11 +232,8 @@ const KeyMetrics = () => {
               <div className="text-sm text-gray-800">
                 <span className={metrics.yearOverYearGrowth >= 0 ? 'text-green-500' : 'text-red-500'}>
                   {metrics.yearOverYearGrowth >= 0 ? '↑ ' : '↓ '}
-                  {Math.abs(metrics.yearOverYearGrowth).toFixed(1)}% growth
+                  {Math.abs(metrics.yearOverYearGrowth).toFixed(2)}% YoY Growth
                 </span>
-              </div>
-              <div className="text-sm text-gray-800 font-semibold mt-1">
-                {formatCurrency(metrics.averageMonthlyInvestment)} monthly avg
               </div>
             </div>
           </div>

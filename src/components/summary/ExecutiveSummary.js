@@ -35,51 +35,16 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
       {/* Header Banner - First Part */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-blue-600 mb-2">Banking Advertisement Intelligence Dashboard</h1>
-        <p className="text-gray-600">Comprehensive analysis of advertising investments across major financial institutions from January 2024 to February 2025</p>
       </div>
 
       {/* Market Overview - Second Part */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-800">Today&apos;s Market Overview</h2>
         <p className="text-gray-600 mt-2">
-          This executive summary provides a comprehensive analysis of banking sector media investments, focusing on key metrics, market share distribution, and investment trends across various channels. Wells Fargo&apos;s positioning is highlighted against major competitors in the financial services industry.
+          This executive summary provides a comprehensive analysis of banking sector media investments across six major banks from January 2024 to March 2025. The dashboard displays key metrics, market share distribution, investment trends, and media allocation strategies for Capital One, Chase Bank, Bank of America, Wells Fargo, PNC Bank, and TD Bank. Please note that data for March 2025 is not complete.
         </p>
       </div>
       
-      {/* Key Metrics - Third Part */}
-      <div className="mb-8">
-        <div className="flex items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Bank&apos;s Performance Metrics</h2>
-          <div className="ml-4 px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full">
-            {selectedMonths === 'All Period' ? 'Full Year Analysis' : selectedMonths}
-          </div>
-        </div>
-        <KeyMetrics />
-      </div>
-
-      {/* Market Share Analysis */}
-      <div className="mb-8">
-        <div className="flex items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Market Share Analysis</h2>
-          <div className="ml-4 px-3 py-1 bg-purple-50 text-purple-600 text-sm rounded-full">
-            Competitive Position
-          </div>
-        </div>
-        <DistributionCharts />
-      </div>
-
-      {/* Section 6: Monthly Trends */}
-      <div className="mb-8">
-        <div className="flex items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Monthly Trends</h2>
-          <div className="ml-4 px-3 py-1 bg-amber-50 text-amber-600 text-sm rounded-full">
-            Temporal Analysis
-          </div>
-        </div>
-        <MonthlyTrends />
-      </div>
-
-      {/* Market Insights */}
+      {/* Market Insights - MOVED UP */}
       <div className="mb-8">
         <div className="flex items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Market Insights</h2>
@@ -92,20 +57,20 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
               <h4 className="text-md font-semibold text-blue-700 mb-3">Banking Advertising Landscape</h4>
               <p className="text-blue-700 mb-4">
-                The banking industry spent a total of <span className="font-bold">$1.43 billion</span> on advertising across all media channels during the analyzed period. This represents a <span className="font-bold">13.5% increase</span> compared to the previous year, highlighting the intensifying competition in the financial services market.
+                The banking industry spent a total of <span className="font-bold">$1.84 billion</span> on advertising across all media channels during the analyzed period (January 2024 - March 2025).
               </p>
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Five major banks account for over 85% of total advertising spend</span>
+                  <span>Six major banks account for the total advertising spend, with Capital One leading at 45.39%</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Investment is distributed across 7 major media categories</span>
+                  <span>Investment is distributed across 7 media categories, with Television (51.48%) and Digital (39.76%) dominant</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,26 +84,26 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
               <h4 className="text-md font-semibold text-blue-700 mb-3">Key Market Trends</h4>
               <p className="text-blue-700 mb-4">
-                The analysis reveals a significant shift toward digital channels, with traditional media still maintaining strategic importance. Wells Fargo&apos;s position shows strong performance in specific channels with opportunities in others.
+                The analysis reveals significant variations in spending across different months, with three notable investment peaks in December 2024, March 2024, and September 2024.
               </p>
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Digital and Television combine for over 70% of total spending</span>
+                  <span>Digital and Television combine for 91.24% of total spending across all banks</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Month-to-month volatility indicates campaign-based approach across all banks</span>
+                  <span>Significant monthly volatility, with December 2024 showing the highest investment ($194.45M)</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Clear correlation between advertising investment and market share growth</span>
+                  <span>Q4 2024 had the highest quarterly investment at $441.6M (23.93% of total)</span>
                 </li>
               </ul>
             </div>
@@ -146,7 +111,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
         </div>
       </div>
 
-      {/* Growth Opportunities */}
+      {/* Growth Opportunities - MOVED UP */}
       <div className="mb-8">
         <div className="flex items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Growth Opportunities</h2>
@@ -250,115 +215,81 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Television remains the dominant channel with highest ROI for brand awareness, especially for Capital One with 50.7% share of their total investment</span>
+                  <span>Television remains the dominant channel at 51.48% of total investment, with Capital One investing 50.74% of their budget in this medium</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Digital channels show the fastest growth (25% YoY), with specialized platforms driving higher engagement metrics</span>
+                  <span>Digital channels represent 39.76% of total investment, with Chase Bank focusing 58.87% of their budget in this category</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Wells Fargo&apos;s investment in Digital is under-indexed compared to industry benchmarks by 15.8% - representing highest growth opportunity</span>
+                  <span>Distinct strategies emerge: PNC Bank is heavily television-focused (88.55%), TD Bank is digital-focused (53.33%), while Capital One and Bank of America maintain balanced approaches</span>
                 </li>
               </ul>
             </div>
             
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-5 border border-indigo-200">
-              <h4 className="text-md font-semibold text-indigo-700 mb-3">Competitive Positioning</h4>
-              <ul className="space-y-3 text-indigo-700">
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-5 border border-teal-200">
+              <h4 className="text-md font-semibold text-teal-700 mb-3">Competitive Differentiation</h4>
+              <ul className="space-y-3 text-teal-700">
                 <li className="flex items-start">
-                  <svg className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Capital One leads with 58.4% market share, outspending next competitor Bank of America by nearly 3x</span>
+                  <span>Capital One dominates the market with 45.39% of total investment, more than double Chase Bank (22.26%), the second-largest investor</span>
                 </li>
                 <li className="flex items-start">
-                  <svg className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Wells Fargo ranks 3rd in total spending with 13.7% market share but shows highest concentration in Television at 67.5%</span>
+                  <span>Capital One leads in Television (47.39%), Digital (44.80%), and Print (52.23%) categories, showing broad market dominance</span>
                 </li>
                 <li className="flex items-start">
-                  <svg className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>PNC Bank shows most efficient spending, achieving 2.7% market share with minimal investment compared to competitors</span>
+                  <span>Wells Fargo ranks fourth overall with 10.64% market share, with its strongest position in Television (14.78% of category)</span>
                 </li>
               </ul>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Executive Insights - Moved to the end */}
+      
+      {/* Key Metrics - NOW AFTER INSIGHTS */}
       <div className="mb-8">
         <div className="flex items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Executive Insights</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Bank&apos;s Performance Metrics</h2>
           <div className="ml-4 px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full">
-            Key Takeaways
+            {selectedMonths === 'All Period' ? 'Full Year Analysis' : selectedMonths}
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
-              <h4 className="text-md font-semibold text-blue-700 mb-3">Market Performance Summary</h4>
-              <p className="text-blue-700 mb-4">
-                Analysis shows that the banking sector invested <span className="font-bold">$1.43 billion</span> across advertising channels, with <span className="font-bold">Capital One</span> dominating market share at 58.4%. Wells Fargo maintains a strong third position with strategic focus on television advertising.
-              </p>
-              <ul className="space-y-2 text-blue-700">
-                <li className="flex items-start">
-                  <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Overall market showing significant month-to-month volatility with seasonal peaks</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Television and Digital represent 70% of total industry spending</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Market share growth correlates strongly with consistent investment patterns</span>
-                </li>
-              </ul>
-            </div>
-            
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
-              <h4 className="text-md font-semibold text-blue-700 mb-3">Strategic Recommendations</h4>
-              <p className="text-blue-700 mb-4">
-                Based on competitive analysis, Wells Fargo has opportunities to optimize media mix allocation and leverage emerging digital channels to enhance market presence while maintaining its strong position in traditional media.
-              </p>
-              <ul className="space-y-2 text-blue-700">
-                <li className="flex items-start">
-                  <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Increase Digital allocation by 15.8% to align with industry benchmarks</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Leverage consistent spending patterns to counter competitor volatility</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Focus on emerging channels where competitors show declining investment</span>
-                </li>
-              </ul>
-            </div>
+        <KeyMetrics />
+      </div>
+
+      {/* Market Share Analysis */}
+      <div className="mb-8">
+        <div className="flex items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">Market Share Analysis</h2>
+          <div className="ml-4 px-3 py-1 bg-purple-50 text-purple-600 text-sm rounded-full">
+            Competitive Position
           </div>
         </div>
+        <DistributionCharts hideWellsFargoComparison={true} />
+      </div>
+
+      {/* Monthly Trends */}
+      <div className="mb-8">
+        <div className="flex items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">Monthly Trends</h2>
+          <div className="ml-4 px-3 py-1 bg-amber-50 text-amber-600 text-sm rounded-full">
+            Temporal Analysis
+          </div>
+        </div>
+        <MonthlyTrends />
       </div>
     </div>
   );

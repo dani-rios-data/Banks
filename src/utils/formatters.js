@@ -1,16 +1,55 @@
 /**
  * Formatea un valor numérico como moneda en formato abreviado
  * @param {number} value - Valor a formatear
- * @returns {string} Valor formateado
+ * @returns {string} Valor formateado con 2 decimales exactos y sufijo apropiado
  */
 export const formatCurrency = (value) => {
-  if (value === undefined || value === null) return '$0';
+  if (value === undefined || value === null) return '$0.00';
   const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  if (isNaN(numValue)) return '$0';
+  if (isNaN(numValue)) return '$0.00';
   
-  if (numValue >= 1000000) return `$${(numValue / 1000000).toFixed(1)}M`;
-  if (numValue >= 1000) return `$${(numValue / 1000).toFixed(1)}K`;
-  return `$${numValue.toFixed(0)}`;
+  // Función para extraer exactamente 2 decimales sin redondeo
+  const getExactDecimals = (num) => {
+    const numStr = num.toString();
+    const decimalPos = numStr.indexOf('.');
+    
+    if (decimalPos === -1) {
+      return `${numStr}.00`;
+    } else {
+      const intPart = numStr.substring(0, decimalPos);
+      const decPart = numStr.substring(decimalPos + 1);
+      const formattedDecPart = decPart.length >= 2 
+        ? decPart.substring(0, 2) 
+        : decPart.padEnd(2, '0');
+      
+      return `${intPart}.${formattedDecPart}`;
+    }
+  };
+  
+  // Para valores mayores o iguales a 1 billón (1,000 millones)
+  if (numValue >= 1000000000) {
+    const billions = numValue / 1000000000;
+    return `$${getExactDecimals(billions)}B`;
+  }
+  
+  // Para valores mayores o iguales a 1 millón
+  if (numValue >= 1000000) {
+    const millions = numValue / 1000000;
+    // Evitar mostrar "0.00M" para valores muy cercanos a 1M
+    if (millions < 0.01) return formatCurrency(numValue);
+    return `$${getExactDecimals(millions)}M`;
+  }
+  
+  // Para valores mayores o iguales a 1 mil
+  if (numValue >= 1000) {
+    const thousands = numValue / 1000;
+    // Evitar mostrar "0.00K" para valores muy cercanos a 1K
+    if (thousands < 0.01) return formatCurrency(numValue);
+    return `$${getExactDecimals(thousands)}K`;
+  }
+  
+  // Para valores menores a 1000, mostrar con centavos
+  return `$${getExactDecimals(numValue)}`;
 };
 
 /**
@@ -43,12 +82,30 @@ export const formatDollarValue = (value) => {
 /**
  * Formatea un número como porcentaje
  * @param {number} value - Valor numérico
- * @returns {string} - Valor formateado (e.g., "12.34%")
+ * @returns {string} - Valor formateado con exactamente 2 decimales sin redondear (e.g., "12.34%")
  */
 export const formatPercentage = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'percent',
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1
-  }).format(value / 100);
+  // Asegurar que value es un número
+  const numValue = Number(value);
+  if (isNaN(numValue)) return '0.00%';
+  
+  // Obtener el valor con 2 decimales sin redondear
+  const valueStr = String(numValue);
+  const decimalPos = valueStr.indexOf('.');
+  
+  if (decimalPos === -1) {
+    // Si no tiene parte decimal, agregar ".00"
+    return `${valueStr}.00%`;
+  } else {
+    // Tomar solo los primeros dos decimales sin redondear
+    const intPart = valueStr.substring(0, decimalPos);
+    const decPart = valueStr.substring(decimalPos + 1);
+    
+    // Asegurar que hay al menos 2 decimales
+    const formattedDecPart = decPart.length >= 2 
+      ? decPart.substring(0, 2) 
+      : decPart.padEnd(2, '0');
+    
+    return `${intPart}.${formattedDecPart}%`;
+  }
 };

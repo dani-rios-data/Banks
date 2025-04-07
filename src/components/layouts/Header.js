@@ -37,7 +37,7 @@ const Header = () => {
               />
             </div>
             <p className="text-xs text-gray-600 font-medium">
-              January 2024 - February 2025
+              January 2024 - March 2025
             </p>
           </div>
           <div className="flex-1 flex justify-center">

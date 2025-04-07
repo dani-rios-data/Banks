@@ -32,5 +32,6 @@ export const chartColors = {
   'Wells Fargo Bank': '#CD1409',
   'Td Bank': '#54B848',
   'Capital One': '#004977',
-  'Pnc Bank': '#FF5400'
+  'Pnc Bank': '#FF5400',
+  'Chase Bank': '#117ACA'  // Añadir explícitamente el color de Chase Bank
 }; 

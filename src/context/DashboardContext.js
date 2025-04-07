@@ -40,6 +40,62 @@ export const DashboardProvider = ({ children }) => {
   const [showMonthFilter, setShowMonthFilter] = useState(false);
   const [tempSelectedMonths, setTempSelectedMonths] = useState([]);
   
+  // Función para procesar y enriquecer datos mensuales por categoría
+  const processBankMediaMonthlyData = (monthlyData, banks) => {
+    if (!monthlyData || !banks) return [];
+    
+    // Mapeo de los datos mensuales para incluir información detallada por categoría
+    return monthlyData.map(month => {
+      // Estructura para almacenar datos de categorías por banco para este mes
+      const mediaCategoriesData = [];
+      
+      // Obtener todas las categorías de medios únicas de todos los bancos
+      const allCategories = [...new Set(banks.flatMap(bank => 
+        bank.mediaBreakdown.map(media => media.category)
+      ))];
+      
+      // Para cada banco, calcular su distribución por categoría en este mes
+      month.bankShares.forEach(bankShare => {
+        const bankName = bankShare.bank;
+        const bank = banks.find(b => b.name === bankName);
+        
+        if (bank) {
+          // Distribución media por porcentaje para este banco
+          const mediaBreakdown = bank.mediaBreakdown;
+          
+          // Calcular la inversión para cada categoría de este banco en este mes
+          const categoriesData = {};
+          
+          mediaBreakdown.forEach(media => {
+            // Porcentaje de esta categoría para este banco
+            const percentage = media.percentage;
+            
+            // Inversión total del banco en este mes
+            const bankMonthlyInvestment = bankShare.investment;
+            
+            // Inversión en esta categoría para este mes
+            const categoryInvestment = (percentage / 100) * bankMonthlyInvestment;
+            
+            // Almacenar datos de categoría
+            categoriesData[media.category] = categoryInvestment;
+          });
+          
+          // Agregar datos de este banco a la lista
+          mediaCategoriesData.push({
+            bank: bankName,
+            categories: categoriesData
+          });
+        }
+      });
+      
+      // Agregamos los datos de categorías al objeto del mes
+      return {
+        ...month,
+        mediaCategories: mediaCategoriesData
+      };
+    });
+  };
+  
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -104,6 +160,16 @@ export const DashboardProvider = ({ children }) => {
               pncBank.detailedPerformance = pncData;
             }
           }
+          
+          // Intentar cargar datos de Chase Bank
+          const chaseResponse = await fetch('/processed/chase-bank-performance.json');
+          if (chaseResponse.ok) {
+            const chaseData = await chaseResponse.json();
+            const chaseBank = data.banks.find(bank => bank.name === 'Chase Bank');
+            if (chaseBank) {
+              chaseBank.detailedPerformance = chaseData;
+            }
+          }
         } catch (detailError) {
           console.warn('No se pudieron cargar algunos datos detallados:', detailError);
           // Continuar con los datos principales aunque fallen los detalles
@@ -138,6 +204,9 @@ export const DashboardProvider = ({ children }) => {
               bankShares: sharesWithPercentage
             };
           });
+          
+          // Procesamos los datos de categorías de medios por mes y banco
+          data.monthlyTrends = processBankMediaMonthlyData(data.monthlyTrends, data.banks);
         }
         
         setDashboardData(data);
