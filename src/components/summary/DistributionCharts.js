@@ -271,6 +271,17 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
       };
     }).filter(bank => bank.investment > 0);
     
+    // Calculate media category data - Actualizar para usar datos dinámicos
+    const mediaData = allCategories.map(category => {
+      const categoryTotal = Object.entries(industryCategoryTotals).find(([cat]) => cat === category)?.[1] || 0;
+      return {
+        name: category,
+        investment: categoryTotal,
+        share: totalInvestment > 0 ? (categoryTotal / totalInvestment) * 100 : 0
+      };
+    }).filter(media => media.investment > 0)
+      .sort((a, b) => b.investment - a.investment);
+    
     // Calculate exact figures for each significant category
     const exactPercentages = {
       digital: {
@@ -313,7 +324,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     
     return {
       bankData,
-      mediaData: industryMediaData,
+      mediaData,
       wellsFargoMediaBreakdown,
       mediaComparison: _.orderBy(mediaComparison, ['industry'], ['desc']),
       overallTotals,
