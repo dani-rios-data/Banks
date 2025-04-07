@@ -57,7 +57,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
               <h4 className="text-md font-semibold text-blue-700 mb-3">Banking Advertising Landscape</h4>
               <p className="text-blue-700 mb-4">
-                The banking industry spent a total of <span className="font-bold">$1.84 billion</span> on advertising across all media channels during the analyzed period (January 2024 - March 2025).
+                The banking industry spent a total of <span className="font-bold">$1.85 billion</span> on advertising across all media channels during the analyzed period (January 2024 - March 2025).
               </p>
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-start">
@@ -70,7 +70,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Investment is distributed across 7 media categories, with Television (51.48%) and Digital (39.76%) dominant</span>
+                  <span>Investment is distributed across 7 media categories, with Television (51.48%) and Digital (40.24%) dominant</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,7 +91,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Digital and Television combine for 91.24% of total spending across all banks</span>
+                  <span>Digital and Television combine for 91.72% of total spending across all banks</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -221,7 +221,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Digital channels represent 39.76% of total investment, with Chase Bank focusing 58.87% of their budget in this category</span>
+                  <span>Digital channels represent 40.24% of total investment, with Chase Bank focusing 58.87% of their budget in this category</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

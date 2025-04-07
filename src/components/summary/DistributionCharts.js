@@ -847,31 +847,34 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                       <div className="flex items-start bg-white p-4 rounded-lg border border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
                         <div className="bg-blue-100 rounded-full p-2 text-blue-600 mr-3 mt-0.5">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                        <div className="text-sm text-gray-700">
+                          <span>During this period, Television accounts for <span className="font-bold text-blue-700">{formatPercentage(_.sumBy(distributions.mediaData.filter(m => m.name === 'Television'), 'investment') / _.sumBy(distributions.mediaData, 'investment') * 100)}</span> of total investment, while Digital represents <span className="font-bold text-blue-700">{formatPercentage(_.sumBy(distributions.mediaData.filter(m => m.name === 'Digital'), 'investment') / _.sumBy(distributions.mediaData, 'investment') * 100)}</span>.</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start bg-white p-4 rounded-lg border border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
+                        <div className="bg-blue-100 rounded-full p-2 text-blue-600 mr-3 mt-0.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                           </svg>
                         </div>
                         <div className="text-sm text-gray-700">
                           {(() => {
+                            // En lugar de usar datos estáticos de dashboardData.banks, usaremos los datos calculados
+                            // durante el periodo seleccionado basados en monthlyData
+                            
                             // Obtenemos los datos mensuales filtrados
                             const filteredMonthlyData = selectedMonths.length > 0
                               ? dashboardData.monthlyTrends.filter(month => selectedMonths.includes(month.month))
                               : dashboardData.monthlyTrends;
                             
-                            // Calculamos la inversión total para cada banco durante el período seleccionado
-                            const bankTotals = {};
-                            dashboardData.banks.forEach(bank => {
-                              bankTotals[bank.name] = 0;
-                            });
-                            
-                            filteredMonthlyData.forEach(month => {
-                              month.bankShares.forEach(share => {
-                                bankTotals[share.bank] = (bankTotals[share.bank] || 0) + share.investment;
-                              });
-                            });
-                            
-                            // Calculamos la asignación por categoría para cada banco
+                            // Calculamos la asignación media por categoría para cada banco basándonos en los datos filtrados
                             const bankMediaAllocation = {};
                             
+                            // Primero, extraemos los datos de monthly categories para cada banco
                             filteredMonthlyData.forEach(month => {
                               month.mediaCategories?.forEach(bankCategoryData => {
                                 const bankName = bankCategoryData.bank;
@@ -880,6 +883,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                                   bankMediaAllocation[bankName] = { total: 0, categories: {} };
                                 }
                                 
+                                // Sumar las inversiones por categoría
                                 Object.entries(bankCategoryData.categories).forEach(([category, amount]) => {
                                   if (!bankMediaAllocation[bankName].categories[category]) {
                                     bankMediaAllocation[bankName].categories[category] = 0;
@@ -891,52 +895,50 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                               });
                             });
                             
-                            // Encontramos los bancos con mayor concentración en cada categoría
-                            const categoryLeaders = {};
-                            const mediaCategories = ['Television', 'Digital', 'Audio', 'Print', 'Outdoor', 'Cinema', 'Streaming'];
+                            // Convertir a porcentajes y encontrar la categoría principal para cada banco
+                            const bankCategoryPercentages = [];
                             
                             Object.entries(bankMediaAllocation).forEach(([bankName, data]) => {
                               if (data.total > 0) {
+                                // Encontrar la categoría con la mayor asignación
+                                let maxCategory = '';
+                                let maxPercentage = 0;
+                                
                                 Object.entries(data.categories).forEach(([category, amount]) => {
                                   const percentage = (amount / data.total) * 100;
                                   
-                                  if (!categoryLeaders[category] || categoryLeaders[category].percentage < percentage) {
-                                    categoryLeaders[category] = {
-                                      bank: bankName,
-                                      percentage: percentage,
-                                      amount: amount
-                                    };
+                                  if (percentage > maxPercentage) {
+                                    maxPercentage = percentage;
+                                    maxCategory = category;
                                   }
                                 });
+                                
+                                if (maxCategory) {
+                                  bankCategoryPercentages.push({
+                                    bank: bankName,
+                                    category: maxCategory,
+                                    percentage: maxPercentage
+                                  });
+                                }
                               }
                             });
                             
-                            // Encontrar el top 3 de mayores concentraciones
-                            const topConcentrations = Object.entries(categoryLeaders)
-                              .map(([category, data]) => ({
-                                category,
-                                bank: data.bank,
-                                percentage: data.percentage
-                              }))
-                              .sort((a, b) => b.percentage - a.percentage)
-                              .slice(0, 3);
-                              
-                            console.log("Top 3 category concentrations:", topConcentrations);
+                            // Obtener el banco con la mayor concentración en una categoría
+                            const mostDominant = _.maxBy(bankCategoryPercentages, 'percentage');
                             
-                            // Mostrar el top 3 de mayores concentraciones
-                            if (topConcentrations.length > 0) {
-                              const [first, second, third] = topConcentrations;
-                              
-                              return (
-                                <span>
-                                  The top media category specializations are: <span className="font-bold" style={{color: bankColors[first.bank]}}>{first.bank}</span> in <span className="font-bold text-blue-700">{first.category}</span> ({formatPercentage(first.percentage)})
-                                  {second && <span>, <span className="font-bold" style={{color: bankColors[second.bank]}}>{second.bank}</span> in <span className="font-bold text-blue-700">{second.category}</span> ({formatPercentage(second.percentage)})</span>}
-                                  {third && <span>, and <span className="font-bold" style={{color: bankColors[third.bank]}}>{third.bank}</span> in <span className="font-bold text-blue-700">{third.category}</span> ({formatPercentage(third.percentage)})</span>}
-                                </span>
-                              );
+                            // Verificar si tenemos datos disponibles
+                            if (!mostDominant) {
+                              return 'Media allocation data not available for the selected period.';
                             }
                             
-                            return 'Media allocation data not available for the selected period.';
+                            // Encontrar el banco con la mayor asignación a una sola categoría
+                            return <span>
+                              <span className="font-bold" style={{color: bankColors[mostDominant.bank]}}>
+                                {mostDominant.bank}
+                              </span> allocates <span className="font-bold text-blue-700">
+                                {formatPercentage(mostDominant.percentage)}
+                              </span> of their budget to {mostDominant.category}, the highest category concentration among all banks.
+                            </span>;
                           })()}
                         </div>
                       </div>
