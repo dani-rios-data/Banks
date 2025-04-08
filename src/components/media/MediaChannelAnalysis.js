@@ -134,7 +134,7 @@ const MediaChannelAnalysis = () => {
         </div>
         
         {/* Media Details */}
-        <div className="min-h-[38rem]">
+        <div>
           <MediaDetails 
             filteredData={dashboardData} 
             enhancedBankColors={enhancedBankColors}

@@ -57,57 +57,63 @@ const MediaDetails = ({ filteredData }) => {
   // For "All" category, show an overview of media category distribution
   if (selectedMediaCategory === 'All') {
     // Prepare data for the overview chart
-    const overviewData = filteredData.mediaCategories
-      .filter(category => category.total > 0)
-      .map(category => ({
-        name: category.name,
-        value: category.total,
-        formattedValue: formatCurrency(category.total),
-        color: enhancedMediaColors[category.name] || mediaColors[category.name]
+    const overviewData = Object.entries(
+      filteredData.mediaCategories.reduce((acc, category) => {
+        category.bankShares.forEach(share => {
+          acc[share.bank] = (acc[share.bank] || 0) + share.amount;
+        });
+        return acc;
+      }, {})
+    )
+      .map(([bank, value]) => ({
+        name: bank,
+        value: value,
+        formattedValue: formatCurrency(value),
+        color: bankColorScheme[bank]
       }))
       .sort((a, b) => b.value - a.value);
 
-    // Calculate percentages for each media category
+    // Calculate percentages for each bank
     const totalValue = overviewData.reduce((sum, item) => sum + item.value, 0);
     overviewData.forEach(item => {
       item.percentage = (item.value / totalValue * 100).toFixed(1);
     });
 
-  return (
-      <div className="h-full min-h-[32rem] mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">
+    return (
+      <div className="h-full min-h-[20rem] mb-2">
+        <h3 className="text-lg font-medium text-gray-700 mb-3">
           Media Investment Distribution Overview
-      </h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[90%]">
-          <ResponsiveContainer width="100%" height="100%">
-        <BarChart
+        </h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[85%]">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
               data={overviewData}
-          layout="vertical"
+              layout="vertical"
               margin={{ top: 15, right: 30, left: 20, bottom: 15 }}
               barSize={22}
-        >
-          <defs>
+            >
+              <defs>
                 {overviewData.map((entry) => (
                   <linearGradient key={`gradient-${entry.name}`} id={`colorGradient-${entry.name}`} x1="0" y1="0" x2="1" y2="0">
                     <stop offset="5%" stopColor={entry.color} stopOpacity={0.8}/>
                     <stop offset="95%" stopColor={entry.color} stopOpacity={1}/>
-              </linearGradient>
-            ))}
-          </defs>
-          <XAxis 
-            type="number" 
+                  </linearGradient>
+                ))}
+              </defs>
+              <XAxis 
+                type="number" 
                 tickFormatter={formatValue}
                 tick={{ fill: '#4b5563', fontSize: 12 }}
                 axisLine={{ stroke: '#e5e7eb' }}
-            tickLine={false}
-          />
-          <YAxis 
-            type="category" 
-            dataKey="name" 
+                tickLine={false}
+              />
+              <YAxis 
+                type="category" 
+                dataKey="name" 
                 tick={{ fill: '#4b5563', fontSize: 12, fontWeight: 500 }}
                 axisLine={{ stroke: '#e5e7eb' }}
-            tickLine={false}
-          />
+                tickLine={false}
+              />
               <Tooltip 
                 content={<CustomTooltip />} 
                 cursor={{fill: 'rgba(229, 231, 235, 0.2)'}}
@@ -120,7 +126,7 @@ const MediaDetails = ({ filteredData }) => {
                 {overviewData.map((entry) => (
                   <Cell 
                     key={`cell-${entry.name}`}
-                    fill={`url(#colorGradient-${entry.name})`}
+                    fill={entry.color}
                     stroke={entry.color}
                     strokeWidth={0.5}
                   />
@@ -183,8 +189,8 @@ const MediaDetails = ({ filteredData }) => {
   const formattedTotalInvestment = formatValue(totalInvestment);
 
   return (
-    <div className="h-full min-h-[30rem] mb-6">
-      <h3 className="text-lg font-medium text-gray-700 mb-4 flex items-center">
+    <div className="h-full min-h-[20rem] mb-2">
+      <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center">
         <span 
           className="w-4 h-4 rounded-full mr-2" 
           style={{
@@ -194,12 +200,13 @@ const MediaDetails = ({ filteredData }) => {
         ></span>
         {selectedMediaCategory === 'All' ? 'Overall Media' : selectedMediaCategory} - Investment by Bank
       </h3>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[90%]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 h-[85%]">
         <div className="lg:col-span-2">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart
               data={bankData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
+              barSize={30}
             >
               <XAxis dataKey="name" />
               <YAxis tickFormatter={(value) => formatValue(value).replace('$', '')} />
@@ -219,8 +226,8 @@ const MediaDetails = ({ filteredData }) => {
                   <Cell 
                     key={`cell-${entry.name}`}
                     fill={bankColorScheme[entry.name]}
-            />
-          ))}
+                  />
+                ))}
                 <LabelList 
                   dataKey="investment" 
                   position="top" 
@@ -228,8 +235,8 @@ const MediaDetails = ({ filteredData }) => {
                   style={{ fill: '#374151', fontSize: '12px', fontWeight: '500' }}
                 />
               </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="flex flex-col">
