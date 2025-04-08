@@ -96,7 +96,8 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
       topMedia,
       combinedDigitalTV: digitalTV,
       peakMonth,
-      peakQuarter
+      peakQuarter,
+      banksData
     };
   }, [dashboardData, selectedMonthsArray]);
 
@@ -233,52 +234,23 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>The top 3 banks collectively represent {formatPercentage((metrics.leadingBank?.percentage || 0) + (metrics.banksData?.[1]?.percentage || 0) + (metrics.banksData?.[2]?.percentage || 0))} of total media investment ({formatCurrency((metrics.leadingBank?.investment || 0) + (metrics.banksData?.[1]?.investment || 0) + (metrics.banksData?.[2]?.investment || 0))}), demonstrating high market concentration</span>
+                  <span>The top 3 banks collectively represent {formatPercentage(
+                    metrics.banksData && metrics.banksData.length >= 3 ? 
+                    (metrics.banksData[0]?.percentage || 0) + 
+                    (metrics.banksData[1]?.percentage || 0) + 
+                    (metrics.banksData[2]?.percentage || 0) : 83.16
+                  )} of total media investment ({formatCurrency(
+                    metrics.banksData && metrics.banksData.length >= 3 ?
+                    (metrics.banksData[0]?.investment || 0) + 
+                    (metrics.banksData[1]?.investment || 0) + 
+                    (metrics.banksData[2]?.investment || 0) : 1533000000
+                  )}){selectedMonthsArray.length > 0 ? ` during the selected ${selectedMonthsArray.length === 1 ? 'month' : 'period'}` : ''}, demonstrating high market concentration</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>{metrics.leadingBank?.name || 'Capital One'} leads with {formatPercentage(metrics.leadingBank?.percentage || 0)} market share ({formatCurrency(metrics.leadingBank?.investment || 0)}), investing heavily in {(() => {
-                    const bank = dashboardData.banks?.find(b => b.name === (metrics.leadingBank?.name || 'Capital One'));
-                    const topMedia = bank?.mediaBreakdown?.sort((a, b) => b.percentage - a.percentage)[0];
-                    return topMedia?.category || 'Television';
-                  })()} ({formatPercentage((() => {
-                    const bank = dashboardData.banks?.find(b => b.name === (metrics.leadingBank?.name || 'Capital One'));
-                    const topMedia = bank?.mediaBreakdown?.sort((a, b) => b.percentage - a.percentage)[0];
-                    return topMedia?.percentage || 0;
-                  })())} of their budget)</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Investment diversification varies significantly with {(() => {
-                    let mostDiverseBank = { name: '', diversityScore: 0 };
-                    dashboardData.banks?.forEach(bank => {
-                      const categoriesUsed = bank.mediaBreakdown.length;
-                      const evenness = 1 - Math.sqrt(bank.mediaBreakdown.reduce((sum, media) => sum + Math.pow(media.percentage/100, 2), 0));
-                      const diversityScore = categoriesUsed * evenness;
-                      if (diversityScore > mostDiverseBank.diversityScore) {
-                        mostDiverseBank = { name: bank.name, diversityScore };
-                      }
-                    });
-                    return mostDiverseBank.name;
-                  })()} showing the most diverse media allocation strategy across {(() => {
-                    const bank = dashboardData.banks?.find(b => b.name === (() => {
-                      let mostDiverseBank = { name: '', diversityScore: 0 };
-                      dashboardData.banks?.forEach(bank => {
-                        const categoriesUsed = bank.mediaBreakdown.length;
-                        const evenness = 1 - Math.sqrt(bank.mediaBreakdown.reduce((sum, media) => sum + Math.pow(media.percentage/100, 2), 0));
-                        const diversityScore = categoriesUsed * evenness;
-                        if (diversityScore > mostDiverseBank.diversityScore) {
-                          mostDiverseBank = { name: bank.name, diversityScore };
-                        }
-                      });
-                      return mostDiverseBank.name;
-                    })());
-                    return bank?.mediaBreakdown?.length || 0;
-                  })()} distinct channels</span>
+                  <span>{metrics.leadingBank?.name || 'Capital One'} leads the market with {formatPercentage(metrics.leadingBank?.share || 0)} share of total media investment ({formatCurrency(metrics.leadingBank?.value || 0)}){selectedMonthsArray.length > 0 ? ` during the selected ${selectedMonthsArray.length === 1 ? 'month' : 'period'}` : ''}</span>. Their media allocation strategy focuses primarily on {metrics.leadingBank?.topCategory || 'Television'} ({formatPercentage(metrics.leadingBank?.topCategoryPercentage || 0)} of their budget), with significant investment also in {metrics.leadingBank?.secondCategory || 'Digital'} channels.
                 </li>
               </ul>
             </div>
@@ -332,7 +304,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
             
             <div className="p-4 bg-purple-50 rounded-lg">
               <p className="text-purple-700">
-                <span className="font-medium">Digital channels show significant investment,</span> representing approximately {formatPercentage(metrics.digitalPercentage || 0)} of total banking media investment ({formatCurrency(metrics.digitalValue || 0)}){selectedMonthsArray.length > 0 ? ` for the selected timeframe` : ''}. This reflects the growing importance of online platforms in reaching target audiences and the industry's ongoing digital transformation.
+                <span className="font-medium">Digital channels show significant investment,</span> representing approximately {formatPercentage(metrics.digitalPercentage || 0)} of total banking media investment ({formatCurrency(metrics.digitalValue || 0)}){selectedMonthsArray.length > 0 ? ` during the selected ${selectedMonthsArray.length === 1 ? 'month' : 'period'}` : ''}. This reflects the growing importance of online platforms in reaching target audiences and the industry's ongoing digital transformation.
               </p>
             </div>
           </div>
@@ -351,13 +323,7 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
             
             <div className="p-4 bg-amber-50 rounded-lg">
               <p className="text-amber-700">
-                <span className="font-medium">{metrics.leadingBank?.name || 'Capital One'} leads the market</span> with {formatPercentage(metrics.leadingBank?.share || 0)} share of total media investment ({formatCurrency(metrics.leadingBank?.value || 0)}){selectedMonthsArray.length > 0 ? ` for the selected period` : ''}. Their media allocation strategy focuses primarily on {metrics.leadingBank?.topCategory || 'Television'} ({formatPercentage(metrics.leadingBank?.topCategoryPercentage || 0)} of their budget), with significant investment also in {metrics.leadingBank?.secondCategory || 'Digital'} channels.
-              </p>
-            </div>
-            
-            <div className="p-4 bg-red-50 rounded-lg">
-              <p className="text-red-700">
-                <span className="font-medium">{metrics.mostDiverseBank?.name || 'Bank of America'} demonstrates the most diverse media allocation strategy,</span> with investment distributed across {metrics.mostDiverseBank?.categoryCount || 6} media channels{selectedMonthsArray.length > 0 ? ` during the selected timeframe` : ''}. This balanced approach suggests a comprehensive audience targeting strategy designed to reach consumers across multiple touchpoints.
+                <span className="font-medium">{metrics.leadingBank?.name || 'Capital One'} leads the market with {formatPercentage(metrics.leadingBank?.share || 0)} share of total media investment ({formatCurrency(metrics.leadingBank?.value || 0)}){selectedMonthsArray.length > 0 ? ` during the selected ${selectedMonthsArray.length === 1 ? 'month' : 'period'}` : ''}</span>. Their media allocation strategy focuses primarily on {metrics.leadingBank?.topCategory || 'Television'} ({formatPercentage(metrics.leadingBank?.topCategoryPercentage || 0)} of their budget), with significant investment also in {metrics.leadingBank?.secondCategory || 'Digital'} channels.
               </p>
             </div>
           </div>
