@@ -44,104 +44,184 @@ const KeyMetrics = () => {
       };
     }
 
-    // Add validation and use accurate hardcoded values where needed
-    const TOTAL_INVESTMENT = 1845331306; // $1.85B - sum of all banks
-    const TELEVISION_VALUE = 896909961; // $896.91M - sum of all television investments
-    const DIGITAL_VALUE = 783411819; // $783.41M - sum of all digital investments
-    const AUDIO_VALUE = 116710022; // $116.71M - sum of all audio investments
-    const PRINT_VALUE = 30176886; // $30.18M - sum of all print investments
-    const OUTDOOR_VALUE = 12273109; // $12.27M - sum of all outdoor investments
-    const STREAMING_VALUE = 2488342; // $2.49M - from Capital One
-    const CINEMA_VALUE = 1689912; // $1.69M - from Capital One and Chase Bank
+    // Filtrar meses si hay selección
+    const relevantMonths = selectedMonths.length > 0
+      ? dashboardData.monthlyTrends.filter(month => selectedMonths.includes(month.month))
+      : dashboardData.monthlyTrends;
+    
+    // Calcular inversión total para el período filtrado
+    const totalInvestmentFiltered = relevantMonths.reduce((sum, month) => sum + month.total, 0);
+    
+    // Si hay meses seleccionados, calculamos datos basados en esos meses
+    // Si no hay selección, usamos los valores predefinidos precisos
+    let mediaTotals = [];
+    let totalInvestment = 0;
+    
+    if (selectedMonths.length > 0) {
+      // Recopilar todas las categorías de medios
+      const allMediaCategories = new Set();
+      dashboardData.banks.forEach(bank => {
+        bank.mediaBreakdown.forEach(media => {
+          allMediaCategories.add(media.category);
+        });
+      });
+      
+      // Inicializar totales por categoría
+      const mediaTotalsMap = {};
+      allMediaCategories.forEach(category => {
+        mediaTotalsMap[category] = 0;
+      });
+      
+      // Sumar inversiones por categoría de medios para los meses seleccionados
+      relevantMonths.forEach(month => {
+        if (month.mediaCategories) {
+          month.mediaCategories.forEach(bankData => {
+            Object.entries(bankData.categories).forEach(([category, amount]) => {
+              if (mediaTotalsMap[category] !== undefined) {
+                mediaTotalsMap[category] += amount;
+              }
+            });
+          });
+        }
+      });
+      
+      // Crear el array de mediaTotals con datos filtrados
+      mediaTotals = Object.entries(mediaTotalsMap).map(([name, value]) => ({
+        name,
+        value,
+        share: totalInvestmentFiltered > 0 ? (value / totalInvestmentFiltered) * 100 : 0
+      })).sort((a, b) => b.value - a.value);
+      
+      totalInvestment = totalInvestmentFiltered;
+    } else {
+      // Sin filtro, usar los valores precisos predefinidos
+      const TOTAL_INVESTMENT = 1845331306; // $1.85B - sum of all banks
+      const TELEVISION_VALUE = 896909961; // $896.91M - sum of all television investments
+      const DIGITAL_VALUE = 783411819; // $783.41M - sum of all digital investments
+      const AUDIO_VALUE = 116710022; // $116.71M - sum of all audio investments
+      const PRINT_VALUE = 30176886; // $30.18M - sum of all print investments
+      const OUTDOOR_VALUE = 12273109; // $12.27M - sum of all outdoor investments
+      const STREAMING_VALUE = 2488342; // $2.49M - from Capital One
+      const CINEMA_VALUE = 1689912; // $1.69M - from Capital One and Chase Bank
 
-    // Calculate percentages based on accurate total investment
-    const TELEVISION_PERCENTAGE = (TELEVISION_VALUE / TOTAL_INVESTMENT) * 100; // ~48.60%
-    const DIGITAL_PERCENTAGE = (DIGITAL_VALUE / TOTAL_INVESTMENT) * 100; // ~42.45%
-    const AUDIO_PERCENTAGE = (AUDIO_VALUE / TOTAL_INVESTMENT) * 100; // ~6.32%
-    const PRINT_PERCENTAGE = (PRINT_VALUE / TOTAL_INVESTMENT) * 100; // ~1.63%
-    const OUTDOOR_PERCENTAGE = (OUTDOOR_VALUE / TOTAL_INVESTMENT) * 100; // ~0.67%
-    const STREAMING_PERCENTAGE = (STREAMING_VALUE / TOTAL_INVESTMENT) * 100; // ~0.13%
-    const CINEMA_PERCENTAGE = (CINEMA_VALUE / TOTAL_INVESTMENT) * 100; // ~0.09%
+      // Calculate percentages based on accurate total investment
+      const TELEVISION_PERCENTAGE = (TELEVISION_VALUE / TOTAL_INVESTMENT) * 100; // ~48.60%
+      const DIGITAL_PERCENTAGE = (DIGITAL_VALUE / TOTAL_INVESTMENT) * 100; // ~42.45%
+      const AUDIO_PERCENTAGE = (AUDIO_VALUE / TOTAL_INVESTMENT) * 100; // ~6.32%
+      const PRINT_PERCENTAGE = (PRINT_VALUE / TOTAL_INVESTMENT) * 100; // ~1.63%
+      const OUTDOOR_PERCENTAGE = (OUTDOOR_VALUE / TOTAL_INVESTMENT) * 100; // ~0.67%
+      const STREAMING_PERCENTAGE = (STREAMING_VALUE / TOTAL_INVESTMENT) * 100; // ~0.13%
+      const CINEMA_PERCENTAGE = (CINEMA_VALUE / TOTAL_INVESTMENT) * 100; // ~0.09%
+      
+      // Create accurate media totals
+      mediaTotals = [
+        { 
+          name: 'Television', 
+          value: TELEVISION_VALUE, 
+          share: TELEVISION_PERCENTAGE 
+        },
+        { 
+          name: 'Digital', 
+          value: DIGITAL_VALUE, 
+          share: DIGITAL_PERCENTAGE 
+        },
+        { 
+          name: 'Audio', 
+          value: AUDIO_VALUE, 
+          share: AUDIO_PERCENTAGE 
+        },
+        { 
+          name: 'Print', 
+          value: PRINT_VALUE, 
+          share: PRINT_PERCENTAGE 
+        },
+        { 
+          name: 'Outdoor', 
+          value: OUTDOOR_VALUE, 
+          share: OUTDOOR_PERCENTAGE 
+        },
+        { 
+          name: 'Streaming', 
+          value: STREAMING_VALUE, 
+          share: STREAMING_PERCENTAGE 
+        },
+        { 
+          name: 'Cinema', 
+          value: CINEMA_VALUE, 
+          share: CINEMA_PERCENTAGE 
+        }
+      ];
+      
+      totalInvestment = TOTAL_INVESTMENT;
+    }
+    
+    // Calculamos datos de bancos (ya sea filtrados o totales)
+    let bankTotals = [];
+    
+    if (selectedMonths.length > 0) {
+      // Para meses seleccionados, calculamos los totales de cada banco
+      const bankTotalsMap = {};
+      
+      dashboardData.banks.forEach(bank => {
+        bankTotalsMap[bank.name] = 0;
+      });
+      
+      // Sumamos las inversiones de cada banco para los meses seleccionados
+      relevantMonths.forEach(month => {
+        month.bankShares.forEach(share => {
+          if (bankTotalsMap[share.bank] !== undefined) {
+            bankTotalsMap[share.bank] += share.investment;
+          }
+        });
+      });
+      
+      // Creamos el array de bankTotals con los datos filtrados
+      bankTotals = Object.entries(bankTotalsMap)
+        .map(([name, value]) => ({
+          name,
+          value,
+          share: totalInvestmentFiltered > 0 ? (value / totalInvestmentFiltered) * 100 : 0
+        }))
+        .sort((a, b) => b.value - a.value);
+    } else {
+      // Sin filtro, usamos los valores precisos predefinidos
+      bankTotals = [
+        { 
+          name: 'Capital One', 
+          value: 837602604, // $837.60M
+          share: (837602604 / totalInvestment) * 100 // ~45.39%
+        },
+        { 
+          name: 'Chase Bank', 
+          value: 410786000, // $410.79M
+          share: (410786000 / totalInvestment) * 100 // ~22.26%
+        },
+        { 
+          name: 'Bank Of America', 
+          value: 286254322, // $286.25M
+          share: (286254322 / totalInvestment) * 100 // ~15.51%
+        },
+        { 
+          name: 'Wells Fargo Bank', 
+          value: 196276123, // $196.28M
+          share: (196276123 / totalInvestment) * 100 // ~10.63%
+        },
+        { 
+          name: 'Pnc Bank', 
+          value: 76089534, // $76.09M
+          share: (76089534 / totalInvestment) * 100 // ~4.12%
+        },
+        { 
+          name: 'Td Bank', 
+          value: 38322723, // $38.32M
+          share: (38322723 / totalInvestment) * 100 // ~2.07%
+        }
+      ];
+    }
 
-    // Create accurate media totals
-    const accurateMediaTotals = [
-      { 
-        name: 'Television', 
-        value: TELEVISION_VALUE, 
-        share: TELEVISION_PERCENTAGE 
-      },
-      { 
-        name: 'Digital', 
-        value: DIGITAL_VALUE, 
-        share: DIGITAL_PERCENTAGE 
-      },
-      { 
-        name: 'Audio', 
-        value: AUDIO_VALUE, 
-        share: AUDIO_PERCENTAGE 
-      },
-      { 
-        name: 'Print', 
-        value: PRINT_VALUE, 
-        share: PRINT_PERCENTAGE 
-      },
-      { 
-        name: 'Outdoor', 
-        value: OUTDOOR_VALUE, 
-        share: OUTDOOR_PERCENTAGE 
-      },
-      { 
-        name: 'Streaming', 
-        value: STREAMING_VALUE, 
-        share: STREAMING_PERCENTAGE 
-      },
-      { 
-        name: 'Cinema', 
-        value: CINEMA_VALUE, 
-        share: CINEMA_PERCENTAGE 
-      }
-    ];
-
-    // Accurate bank totals (using values from the tables)
-    const accurateBankTotals = [
-      { 
-        name: 'Capital One', 
-        value: 837602604, // $837.60M
-        share: (837602604 / TOTAL_INVESTMENT) * 100 // ~45.39%
-      },
-      { 
-        name: 'Chase Bank', 
-        value: 410786000, // $410.79M
-        share: (410786000 / TOTAL_INVESTMENT) * 100 // ~22.26%
-      },
-      { 
-        name: 'Bank Of America', 
-        value: 286254322, // $286.25M
-        share: (286254322 / TOTAL_INVESTMENT) * 100 // ~15.51%
-      },
-      { 
-        name: 'Wells Fargo Bank', 
-        value: 196276123, // $196.28M
-        share: (196276123 / TOTAL_INVESTMENT) * 100 // ~10.63%
-      },
-      { 
-        name: 'Pnc Bank', 
-        value: 76089534, // $76.09M
-        share: (76089534 / TOTAL_INVESTMENT) * 100 // ~4.12%
-      },
-      { 
-        name: 'Td Bank', 
-        value: 38322723, // $38.32M
-        share: (38322723 / TOTAL_INVESTMENT) * 100 // ~2.07%
-      }
-    ];
-
-    // Use the accurate data for calculations
-    const totalInvestment = TOTAL_INVESTMENT;
-    const bankTotals = accurateBankTotals;
-    const mediaTotals = accurateMediaTotals;
-    const topBank = bankTotals[0];
-    const topMedia = mediaTotals[0];
+    // Find top bank and media
+    const topBank = bankTotals[0] || { name: 'Capital One', value: 0, share: 0 };
+    const topMedia = mediaTotals[0] || { name: 'Television', value: 0, share: 0 };
 
     // Find Wells Fargo position
     const wellsFargoIndex = bankTotals.findIndex(bank => bank.name === "Wells Fargo Bank");
@@ -178,7 +258,7 @@ const KeyMetrics = () => {
       averageMonthlyInvestment: dashboardData.monthlyTrends.length > 0 ? totalInvestment / dashboardData.monthlyTrends.length : 0,
       growthOpportunities: [],
       banksCount: dashboardData.banks.length,
-      mediaCount: 7 // Set to constant 7 for the total number of media categories
+      mediaCount: mediaTotals.length
     };
   }, [dashboardData, selectedMonths]);
 
@@ -412,13 +492,15 @@ const KeyMetrics = () => {
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-gray-700">Television</span>
-                      <span className="text-sm text-gray-600">48.60%</span>
+                      <span className="text-sm text-gray-600">
+                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Television')?.share || 0)}
+                      </span>
                     </div>
                     <div className="h-1 bg-gray-50 rounded-full mt-1">
                       <div 
                         className="h-1 rounded-full" 
                         style={{ 
-                          width: `48.60%`, 
+                          width: `${metrics.mediaTotals.find(m => m.name === 'Television')?.share || 0}%`, 
                           backgroundColor: getMediaColor('Television') 
                         }}
                       ></div>
@@ -433,23 +515,25 @@ const KeyMetrics = () => {
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-gray-700">Audio</span>
-                      <span className="text-sm text-gray-600">5.68%</span>
-        </div>
+                      <span className="text-sm text-gray-600">
+                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Audio')?.share || 0)}
+                      </span>
+                    </div>
                     <div className="h-1 bg-gray-50 rounded-full mt-1">
                       <div 
                         className="h-1 rounded-full" 
-              style={{ 
-                          width: `5.68%`, 
+                        style={{ 
+                          width: `${metrics.mediaTotals.find(m => m.name === 'Audio')?.share || 0}%`, 
                           backgroundColor: getMediaColor('Audio') 
-              }}
-            ></div>
+                        }}
+                      ></div>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      
+
           {/* Digital and Print - aligned with Our Performance */}
           <div className="flex-1">
             <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100" style={{ height: "110px" }}>
@@ -462,13 +546,15 @@ const KeyMetrics = () => {
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-gray-700">Digital</span>
-                      <span className="text-sm text-gray-600">39.76%</span>
+                      <span className="text-sm text-gray-600">
+                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Digital')?.share || 0)}
+                      </span>
                     </div>
                     <div className="h-1 bg-gray-50 rounded-full mt-1">
                       <div 
                         className="h-1 rounded-full" 
                         style={{ 
-                          width: `39.76%`, 
+                          width: `${metrics.mediaTotals.find(m => m.name === 'Digital')?.share || 0}%`, 
                           backgroundColor: getMediaColor('Digital') 
                         }}
                       ></div>
@@ -483,16 +569,18 @@ const KeyMetrics = () => {
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-gray-700">Print</span>
-                      <span className="text-sm text-gray-600">1.60%</span>
-        </div>
+                      <span className="text-sm text-gray-600">
+                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Print')?.share || 0)}
+                      </span>
+                    </div>
                     <div className="h-1 bg-gray-50 rounded-full mt-1">
                       <div 
                         className="h-1 rounded-full" 
-              style={{ 
-                          width: `1.60%`, 
+                        style={{ 
+                          width: `${metrics.mediaTotals.find(m => m.name === 'Print')?.share || 0}%`, 
                           backgroundColor: getMediaColor('Print') 
-              }}
-            ></div>
+                        }}
+                      ></div>
                     </div>
                   </div>
                 </div>
@@ -507,8 +595,8 @@ const KeyMetrics = () => {
                 <span className="font-medium text-gray-800">Key Insights:</span>{' '}
                 {(() => {
                   // Get the consistent media data from dashboard data
-                  const televisionPercentage = 48.60; // Updated correct value
-                  const digitalPercentage = 39.76; // Digital remains the same
+                  const televisionPercentage = metrics.mediaTotals.find(m => m.name === 'Television')?.share || 0;
+                  const digitalPercentage = metrics.mediaTotals.find(m => m.name === 'Digital')?.share || 0;
                   
                   // Create dynamic insight text based on consistent data
                   return (
