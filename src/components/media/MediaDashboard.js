@@ -31,15 +31,15 @@ const MediaDashboard = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-blue-900">Television dominates with 53.3% share, indicating strong focus on mass market reach and brand awareness</span>
+                <span className="text-blue-900">Television accounts for 48.60% ($896.91M) of total media investment across all banks, making it the dominant channel in the industry</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
-                <span className="text-blue-900">Digital channels represent 37.8%, showing significant investment in online presence and targeting capabilities</span>
+                <span className="text-blue-900">Digital channels represent 42.45% ($783.41M) of total media investment, ranking as the second most utilized media channel</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
-                <span className="text-blue-900">Audio and Print combine for 8.8%, providing complementary reach to primary channels</span>
+                <span className="text-blue-900">Audio (6.32%, $116.71M), Print (1.63%, $30.18M), and Outdoor (0.67%, $12.27M) complete the media mix distribution</span>
               </li>
             </ul>
           </div>
@@ -50,15 +50,15 @@ const MediaDashboard = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-amber-900">The top 3 banks collectively represent 83.16% of total media investment ($1.53B), demonstrating high market concentration</span>
+                <span className="text-amber-900">The top 3 banks collectively represent 83.16% of total media investment ($1.53B out of $1.85B total)</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
-                <span className="text-amber-900">Capital One leads the market with 45.39% share of total media, with significant investment also in Digital channels</span>
+                <span className="text-amber-900">Capital One leads with 45.39% ($837.60M) market share, followed by Chase Bank at 22.26% ($410.79M) and Bank of America at 15.51% ($286.25M)</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
-                <span className="text-amber-900">Market shows high concentration in traditional media channels, with opportunities in emerging digital platforms</span>
+                <span className="text-amber-900">Wells Fargo ranks 4th with 10.63% ($196.28M) of market share, while PNC Bank (4.12%, $76.09M) and TD Bank (2.07%, $38.32M) complete the market</span>
               </li>
             </ul>
           </div>

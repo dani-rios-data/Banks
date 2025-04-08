@@ -48,7 +48,7 @@ const MonthFilter = () => {
             </button>
             
             {showMonthFilter && (
-              <div className="absolute right-0 top-full mt-2 w-96 bg-white border rounded-md shadow-lg z-50">
+              <div className="absolute left-0 top-full mt-2 w-96 bg-white border rounded-md shadow-lg z-50">
                 <div className="p-3 border-b">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-medium text-gray-700">Filter by Month</h3>
