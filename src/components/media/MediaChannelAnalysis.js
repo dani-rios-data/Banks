@@ -127,6 +127,8 @@ const MediaChannelAnalysis = () => {
                 {category === 'Audio' && Icons.audio}
                 {category === 'Print' && Icons.print}
                 {category === 'Outdoor' && Icons.outdoor}
+                {category === 'Streaming' && Icons.streaming}
+                {category === 'Cinema' && Icons.cinema}
               </span>
               {category}
             </button>
