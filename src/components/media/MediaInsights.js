@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../context/DashboardContext';
+import { formatCurrency, formatPercentage } from '../../utils/formatters';
 
 const MediaInsights = () => {
   const { selectedMediaCategory, dashboardData, selectedMonths } = useDashboard();
@@ -96,18 +97,6 @@ const MediaInsights = () => {
     
     const category = filteredCategories.find(cat => cat.name === mediaCategory);
     return category ? category.total : 0;
-  };
-  
-  // Function to format currency values
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-      notation: 'compact',
-      compactDisplay: 'short'
-    }).format(value);
   };
 
   const insights = {

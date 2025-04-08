@@ -35,16 +35,12 @@ export const formatCurrency = (value) => {
   // Para valores mayores o iguales a 1 millón
   if (numValue >= 1000000) {
     const millions = numValue / 1000000;
-    // Evitar mostrar "0.00M" para valores muy cercanos a 1M
-    if (millions < 0.01) return formatCurrency(numValue);
     return `$${getExactDecimals(millions)}M`;
   }
   
   // Para valores mayores o iguales a 1 mil
   if (numValue >= 1000) {
     const thousands = numValue / 1000;
-    // Evitar mostrar "0.00K" para valores muy cercanos a 1K
-    if (thousands < 0.01) return formatCurrency(numValue);
     return `$${getExactDecimals(thousands)}K`;
   }
   

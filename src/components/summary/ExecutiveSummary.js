@@ -1,18 +1,104 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import KeyMetrics from './KeyMetrics';
 import MarketShareComparison from './MarketShareComparison';
 import DistributionCharts from './DistributionCharts';
 import MonthlyTrends from './MonthlyTrends';
 import { useDashboard } from '../../context/DashboardContext';
 import { formatPercentage, formatCurrency } from '../../utils/formatters';
+import _ from 'lodash';
 
 /**
  * Executive Summary component that integrates all summary components
  * Provides a comprehensive overview of all key insights and metrics
  */
 const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
-  const { loading, dashboardData } = useDashboard();
-  const metrics = dashboardData?.metrics || {};
+  const { loading, dashboardData, selectedMonths: selectedMonthsArray } = useDashboard();
+  
+  // Calculate metrics directly from dashboardData
+  const metrics = useMemo(() => {
+    if (!dashboardData) return {};
+    
+    // Filter months if needed
+    const relevantMonths = selectedMonthsArray.length > 0
+      ? dashboardData.monthlyTrends.filter(month => selectedMonthsArray.includes(month.month))
+      : dashboardData.monthlyTrends;
+    
+    // Calculate total investment
+    const totalInvestment = relevantMonths.reduce((sum, month) => sum + month.total, 0);
+    
+    // Calculate bank totals and shares
+    const bankTotals = {};
+    relevantMonths.forEach(month => {
+      month.bankShares.forEach(share => {
+        bankTotals[share.bank] = (bankTotals[share.bank] || 0) + share.investment;
+      });
+    });
+    
+    const banksData = Object.entries(bankTotals).map(([name, value]) => ({
+      name,
+      investment: value,
+      percentage: totalInvestment > 0 ? (value / totalInvestment) * 100 : 0
+    })).sort((a, b) => b.investment - a.investment);
+    
+    // Find leading bank
+    const leadingBank = banksData[0] || { name: '', investment: 0, percentage: 0 };
+    
+    // Calculate media category distribution
+    const mediaTotals = {};
+    Object.entries(bankTotals).forEach(([bankName, total]) => {
+      const bank = dashboardData.banks.find(b => b.name === bankName);
+      if (bank) {
+        bank.mediaBreakdown.forEach(media => {
+          const mediaAmount = (total * media.percentage) / 100;
+          mediaTotals[media.category] = (mediaTotals[media.category] || 0) + mediaAmount;
+        });
+      }
+    });
+    
+    const mediaDistribution = Object.entries(mediaTotals).map(([name, value]) => ({
+      name,
+      investment: value,
+      percentage: totalInvestment > 0 ? (value / totalInvestment) * 100 : 0
+    })).sort((a, b) => b.investment - a.investment);
+    
+    // Calculate top media category
+    const topMedia = mediaDistribution[0] || { name: '', investment: 0, percentage: 0 };
+    
+    // Calculate combined Digital + TV
+    const digitalTV = mediaDistribution
+      .filter(m => m.name === 'Television' || m.name === 'Digital')
+      .reduce((sum, m) => sum + m.percentage, 0);
+    
+    // Find peak month
+    const peakMonth = _.maxBy(relevantMonths, 'total') || { month: '', investment: 0 };
+    
+    // Calculate quarterly totals
+    const quarterlyData = {};
+    relevantMonths.forEach(month => {
+      const [year, monthNum] = month.month.split('-');
+      const quarter = Math.ceil(parseInt(monthNum) / 3);
+      const quarterKey = `${year}-Q${quarter}`;
+      quarterlyData[quarterKey] = (quarterlyData[quarterKey] || 0) + month.total;
+    });
+    
+    const quarters = Object.entries(quarterlyData).map(([quarter, amount]) => ({
+      quarter,
+      amount,
+      percentage: totalInvestment > 0 ? (amount / totalInvestment) * 100 : 0
+    })).sort((a, b) => b.amount - a.amount);
+    
+    const peakQuarter = quarters[0] || { quarter: '', amount: 0, percentage: 0 };
+    
+    return {
+      totalInvestment,
+      leadingBank,
+      mediaDistribution,
+      topMedia,
+      combinedDigitalTV: digitalTV,
+      peakMonth,
+      peakQuarter
+    };
+  }, [dashboardData, selectedMonthsArray]);
 
   if (loading) {
     return (
@@ -49,209 +135,114 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
         <div className="flex items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Market Insights</h2>
           <div className="ml-4 px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full">
-            Market Landscape
+            Market Data
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
-              <h4 className="text-md font-semibold text-blue-700 mb-3">Banking Advertising Landscape</h4>
+              <h4 className="text-md font-semibold text-blue-700 mb-3">Banking Advertising Data</h4>
               <p className="text-blue-700 mb-4">
-                The banking industry spent a total of <span className="font-bold">$1.85 billion</span> on advertising across all media channels during the analyzed period (January 2024 - March 2025).
+                The banking industry total advertising investment was <span className="font-bold">{formatCurrency(metrics.totalInvestment || dashboardData.totalInvestment).replace('M', ' million').replace('B', ' billion')}</span> across all media channels during the period from January 2024 to March 2025.
               </p>
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Six major banks account for the total advertising spend, with Capital One leading at 45.39%</span>
+                  <span>The data includes six major banks, with Capital One representing {formatPercentage(metrics.leadingBank?.percentage || 0)} of total advertising spend</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Investment is distributed across 7 media categories, with Television (51.48%) and Digital (40.24%) dominant</span>
+                  <span>Media spend is distributed across 7 media categories, with Television at {formatPercentage(metrics.mediaDistribution?.find(m => m.name === 'Television')?.percentage || 0)} and Digital at {formatPercentage(metrics.mediaDistribution?.find(m => m.name === 'Digital')?.percentage || 0)}</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>The competitive landscape shows significant variation in media strategy by bank</span>
+                  <span>Each bank shows different allocation patterns across media categories</span>
                 </li>
               </ul>
             </div>
             
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
-              <h4 className="text-md font-semibold text-blue-700 mb-3">Key Market Trends</h4>
+              <h4 className="text-md font-semibold text-blue-700 mb-3">Monthly Investment Data</h4>
               <p className="text-blue-700 mb-4">
-                The analysis reveals significant variations in spending across different months, with three notable investment peaks in December 2024, March 2024, and September 2024.
+                The data shows advertising spending across different months, with spending peaks in December 2024, March 2024, and September 2024.
               </p>
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Digital and Television combine for 91.72% of total spending across all banks</span>
+                  <span>Digital and Television combined represent {formatPercentage(metrics.combinedDigitalTV || 0)} of total spending</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Significant monthly volatility, with December 2024 showing the highest investment ($194.45M)</span>
+                  <span>December 2024 had the highest monthly investment at {formatCurrency(metrics.peakMonth?.total || 0)}</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Q4 2024 had the highest quarterly investment at $441.6M (23.93% of total)</span>
+                  <span>Q4 2024 total investment was {formatCurrency(metrics.peakQuarter?.amount || 0)}, representing {formatPercentage(metrics.peakQuarter?.percentage || 0)} of the annual total</span>
                 </li>
               </ul>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Growth Opportunities - MOVED UP */}
-      <div className="mb-8">
-        <div className="flex items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Growth Opportunities</h2>
-          <div className="ml-4 px-3 py-1 bg-teal-50 text-teal-600 text-sm rounded-full">
-            Strategic Insights
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-          {metrics.growthOpportunities && metrics.growthOpportunities.length > 0 ? (
-            <>
-              <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-5 border border-teal-200 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-md font-semibold text-teal-700">Primary Opportunity</h3>
-                  <span className="px-3 py-1 bg-teal-700 text-white text-sm rounded-full">
-                    High Impact
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-2xl font-bold text-teal-800 mb-1">
-                      {metrics.growthOpportunities[0].channel}
-                    </div>
-                    <div className="text-teal-700">
-                      {formatPercentage(metrics.growthOpportunities[0].gap)} gap vs industry average
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-teal-800">
-                    +{formatPercentage(metrics.growthOpportunities[0].gap)}
-                  </div>
-                </div>
-                
-                <div className="bg-white/60 rounded-lg p-3 border border-teal-200">
-                  <div className="mb-2 text-sm text-teal-700 font-medium">Gap Analysis</div>
-                  <div className="flex items-center justify-between mb-1 text-sm">
-                    <span>Wells Fargo Bank current allocation:</span>
-                    <span className="font-medium">{formatPercentage(metrics.growthOpportunities[0].wellsPercentage)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Industry average allocation:</span>
-                    <span className="font-medium">{formatPercentage(metrics.growthOpportunities[0].industryPercentage)}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                {metrics.growthOpportunities.slice(0, 2).map((opp, index) => (
-                  <div key={index} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="font-semibold text-gray-800">{opp.channel}</span>
-                      <span className="px-2 py-1 bg-teal-100 text-teal-700 text-sm rounded-full">
-                        +{formatPercentage(opp.gap)}
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full mb-3">
-                      <div 
-                        className="h-2 bg-teal-500 rounded-full" 
-                        style={{ width: `${Math.min(100, opp.wellsPercentage / opp.industryPercentage * 100)}%` }}
-                      ></div>
-                    </div>
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <div>
-                        <div>Wells Fargo: {formatPercentage(opp.wellsPercentage)}</div>
-                        <div>Industry: {formatPercentage(opp.industryPercentage)}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-teal-700">Opportunity</div>
-                        <div className="font-medium">{formatPercentage(opp.gap)}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {metrics.growthOpportunities.length > 2 && (
-                <div className="text-center mt-3">
-                  <span className="text-sm text-blue-600">{metrics.growthOpportunities.length - 2} more opportunities identified</span>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
-              <div className="text-xl font-medium text-gray-500 mb-2">
-                No significant gaps found
-              </div>
-              <p className="text-gray-500">
-                Wells Fargo&apos;s media allocation is well aligned with industry standards.
-              </p>
-            </div>
-          )}
-
-          <h3 className="text-lg font-medium text-gray-800 mb-4 pb-2 border-b border-gray-200 mt-8">
-            Competitive Market Analysis & Opportunities
-          </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-5 border border-teal-200">
-              <h4 className="text-md font-semibold text-teal-700 mb-3">Media Investment Strategy</h4>
+              <h4 className="text-md font-semibold text-teal-700 mb-3">Media Channel Distribution</h4>
+              <p className="text-teal-700 mb-4">
+                The data shows varied media channel allocation across banks.
+              </p>
               <ul className="space-y-3 text-teal-700">
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Television remains the dominant channel at 51.48% of total investment, with Capital One investing 50.74% of their budget in this medium</span>
+                  <span>Television represents {formatPercentage(metrics.mediaDistribution?.find(m => m.name === 'Television')?.percentage || 0)} of total investment, with Capital One allocating {formatPercentage(dashboardData.banks?.find(b => b.name === 'Capital One')?.mediaBreakdown?.find(m => m.category === 'Television')?.percentage || 0)} of their budget to this medium</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Digital channels represent 40.24% of total investment, with Chase Bank focusing 58.87% of their budget in this category</span>
+                  <span>Digital channels account for {formatPercentage(metrics.mediaDistribution?.find(m => m.name === 'Digital')?.percentage || 0)} of total investment, with Chase Bank allocating {formatPercentage(dashboardData.banks?.find(b => b.name === 'Chase Bank')?.mediaBreakdown?.find(m => m.category === 'Digital')?.percentage || 0)} of their budget to digital</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Distinct strategies emerge: PNC Bank is heavily television-focused (88.55%), TD Bank is digital-focused (53.33%), while Capital One and Bank of America maintain balanced approaches</span>
+                  <span>PNC Bank allocates {formatPercentage(dashboardData.banks?.find(b => b.name === 'Pnc Bank')?.mediaBreakdown?.find(m => m.category === 'Television')?.percentage || 0)} to Television, TD Bank allocates {formatPercentage(dashboardData.banks?.find(b => b.name === 'Td Bank')?.mediaBreakdown?.find(m => m.category === 'Digital')?.percentage || 0)} to Digital</span>
                 </li>
               </ul>
             </div>
             
             <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-5 border border-teal-200">
-              <h4 className="text-md font-semibold text-teal-700 mb-3">Competitive Differentiation</h4>
+              <h4 className="text-md font-semibold text-teal-700 mb-3">Market Share Data</h4>
               <ul className="space-y-3 text-teal-700">
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Capital One dominates the market with 45.39% of total investment, more than double Chase Bank (22.26%), the second-largest investor</span>
+                  <span>Capital One accounts for 45.39% of total advertising investment, Chase Bank accounts for 22.26%</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Capital One leads in Television (47.39%), Digital (44.80%), and Print (52.23%) categories, showing broad market dominance</span>
+                  <span>Capital One's share by media category: Television (47.39%), Digital (44.80%), Print (52.23%)</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-teal-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Wells Fargo ranks fourth overall with 10.64% market share, with its strongest position in Television (14.78% of category)</span>
+                  <span>Wells Fargo accounts for 10.64% of market share, with 14.78% share of Television advertising</span>
                 </li>
               </ul>
             </div>

@@ -55,6 +55,13 @@ function getInvestment(row) {
 
 // Function to process a CSV file
 async function processCSVFile(filePath) {
+  // Ignore banking-data.csv and banking-data-fixed.csv files
+  const fileName = path.basename(filePath);
+  if (fileName === 'banking-data.csv' || fileName === 'banking-data-fixed.csv') {
+    console.log(`Skipping ${fileName}`);
+    return Promise.resolve();
+  }
+
   const bankName = path.basename(filePath, '.csv')
     .replace('-benchmark-v3-1', '')
     .replace('-benchmark-v3', '')
@@ -196,7 +203,10 @@ async function main() {
 
   try {
     // Process all CSV files
-    const files = fs.readdirSync(INPUT_DIR).filter(file => file.endsWith('.csv'));
+    const files = fs.readdirSync(INPUT_DIR)
+      .filter(file => file.endsWith('.csv'))
+      .filter(file => file !== 'banking-data.csv' && file !== 'banking-data-fixed.csv');
+    
     console.log(`Files found: ${files.join(', ')}`);
     
     if (files.length === 0) {
