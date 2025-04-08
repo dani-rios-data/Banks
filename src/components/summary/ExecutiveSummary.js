@@ -234,19 +234,19 @@ const ExecutiveSummary = ({ selectedMonths = 'All Period' }) => {
                   <svg className="h-5 w-5 text-amber-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>The top 3 banks collectively represent 83.16% of total media investment ($1.53B), demonstrating high market concentration</span>
+                  <span>The top 3 banks collectively represent 83.16% of total media investment ($1.53B out of $1.85B total), demonstrating high market concentration</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-amber-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Capital One leads the market with 45.39% share of total media. Their media allocation strategy focuses primarily on Television (0.00% of their budget), with significant investment also in Digital channels</span>
+                  <span>Capital One leads the market with 45.39% share of total media. Their media allocation strategy focuses primarily on Television and Digital channels, with additional investments in Streaming and Cinema</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="h-5 w-5 text-amber-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Chase Bank and Bank of America follow with 22.26% and 15.51% market share respectively, showing distinct media strategy preferences</span>
+                  <span>Chase Bank and Bank of America follow with 22.26% and 15.51% market share respectively, while Wells Fargo ranks 4th with 10.63% of the market</span>
                 </li>
               </ul>
             </div>

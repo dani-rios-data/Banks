@@ -277,16 +277,17 @@ const MonthlyTrends = () => {
       }
     }
 
-    // Calculate Wells Fargo monthly average investment - Corregir el cálculo
+    // Calculate Wells Fargo monthly average investment
     const validInvestments = wfTrends.filter(item => !isNaN(item.investment) && item.investment > 0);
     const wfMonthlyAvg = validInvestments.length > 0 
       ? validInvestments.reduce((sum, item) => sum + item.investment, 0) / validInvestments.length 
       : 0;
       
-    // Calcular el promedio mensual del mercado
-    const validMarketInvestments = wfTrends.filter(item => !isNaN(item.marketAvgInvestment) && item.marketAvgInvestment > 0);
-    // Usando valor fijo de 20.5M como especificado por el usuario
-    const marketMonthlyAvg = 20500000; // $20.5M en valor numérico
+    // Calcular el promedio mensual del mercado basado en los meses seleccionados
+    // Usar el mismo filtro de meses que se aplica a trendsData
+    const marketMonthlyAvg = trendsData.length > 0
+      ? trendsData.reduce((sum, month) => sum + month.total, 0) / trendsData.length / dashboardData.banks.length
+      : 0;
 
     // Compare all banks over time for market share
     const bankComparison = filteredMonthlyData.map(month => {
@@ -902,86 +903,154 @@ const MonthlyTrends = () => {
         </div>
       </div>
       
-      {/* Insights Panel */}
+      {/* Insights Panel - Versión mejorada y simplificada */}
       <div className="mt-10 bg-blue-50 p-4 rounded-lg">
-        <h3 className="font-medium text-blue-700 mb-3">Trend Analysis Insights</h3>
+        <h3 className="font-medium text-blue-700 mb-3">Monthly Trend Insights</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Market Trends */}
+          {/* Market Insights */}
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Market Trends</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start">
-                <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-blue-500"></span>
-                <span>
-                  The overall market {insights.overall.trend === 'stable' 
-                    ? 'shows stable investment levels' 
-                    : insights.overall.trend === 'increasing'
-                    ? `shows an upward trend of ${Math.abs(Math.round(insights.overall.value))}%`
-                    : `shows a downward trend of ${Math.abs(Math.round(insights.overall.value))}%`} 
-                  in the selected period.
-                </span>
-              </li>
-              
-              {insights.peakMonth && (
+            <h4 className="font-medium text-gray-700 mb-2">Market Investment Insights</h4>
+            <ul className="space-y-3 text-sm text-gray-700">
+              {trendsData.length > 0 && (
                 <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-green-500"></span>
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-blue-500"></span>
                   <span>
-                    Highest investment for the period occurred in {formatMonthLabel(insights.peakMonth.name)} 
-                    with a total of {formatCurrency(insights.peakMonth.total)}.
+                    <strong>Total Investment:</strong> {formatCurrency(trendsData.reduce((sum, m) => sum + m.total, 0))} 
+                    {trendsData.length > 1 ? ` across ${trendsData.length} months` : ''}
                   </span>
                 </li>
               )}
               
-              {insights.seasonal.map((season, i) => (
-                <li key={i} className="flex items-start">
-                  <span className={`inline-block mr-2 mt-0.5 h-2 w-2 rounded-full ${
-                    season.type === 'peak' ? 'bg-yellow-500' : 'bg-indigo-500'
-                  }`}></span>
+              {trendsData.length > 0 && (
+                <li className="flex items-start">
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-green-500"></span>
                   <span>
-                    {season.type === 'peak' ? 'Higher' : 'Lower'} investment volumes 
-                    appear in {season.period} based on the data.
+                    <strong>Monthly Average:</strong> {formatCurrency(trendsData.reduce((sum, m) => sum + m.total, 0) / Math.max(trendsData.length, 1))} 
+                    <span className="text-gray-500 text-xs ml-1">(total market investment ÷ {trendsData.length} months - all banks combined)</span>
                   </span>
                 </li>
-              ))}
+              )}
+              
+              {insights.peakMonth && (
+                <li className="flex items-start">
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-yellow-500"></span>
+                  <span>
+                    <strong>Peak Month:</strong> {formatMonthLabel(insights.peakMonth.name)} <span className="ml-1">with</span> {formatCurrency(insights.peakMonth.total)} 
+                    ({formatPercentage(insights.peakMonth.total / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} of total)
+                    <span className="text-gray-500 text-xs ml-1">(highest investment month in selected period - represents {formatPercentage(100/trendsData.length)}% of months with {formatPercentage(insights.peakMonth.total / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} of spending)</span>
+                  </span>
+                </li>
+              )}
+
+              {trendsData.length > 1 && (
+                <li className="flex items-start">
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-purple-500"></span>
+                  <span>
+                    <strong>Month-to-Month Trend:</strong> {
+                      Math.abs(insights.overall.value) < 5 
+                        ? 'Investment remains stable across selected months' 
+                        : insights.overall.value > 0
+                          ? `Investment increasing by ${Math.abs(Math.round(insights.overall.value))}% across selected months (comparing first month to last month)`
+                          : `Investment decreasing by ${Math.abs(Math.round(insights.overall.value))}% across selected months (comparing ${formatMonthLabel(trendsData[0].name)}: ${formatCurrency(trendsData[0].total)} to ${formatMonthLabel(trendsData[trendsData.length-1].name)}: ${formatCurrency(trendsData[trendsData.length-1].total)})`
+                    }
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
           
-          {/* Bank Performance Comparison */}
+          {/* Bank Insights */}
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Bank Performance Comparison</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start">
-                <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" style={{ backgroundColor: chartColors['Wells Fargo Bank'] }}></span>
-                <span>
-                  Wells Fargo&apos;s market share {insights.wf.trend === 'stable' 
-                    ? 'remains stable' 
-                    : insights.wf.trend === 'increasing'
-                    ? `shows an increase of ${Math.abs(Math.round(insights.wf.value))}%`
-                    : `shows a decrease of ${Math.abs(Math.round(insights.wf.value))}%`} 
-                  during this timeframe.
-                </span>
-              </li>
-              
-              {insights.competitiveAdv.threats?.map((threat, i) => (
-                <li key={i} className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" style={{ backgroundColor: chartColors[threat.bank] }}></span>
+            <h4 className="font-medium text-gray-700 mb-2">Bank Performance Insights</h4>
+            <ul className="space-y-3 text-sm text-gray-700">
+              {trendsData.length > 0 && (
+                <li className="flex items-start">
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" 
+                        style={{ backgroundColor: chartColors[Object.entries(chartColors)[0][0]] }}></span>
                   <span>
-                    <strong>{threat.bank}</strong> shows {threat.advantage.toFixed(1)}% higher growth rate 
-                    compared to Wells Fargo in the selected period.
+                    <strong>Leading Bank:</strong> {(() => {
+                      // Calcular inversión total por banco
+                      const bankTotals = {};
+                      trendsData.forEach(month => {
+                        Object.entries(month).forEach(([key, value]) => {
+                          if (key !== 'name' && key !== 'total') {
+                            bankTotals[key] = (bankTotals[key] || 0) + value;
+                          }
+                        });
+                      });
+                      
+                      // Encontrar el banco líder
+                      const sortedBanks = Object.entries(bankTotals)
+                        .sort((a, b) => b[1] - a[1]);
+                      
+                      if (sortedBanks.length > 0) {
+                        const [leadingBank, leadingAmount] = sortedBanks[0];
+                        const totalInvestment = trendsData.reduce((sum, m) => sum + m.total, 0);
+                        const marketShare = (leadingAmount / totalInvestment) * 100;
+                        
+                        return `${leadingBank} with ${formatCurrency(leadingAmount)} (${formatPercentage(marketShare)} market share)`;
+                      }
+                      
+                      return 'No data available';
+                    })()}
                   </span>
                 </li>
-              ))}
+              )}
               
-              {insights.competitiveAdv.opportunities?.map((opp, i) => (
-                <li key={i} className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" style={{ backgroundColor: chartColors[opp.bank] }}></span>
+              {wfTrends.length > 0 && (
+                <li className="flex items-start">
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" 
+                        style={{ backgroundColor: chartColors['Wells Fargo Bank'] }}></span>
                   <span>
-                    <strong>{opp.bank}</strong> shows a decline of {Math.abs(opp.decline).toFixed(1)}% 
-                    during this timeframe, compared to Wells Fargo's trend.
+                    <strong>Wells Fargo:</strong> {formatCurrency(wfTrends.reduce((sum, m) => sum + m.investment, 0))}
+                    {trendsData.length > 0 ? ` (${formatPercentage(wfTrends.reduce((sum, m) => sum + m.investment, 0) / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} market share)` : ''}
                   </span>
                 </li>
-              ))}
+              )}
+              
+              {wfTrends.length > 1 && (
+                <li className="flex items-start">
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" 
+                        style={{ backgroundColor: chartColors['Wells Fargo Bank'] }}></span>
+                  <span>
+                    <strong>Wells Fargo Trend:</strong> {(() => {
+                      // Calcular tendencia manualmente en lugar de usar insights.wf.value
+                      if (wfTrends.length < 2) return 'Insufficient data';
+                      
+                      // Si tenemos más de dos meses, comparar el primer y último mes
+                      const firstMonth = wfTrends[0];
+                      const lastMonth = wfTrends[wfTrends.length - 1];
+                      if (firstMonth.investment > 0) {
+                        const percentChange = ((lastMonth.investment - firstMonth.investment) / firstMonth.investment) * 100;
+                        if (Math.abs(percentChange) < 5) {
+                          return 'Investment remains stable';
+                        }
+                        return percentChange > 0 
+                          ? `Investment increasing by ${Math.abs(Math.round(percentChange))}%`
+                          : `Investment decreasing by ${Math.abs(Math.round(percentChange))}%`;
+                      }
+                      
+                      return 'Cannot calculate trend';
+                    })()}
+                    <span className="text-gray-500 text-xs ml-1">
+                      (from {formatCurrency(wfTrends[0].investment)} in {formatMonthLabel(wfTrends[0].month)} to {formatCurrency(wfTrends[wfTrends.length - 1].investment)} in {formatMonthLabel(wfTrends[wfTrends.length - 1].month)})
+                    </span>
+                  </span>
+                </li>
+              )}
+              
+              {wfTrends.length > 0 && (
+                <li className="flex items-start">
+                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-indigo-500"></span>
+                  <span>
+                    <strong>Wells Fargo Monthly Avg:</strong> {formatCurrency(wfTrends.reduce((sum, m) => sum + m.investment, 0) / Math.max(wfTrends.length, 1))}
+                    <span className="text-gray-500 text-xs ml-1">
+                      (vs per-bank market avg: {formatCurrency(trendsData.reduce((sum, m) => sum + m.total, 0) / Math.max(trendsData.length, 1) / dashboardData.banks.length)} - calculated as [total market ÷ {trendsData.length} months] ÷ {dashboardData.banks.length} banks)
+                    </span>
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
