@@ -35,7 +35,7 @@ export const DashboardProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState(DEFAULT_ACTIVE_TAB);
   const [activeMediaTab, setActiveMediaTab] = useState(DEFAULT_ACTIVE_MEDIA_TAB);
   const [focusedBank, setFocusedBank] = useState('All');
-  const [selectedMediaCategory, setSelectedMediaCategory] = useState(DEFAULT_MEDIA_CATEGORY);
+  const [selectedMediaCategory, setSelectedMediaCategory] = useState('Cinema');
   const [selectedMonths, setSelectedMonths] = useState([]);
   const [showMonthFilter, setShowMonthFilter] = useState(false);
   const [tempSelectedMonths, setTempSelectedMonths] = useState([]);

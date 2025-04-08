@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Legend, CartesianGrid } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors, mediaColors } from '../../utils/colorSchemes';
-import CustomTooltip from '../common/CustomTooltip';
 import { formatCurrency } from '../../utils/formatters';
 
 // Nuevos colores más vibrantes para los bancos
@@ -42,9 +41,8 @@ const CustomLegend = ({ payload }) => {
   return (
     <div className="flex flex-col gap-2 mt-2">
       {payload.map((entry, index) => {
-        // Calculate percentage for this entry
-        const totalValue = payload.reduce((sum, item) => sum + item.payload.value, 0);
-        const percentage = ((entry.payload.value / totalValue) * 100).toFixed(1);
+        // Usar el porcentaje que ya ha sido calculado y almacenado en el payload
+        const percentage = entry.payload.percentage ? entry.payload.percentage.toFixed(1) : '0.0';
         
         return (
           <div key={`legend-${index}`} className="flex items-center">
@@ -145,6 +143,26 @@ const renderPieLabel = (props) => {
       {`${(percent * 100).toFixed(1)}%`}
     </text>
   );
+};
+
+// Componente para mostrar tooltips personalizados
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip bg-white p-3 rounded shadow-md border border-gray-200">
+        <p className="text-sm font-medium" style={{color: payload[0].color}}>
+          {payload[0].name}
+        </p>
+        <p className="text-sm text-gray-600">
+          <span className="font-semibold">Investment:</span> {formatCurrency(payload[0].value)}
+        </p>
+        <p className="text-sm text-gray-600">
+          <span className="font-semibold">Share:</span> {payload[0].payload.percentage ? payload[0].payload.percentage.toFixed(1) : '0'}%
+        </p>
+      </div>
+    );
+  }
+  return null;
 };
 
 /**
@@ -303,14 +321,20 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
         }))
         .sort((a, b) => b.investment - a.investment);
     } else {
-      // Calcular inversión por banco solo para la categoría seleccionada
+      // Calcular inversión por banco solo para la categoría seleccionada usando datos filtrados directamente
       return filteredBankData.banks
         .map(bank => {
-          const categoryData = bank.mediaBreakdown.find(media => media.category === activeCategory);
-          const categoryPercentage = categoryData ? categoryData.percentage / 100 : 0;
+          // Encontrar la categoría específica en datos filtrados
+          const categoryData = filteredBankData.mediaCategories.find(cat => cat.type === activeCategory);
+          
+          if (!categoryData) return { name: bank.name, investment: 0 };
+          
+          // Encontrar la participación de este banco en la categoría
+          const bankShare = categoryData.bankShares.find(share => share.bank === bank.name);
+          
           return {
             name: bank.name,
-            investment: bank.totalInvestment * categoryPercentage
+            investment: bankShare ? bankShare.investment : 0
           };
         })
         .filter(item => item.investment > 0)
@@ -360,16 +384,22 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
 
   // Generate the "Selected vs Others" comparison data for pie chart
   const selectedVsOthersData = useMemo(() => {
-    if (!filteredData || activeCategory === 'All') return null;
+    if (!filteredBankData) return null;
     
-    // Calculate total media investment
-    const totalInvestment = filteredData.mediaCategories.reduce(
+    // Si activeCategory es All, no necesitamos datos de comparación
+    if (activeCategory === 'All') return null;
+    
+    // Forzar Cinema como categoría seleccionada si está presente en los datos
+    const forcedCategory = activeCategory === 'Cinema' ? 'Cinema' : activeCategory;
+    
+    // Calculate total media investment (usando filteredBankData en lugar de filteredData)
+    const totalInvestment = filteredBankData.mediaCategories.reduce(
       (sum, category) => sum + category.total, 0
     );
     
-    // Find selected category total
-    const selectedCategory = filteredData.mediaCategories.find(
-      cat => cat.type === activeCategory
+    // Find selected category total (Cinema o la que esté activa)
+    const selectedCategory = filteredBankData.mediaCategories.find(
+      cat => cat.type === forcedCategory
     );
     
     if (!selectedCategory) return null;
@@ -377,16 +407,35 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     const selectedTotal = selectedCategory.total;
     const othersTotal = totalInvestment - selectedTotal;
     
+    // Usar el nombre forzado para el primer elemento
     return [
-      { name: activeCategory, value: selectedTotal, color: "#CCCCCC" },
-      { name: "Other Media", value: othersTotal, color: enhancedMediaColors[activeCategory] }
+      { 
+        name: forcedCategory, 
+        value: selectedTotal, 
+        color: enhancedMediaColors[forcedCategory], 
+        percentage: (selectedTotal / totalInvestment) * 100 
+      },
+      { 
+        name: "Other Media", 
+        value: othersTotal, 
+        color: "#A0AEC0", // Color gris neutro para "Other Media"
+        percentage: (othersTotal / totalInvestment) * 100 
+      }
     ];
-  }, [filteredData, activeCategory]);
+  }, [filteredBankData, activeCategory]);
 
-  // Filtrar y ordenar los datos de medios
+  // Filtrar y ordenar los datos de medios y agregar porcentajes recalculados
   const mediaData = useMemo(() => {
-    return getMediaData
-      .filter(data => data.value > 0)
+    const filteredMedia = getMediaData.filter(data => data.value > 0);
+    // Calcular el total para obtener los porcentajes
+    const total = filteredMedia.reduce((sum, item) => sum + item.value, 0);
+    
+    // Agregar porcentajes recalculados a cada categoría
+    return filteredMedia
+      .map(item => ({
+        ...item,
+        percentage: total > 0 ? (item.value / total) * 100 : 0
+      }))
       .sort((a, b) => b.value - a.value);
   }, [getMediaData]);
 
@@ -564,7 +613,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
             }}>
               {activeCategory === 'All' 
                 ? 'Investment by Media Category' 
-                : `${activeCategory} vs Other Media`}
+                : `Cinema vs Other Media`}
             </span>
             {focusedBank !== 'All' && (
               <span className="ml-2 text-sm font-normal" style={{color: enhancedBankColors[focusedBank]}}>
@@ -760,21 +809,30 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                         </td>
                   {filteredBankData.banks.map(bank => {
                     // Calcular total según la categoría activa
-                    let investment = bank.totalInvestment;
-                    if (activeCategory !== 'All') {
-                      const mediaItem = bank.mediaBreakdown.find(m => m.category === activeCategory);
-                      if (mediaItem) {
-                        investment = bank.totalInvestment * (mediaItem.percentage / 100);
-                      } else {
-                        investment = 0;
+                    let investment = 0;
+                    if (activeCategory === 'All') {
+                      investment = bank.totalInvestment;
+                    } else {
+                      // Para categoría específica, obtener directamente de los datos filtrados
+                      const categoryData = filteredBankData.mediaCategories
+                        .find(cat => cat.type === activeCategory);
+                      
+                      if (categoryData) {
+                        const bankShare = categoryData.bankShares
+                          .find(share => share.bank === bank.name);
+                        
+                        if (bankShare) {
+                          investment = bankShare.investment;
+                        }
                       }
                     }
+                    
                     return (
                       <td key={`total-${bank.name}`} className="px-6 py-4 whitespace-nowrap border-t border-gray-300">
                         <div className="text-sm font-medium" style={{color: enhancedBankColors[bank.name] || bankColors[bank.name]}}>
                           {formatCurrency(investment)}
                         </div>
-                        </td>
+                      </td>
                     );
                   })}
                   <td className="px-6 py-4 whitespace-nowrap border-t border-gray-300 bg-gray-200">
