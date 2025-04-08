@@ -259,10 +259,6 @@ const MediaDetails = ({ filteredData }) => {
               </div>
             ))}
           </div>
-
-          <div className="mt-4 text-xs text-gray-500">
-            {selectedMediaCategory} investment insights: {bankData.length} banks active in this channel
-          </div>
         </div>
       </div>
     </div>

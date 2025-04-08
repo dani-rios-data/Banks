@@ -5,7 +5,6 @@ import { mediaColors, bankColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
 import Icons from '../common/Icons';
 import MediaDetails from './MediaDetails';
-import MediaInsights from './MediaInsights';
 
 // Colores mejorados para categorías de medios
 const enhancedMediaColors = {
@@ -141,11 +140,6 @@ const MediaChannelAnalysis = () => {
             enhancedBankColors={enhancedBankColors}
           />
         </div>
-      </div>
-
-      {/* Media Insights - Moved outside the main card */}
-      <div className="bg-white rounded-xl shadow-md p-6 transition duration-300 hover:shadow-lg border border-gray-100">
-        <MediaInsights />
       </div>
     </div>
   );
