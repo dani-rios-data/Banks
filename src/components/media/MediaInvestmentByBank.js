@@ -12,6 +12,7 @@ const enhancedBankColors = {
   'Bank Of America': '#2c3e50',   // Elegant dark blue
   'Pnc Bank': '#46c2cb',          // Bright turquoise
   'Td Bank': '#8e44ad',           // Vibrant purple
+  'Chase Bank': '#117ACA',        // Chase blue
 };
 
 // Colores mejorados para categorías de medios

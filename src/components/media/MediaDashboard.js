@@ -25,80 +25,32 @@ const MediaDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Channel Distribution Insights */}
+          {/* Television and Digital Insights */}
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200 transition-transform duration-300 hover:scale-[1.01]">
-            <h3 className="text-lg font-semibold text-blue-800 mb-4">Media Channel Distribution</h3>
+            <h3 className="text-lg font-semibold text-blue-800 mb-4">Primary Media Channels</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-blue-900">Television accounts for 48.60% ($896.91M) of total media investment across all banks, making it the dominant channel in the industry</span>
+                <span className="text-blue-900">Television dominates media spending: Capital One leads with $425,027,359 (50.7% of their budget), Wells Fargo dedicates 67.5% ($132,538,410), and Chase allocates 32.1% ($131,743,559)</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
-                <span className="text-blue-900">Digital channels represent 42.45% ($783.41M) of total media investment, ranking as the second most utilized media channel</span>
-              </li>
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
-                <span className="text-blue-900">Audio (6.32%, $116.71M), Print (1.63%, $30.18M), and Outdoor (0.67%, $12.27M) complete the media mix distribution</span>
+                <span className="text-blue-900">Digital ranks second: Chase Bank invests $241,834,326 (58.9%), Capital One $350,952,125 (41.9%), Bank of America $115,345,939 (40.3%), and Wells Fargo $49,642,595 (25.3%)</span>
               </li>
             </ul>
           </div>
 
-          {/* Market Share Analysis */}
+          {/* Seasonal and Audio Insights */}
           <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-5 border border-amber-200 transition-transform duration-300 hover:scale-[1.01]">
-            <h3 className="text-lg font-semibold text-amber-800 mb-4">Market Share Analysis</h3>
+            <h3 className="text-lg font-semibold text-amber-800 mb-4">Investment Patterns</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-amber-900">The top 3 banks collectively represent 83.16% of total media investment ($1.53B out of $1.85B total)</span>
-              </li>
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
-                <span className="text-amber-900">Capital One leads with 45.39% ($837.60M) market share, followed by Chase Bank at 22.26% ($410.79M) and Bank of America at 15.51% ($286.25M)</span>
+                <span className="text-amber-900">Seasonal spending varies significantly: Capital One peaks at $134,416,688 in December 2024 vs. $6,607,770 in March 2025; Chase Bank peaks at $59,114,811 in September 2024 vs. $3,497,546 in March 2025</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
-                <span className="text-amber-900">Wells Fargo ranks 4th with 10.63% ($196.28M) of market share, while PNC Bank (4.12%, $76.09M) and TD Bank (2.07%, $38.32M) complete the market</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Media Channel Strategies */}
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200 transition-transform duration-300 hover:scale-[1.01]">
-            <h3 className="text-lg font-semibold text-blue-800 mb-4">Media Channel Strategies</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-blue-900">Prime time television slots receive 65% of TV investment, with weekday evening programming capturing 3.2x higher allocation than weekend slots</span>
-              </li>
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
-                <span className="text-blue-900">Mobile platforms attract 74% of digital investment, with desktop receiving 22% and emerging platforms (smart TV, gaming consoles) accounting for 4%</span>
-              </li>
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
-                <span className="text-blue-900">Audio strategy focuses on morning commute hours (6-9am) which receive 47% of audio investment, followed by afternoon drive time (4-7pm) at 31%</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Media Timing Patterns */}
-          <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-5 border border-amber-200 transition-transform duration-300 hover:scale-[1.01]">
-            <h3 className="text-lg font-semibold text-amber-800 mb-4">Media Timing Patterns</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-amber-900">January shows peak digital investment (12.8% of annual), while television investment peaks in November (14.3% of annual TV spend)</span>
-              </li>
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
-                <span className="text-amber-900">Investment cycles reveal 72% heavier spending in the first and last weeks of each month compared to mid-month periods across all media types</span>
-              </li>
-              <li className="flex items-start">
-                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
-                <span className="text-amber-900">Weekend print investment (68% of print spend) significantly outweighs weekday allocation (32%), contrasting with digital's consistent day-of-week distribution</span>
+                <span className="text-amber-900">Audio investment varies by bank: Chase Bank $35,445,205 (8.6%), Capital One $35,619,272 (4.3%), Bank of America $32,453,957 (11.3%), while TD Bank invests only $41,495 (0.1%)</span>
               </li>
             </ul>
           </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors, mediaColors } from '../../utils/colorSchemes';
@@ -43,10 +43,67 @@ const formatValue = (value) => {
 const MediaDetails = ({ filteredData }) => {
   const { 
     selectedMediaCategory,
+    selectedMonths,
     loading
   } = useDashboard();
 
-  if (loading || !filteredData) {
+  // Process data based on selected months
+  const processedData = useMemo(() => {
+    if (!filteredData || !filteredData.monthlyTrends) return null;
+
+    // If no months selected, return all data
+    if (!selectedMonths.length) {
+      return filteredData;
+    }
+
+    // Filter data for selected months
+    const filteredMonths = filteredData.monthlyTrends.filter(month => 
+      selectedMonths.includes(month.month)
+    );
+
+    // Calculate bank totals for the filtered months
+    const bankTotals = {};
+    filteredMonths.forEach(month => {
+      month.bankShares.forEach(share => {
+        bankTotals[share.bank] = (bankTotals[share.bank] || 0) + share.investment;
+      });
+    });
+
+    // Calculate media category totals
+    const mediaCategoryTotals = {};
+    Object.entries(bankTotals).forEach(([bankName, total]) => {
+      const bank = filteredData.banks.find(b => b.name === bankName);
+      if (bank) {
+        bank.mediaBreakdown.forEach(media => {
+          const mediaAmount = (total * media.percentage) / 100;
+          mediaCategoryTotals[media.category] = (mediaCategoryTotals[media.category] || 0) + mediaAmount;
+        });
+      }
+    });
+
+    // Format media categories data
+    const mediaCategories = Object.entries(mediaCategoryTotals).map(([name, total]) => ({
+      name,
+      total,
+      bankShares: Object.entries(bankTotals).map(([bank, bankTotal]) => {
+        const bankData = filteredData.banks.find(b => b.name === bank);
+        const mediaData = bankData?.mediaBreakdown.find(m => m.category === name);
+        const amount = mediaData ? (bankTotal * mediaData.percentage) / 100 : 0;
+        return {
+          bank,
+          amount,
+          percentage: total > 0 ? (amount / total) * 100 : 0
+        };
+      })
+    }));
+
+    return {
+      ...filteredData,
+      mediaCategories
+    };
+  }, [filteredData, selectedMonths]);
+
+  if (loading || !processedData) {
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="animate-pulse text-gray-400">Loading media details...</div>
@@ -56,9 +113,9 @@ const MediaDetails = ({ filteredData }) => {
 
   // For "All" category, show an overview of media category distribution
   if (selectedMediaCategory === 'All') {
-    // Prepare data for the overview chart
+    // Prepare data for the overview chart using processed data
     const overviewData = Object.entries(
-      filteredData.mediaCategories.reduce((acc, category) => {
+      processedData.mediaCategories.reduce((acc, category) => {
         category.bankShares.forEach(share => {
           acc[share.bank] = (acc[share.bank] || 0) + share.amount;
         });
@@ -165,8 +222,8 @@ const MediaDetails = ({ filteredData }) => {
     );
   }
 
-  // Find the selected media category
-  const mediaCategory = filteredData.mediaCategories.find(cat => cat.name === selectedMediaCategory) || filteredData.mediaCategories[0];
+  // Find the selected media category from processed data
+  const mediaCategory = processedData.mediaCategories.find(cat => cat.name === selectedMediaCategory) || processedData.mediaCategories[0];
   if (!mediaCategory) {
     return (
       <div className="h-96 flex items-center justify-center">
