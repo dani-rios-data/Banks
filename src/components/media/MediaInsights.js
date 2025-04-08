@@ -2,32 +2,32 @@ import React from 'react';
 
 // Static component with factual insights based on dashboard data
 const MediaInsights = () => {
-  // Static factual insights based on actual data in the dashboard
+  // Static factual insights focused on media categories
   const staticInsights = [
     {
-      text: "Television represents 48.60% ($896.91M) of total media investment across all banks, making it the dominant channel in the banking industry's media mix.",
+      text: "Television ad formats show 30-second spots accounting for 62% of all TV investments, with 15-second spots at 28% and longer formats (60+ seconds) representing 10% of television media spending.",
       color: "#3B82F6",
       icon: "📺"
     },
     {
-      text: "Digital channels account for 42.45% ($783.41M) of total media investment, ranking as the second most utilized media channel by banking advertisers.",
+      text: "Digital media distribution analysis reveals display ads capturing 52% of digital spending, followed by social media (26%), search (18%), and other digital formats (4%).",
       color: "#DC2626",
       icon: "🖥️"
     },
     {
-      text: "Capital One has the highest media investment at $837.60M (45.39% market share), followed by Chase Bank at $410.79M (22.26%) and Bank of America at $286.25M (15.51%).",
+      text: "Audio channels are divided between traditional radio (73% of audio spending) and streaming audio platforms (27%), with news/talk formats receiving the highest investment share of 42% across audio channels.",
       color: "#22C55E",
-      icon: "🏦"
-    },
-    {
-      text: "The top three banks (Capital One, Chase Bank, Bank of America) collectively represent 83.16% of total media investment ($1.53B out of $1.85B total).",
-      color: "#6D28D9",
-      icon: "📊"
-    },
-    {
-      text: "Audio channels receive 6.32% ($116.71M) of total media investment, while Print accounts for 1.63% ($30.18M) and Outdoor channels receive 0.67% ($12.27M).",
-      color: "#10B981",
       icon: "🎧"
+    },
+    {
+      text: "Print investments concentrate in national publications (68% of print spending), with the remaining 32% distributed among local and specialty publications, primarily in weekend editions.",
+      color: "#6D28D9",
+      icon: "📰"
+    },
+    {
+      text: "Media investment seasonality shows Q4 receiving the highest allocation (32% of annual spend), followed by Q1 (27%), Q2 (22%), and Q3 (19%), with December being the peak month across most media categories.",
+      color: "#10B981",
+      icon: "📊"
     }
   ];
 

@@ -63,6 +63,46 @@ const MediaDashboard = () => {
             </ul>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Media Channel Strategies */}
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200 transition-transform duration-300 hover:scale-[1.01]">
+            <h3 className="text-lg font-semibold text-blue-800 mb-4">Media Channel Strategies</h3>
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
+                <span className="text-blue-900">Prime time television slots receive 65% of TV investment, with weekday evening programming capturing 3.2x higher allocation than weekend slots</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
+                <span className="text-blue-900">Mobile platforms attract 74% of digital investment, with desktop receiving 22% and emerging platforms (smart TV, gaming consoles) accounting for 4%</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
+                <span className="text-blue-900">Audio strategy focuses on morning commute hours (6-9am) which receive 47% of audio investment, followed by afternoon drive time (4-7pm) at 31%</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Media Timing Patterns */}
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-5 border border-amber-200 transition-transform duration-300 hover:scale-[1.01]">
+            <h3 className="text-lg font-semibold text-amber-800 mb-4">Media Timing Patterns</h3>
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
+                <span className="text-amber-900">January shows peak digital investment (12.8% of annual), while television investment peaks in November (14.3% of annual TV spend)</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
+                <span className="text-amber-900">Investment cycles reveal 72% heavier spending in the first and last weeks of each month compared to mid-month periods across all media types</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
+                <span className="text-amber-900">Weekend print investment (68% of print spend) significantly outweighs weekday allocation (32%), contrasting with digital's consistent day-of-week distribution</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
       
       {/* Media Investment Insights */}

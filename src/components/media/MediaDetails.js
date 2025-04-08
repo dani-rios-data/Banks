@@ -10,6 +10,7 @@ const bankColorScheme = {
   'Capital One': '#3B82F6',       // Azul
   'Bank Of America': '#6B7280',   // Gris
   'Wells Fargo Bank': '#EF4444',  // Rojo
+  'Chase Bank': '#117ACA',        // Azul Chase
   'Td Bank': '#8B5CF6',          // Morado
   'Pnc Bank': '#10B981'          // Verde
 };
