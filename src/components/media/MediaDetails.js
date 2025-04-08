@@ -138,8 +138,13 @@ const MediaDetails = ({ filteredData }) => {
 
     return (
       <div className="h-full min-h-[20rem] mb-2">
-        <h3 className="text-lg font-medium text-gray-700 mb-3">
-          Media Investment Distribution Overview
+        <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center justify-between">
+          <div>Media Investment Distribution Overview</div>
+          {selectedMonths.length > 0 && (
+            <span className="ml-2 px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full">
+              Filtered by {selectedMonths.length} {selectedMonths.length === 1 ? 'month' : 'months'}
+            </span>
+          )}
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[85%]">
           <ResponsiveContainer width="100%" height={300}>
@@ -247,15 +252,22 @@ const MediaDetails = ({ filteredData }) => {
 
   return (
     <div className="h-full min-h-[20rem] mb-2">
-      <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center">
-        <span 
-          className="w-4 h-4 rounded-full mr-2" 
-          style={{
-            background: `linear-gradient(135deg, ${enhancedMediaColors[selectedMediaCategory] || mediaColors[selectedMediaCategory]}CC, ${enhancedMediaColors[selectedMediaCategory] || mediaColors[selectedMediaCategory]})`,
-            boxShadow: `0 0 6px ${enhancedMediaColors[selectedMediaCategory] || mediaColors[selectedMediaCategory]}80`
-          }}
-        ></span>
-        {selectedMediaCategory === 'All' ? 'Overall Media' : selectedMediaCategory} - Investment by Bank
+      <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center justify-between">
+        <div className="flex items-center">
+          <span 
+            className="w-4 h-4 rounded-full mr-2" 
+            style={{
+              background: `linear-gradient(135deg, ${enhancedMediaColors[selectedMediaCategory] || mediaColors[selectedMediaCategory]}CC, ${enhancedMediaColors[selectedMediaCategory] || mediaColors[selectedMediaCategory]})`,
+              boxShadow: `0 0 6px ${enhancedMediaColors[selectedMediaCategory] || mediaColors[selectedMediaCategory]}80`
+            }}
+          ></span>
+          {selectedMediaCategory === 'All' ? 'Overall Media' : selectedMediaCategory} - Investment by Bank
+        </div>
+        {selectedMonths.length > 0 && (
+          <span className="ml-2 px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full">
+            Filtered by {selectedMonths.length} {selectedMonths.length === 1 ? 'month' : 'months'}
+          </span>
+        )}
       </h3>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 h-[85%]">
         <div className="lg:col-span-2">

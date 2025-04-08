@@ -50,16 +50,18 @@ const Navigation = () => {
     switch(name) {
       case 'PNC':
       case 'Pnc':
+      case 'pnc':
         return 'Pnc Bank';
       case 'TD':
       case 'Td':
+      case 'td':
         return 'Td Bank';
-      case 'Capital One':
-        return 'Capital One Bank';
       case 'Bank of America':
         return 'Bank Of America';
       case 'Wells Fargo':
         return 'Wells Fargo Bank';
+      case 'Chase':
+        return 'Chase Bank';
       default:
         return name;
     }

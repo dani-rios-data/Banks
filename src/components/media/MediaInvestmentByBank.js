@@ -402,16 +402,11 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 transition duration-300 hover:shadow-lg border border-gray-100">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b border-gray-100">
-        Investment By Media Category
+      <h2 className="text-lg font-medium text-gray-700 mb-6 flex items-center justify-between">
+        <div>Investment By Media Category</div>
         {selectedMonths.length > 0 && (
-          <span className="ml-2 text-sm font-normal text-gray-600">
-            ({selectedMonths.length} {selectedMonths.length === 1 ? 'month' : 'months'} selected)
-          </span>
-        )}
-        {activeCategory !== 'All' && (
-          <span className="ml-2 text-sm font-normal" style={{color: enhancedMediaColors[activeCategory]}}>
-            - {activeCategory} Only
+          <span className="ml-2 px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full">
+            Filtered by {selectedMonths.length} {selectedMonths.length === 1 ? 'month' : 'months'}
           </span>
         )}
       </h2>
@@ -547,6 +542,12 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                     fill={enhancedMediaColors[entry.type] || mediaColors[entry.type]}
                   />
                 ))}
+                <LabelList 
+                  dataKey="total" 
+                  position="right" 
+                  formatter={formatValue}
+                  style={{ fill: '#666', fontSize: '12px' }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
