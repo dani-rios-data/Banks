@@ -190,9 +190,9 @@ const MonthlyTrends = () => {
       return {
         name: month.month,
         total: month.total,
-        ...dashboardData.banks.slice(0, 5).reduce((acc, bank) => {
-          const bankShare = month.bankShares.find(share => share.bank === bank.name);
-          acc[bank.name] = bankShare ? bankShare.investment : 0;
+        // En lugar de usar solo los primeros 5 bancos, incluir todos los bancos
+        ...month.bankShares.reduce((acc, share) => {
+          acc[share.bank] = share.investment;
           return acc;
         }, {})
       };
@@ -291,13 +291,34 @@ const MonthlyTrends = () => {
     // Compare all banks over time for market share
     const bankComparison = filteredMonthlyData.map(month => {
       const total = month.total;
-      return {
+      const result = {
         name: month.month,
-        ...month.bankShares.reduce((acc, share) => {
-          acc[share.bank] = (share.investment / total) * 100;
-          return acc;
-        }, {})
       };
+      
+      // Calcular porcentajes para todos los bancos excepto Wells Fargo
+      month.bankShares.forEach(share => {
+        if (share.bank !== 'Wells Fargo Bank') {
+          result[share.bank] = (share.investment / total) * 100;
+        }
+      });
+      
+      // Buscar los datos de Wells Fargo del archivo JSON para este mes
+      const wfDataForMonth = wfTrends.find(item => item.month === month.month);
+      if (wfDataForMonth) {
+        // Usar el marketShare del archivo JSON
+        result['Wells Fargo Bank'] = wfDataForMonth.marketShare;
+      } else {
+        // Si no se encuentra en el JSON, usar el cálculo estándar como respaldo
+        const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo Bank');
+        if (wfShare) {
+          result['Wells Fargo Bank'] = (wfShare.investment / total) * 100;
+        } else {
+          // Valor predeterminado si no hay datos
+          result['Wells Fargo Bank'] = 0;
+        }
+      }
+      
+      return result;
     });
 
     // Calculate insights
@@ -514,13 +535,16 @@ const MonthlyTrends = () => {
       // Filtrar solo los elementos que no sean "total" y bancos con inversión > 0
       const validPayload = payload.filter(p => p.dataKey !== 'total' && p.value > 0);
       
+      // Ordenar de mayor a menor según valor de inversión
+      const sortedPayload = [...validPayload].sort((a, b) => b.value - a.value);
+      
       // Calcular el total manualmente de los bancos mostrados
       const totalValue = validPayload.reduce((sum, p) => sum + p.value, 0);
       
       return (
         <div className="custom-tooltip bg-white p-3 shadow-lg rounded-lg border border-gray-200">
           <p className="font-semibold text-gray-800">{formatMonthLabel(label)}</p>
-          {validPayload.map((p, index) => (
+          {sortedPayload.map((p, index) => (
             <p key={index} className="text-sm flex justify-between items-center" style={{color: p.color}}>
               <span className="mr-4">{p.name}</span>
               <span>{formatCurrency(p.value)}</span>
@@ -542,14 +566,24 @@ const MonthlyTrends = () => {
   // Render percentage tooltip
   const renderPercentageTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      // Ordenar los bancos de mayor a menor porcentaje
+      const sortedPayload = [...payload].sort((a, b) => b.value - a.value);
+      
       return (
         <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-200">
           <p className="font-semibold text-gray-800">{formatMonthLabel(label)}</p>
-          {payload.map((p, i) => (
-            <p key={i} className="text-sm" style={{ color: chartColors[p.dataKey] || p.color }}>
-              {p.dataKey}: {formatPercentage(p.value)}
+          {sortedPayload.map((p, i) => (
+            <p key={i} className="text-sm flex justify-between items-center" style={{ color: chartColors[p.dataKey] || p.color }}>
+              <span className="mr-4">{p.dataKey}</span>
+              <span className="font-medium">{formatPercentage(p.value)}</span>
             </p>
           ))}
+          <div className="mt-2 pt-2 border-t border-gray-200">
+            <p className="text-sm flex justify-between items-center font-semibold">
+              <span className="mr-4">Total</span>
+              <span>100%</span>
+            </p>
+          </div>
         </div>
       );
     }
@@ -667,7 +701,7 @@ const MonthlyTrends = () => {
                 />
                 <Tooltip content={renderTooltip} />
                 {/* Render lines for each bank */}
-                {dashboardData?.banks && dashboardData.banks.slice(0, 6).map((bank) => {
+                {dashboardData?.banks && dashboardData.banks.map((bank) => {
                   // Si hay bancos seleccionados, solo mostrar esos bancos
                   if (selectedBanks.length > 0 && !selectedBanks.includes(bank.name)) {
                     return null;
@@ -838,8 +872,7 @@ const MonthlyTrends = () => {
                 tick={{ fontSize: 12 }}
               />
               <Tooltip 
-                formatter={(value, name) => [`${Math.round(value)}%`, name]}
-                labelFormatter={formatMonthLabel}
+                content={renderPercentageTooltip}
                 contentStyle={{
                   backgroundColor: 'white',
                   borderRadius: '0.375rem',
@@ -854,7 +887,7 @@ const MonthlyTrends = () => {
                   paddingTop: '10px'
                 }}
               />
-              {dashboardData?.banks && dashboardData.banks.slice(0, 6).map((bank) => (
+              {dashboardData?.banks && dashboardData.banks.map((bank) => (
                 <Area 
                   key={bank.name}
                   type="monotone" 

@@ -37,6 +37,7 @@ const KeyMetrics = () => {
         topMedia: null,
         wellsFargoPosition: { rank: 0, share: 0, value: 0 },
         yearOverYearGrowth: 0,
+        yearOverYearGrowthDescription: '',
         averageMonthlyInvestment: 0,
         growthOpportunities: [],
         banksCount: 0,
@@ -233,18 +234,88 @@ const KeyMetrics = () => {
 
     // Rest of your code for YoY growth, etc.
     let yearOverYearGrowth = 0;
+    let yearOverYearGrowthDescription = '';
+    
+    // TODO: Para una implementación más robusta, se recomienda crear un archivo JSON 
+    // con los datos de YoY precalculados para cada mes durante el preprocesamiento de datos.
+    // El formato sugerido sería:
+    // {
+    //   "2025-01": { "growth": 6.71, "previousMonth": "2024-01", "previousValue": 15000000, "currentValue": 16000000 },
+    //   "2025-02": { "growth": 7.85, "previousMonth": "2024-02", "previousValue": 14000000, "currentValue": 15100000 },
+    //   ...
+    // }
+    // Esto permitiría acceder directamente al YoY de cualquier mes sin necesidad de cálculos en tiempo real
+    // y garantizaría la integridad de los datos al no depender del filtrado.
+    
     if (dashboardData.monthlyTrends && dashboardData.monthlyTrends.length > 1) {
-      const sortedMonths = _.orderBy(dashboardData.monthlyTrends, ['month'], ['asc']);
-      const midPoint = Math.floor(sortedMonths.length / 2);
-      const firstHalf = sortedMonths.slice(0, midPoint);
-      const secondHalf = sortedMonths.slice(midPoint);
-      
-      const firstHalfAvg = _.meanBy(firstHalf, 'total');
-      const secondHalfAvg = _.meanBy(secondHalf, 'total');
-      
-      yearOverYearGrowth = firstHalfAvg > 0 
-        ? ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100
-        : 0;
+      // Si hay meses seleccionados, calculamos el YoY para el mes más reciente seleccionado
+      if (selectedMonths.length > 0) {
+        // Ordenar los meses seleccionados por fecha, de más reciente a más antiguo
+        const sortedSelectedMonths = relevantMonths.sort((a, b) => {
+          const [yearA, monthA] = a.month.split('-');
+          const [yearB, monthB] = b.month.split('-');
+          // Orden inverso para tener el más reciente primero
+          return (parseInt(yearB) * 100 + parseInt(monthB)) - (parseInt(yearA) * 100 + parseInt(monthA));
+        });
+        
+        // NOTA: Idealmente, estos datos deberían estar precalculados en un archivo JSON
+        // para mantener la integridad y veracidad de los datos independientemente del filtrado
+        
+        // Tomar el mes más reciente de los seleccionados
+        const mostRecentMonth = sortedSelectedMonths[0];
+        const [recentYear, recentMonthNum] = mostRecentMonth.month.split('-');
+        
+        // Buscar el mismo mes del año anterior
+        const previousYearMonth = dashboardData.monthlyTrends.find(month => {
+          const [year, monthNum] = month.month.split('-');
+          return monthNum === recentMonthNum && parseInt(year) === parseInt(recentYear) - 1;
+        });
+        
+        if (previousYearMonth && previousYearMonth.total > 0) {
+          yearOverYearGrowth = ((mostRecentMonth.total - previousYearMonth.total) / previousYearMonth.total) * 100;
+          yearOverYearGrowthDescription = `Year-over-Year growth for ${mostRecentMonth.month} (most recent selected month) compared to ${previousYearMonth.month}`;
+        } else {
+          yearOverYearGrowth = 0;
+          yearOverYearGrowthDescription = `No comparable data available for the previous year for ${mostRecentMonth.month} (most recent selected month)`;
+        }
+      } else {
+        // Sin filtro, usar el mes más reciente de todos los disponibles
+        const allMonthsSorted = _.orderBy(dashboardData.monthlyTrends, 
+          m => {
+            const [year, month] = m.month.split('-');
+            return parseInt(year) * 100 + parseInt(month);
+          }, 
+          ['desc']
+        );
+        
+        const mostRecentOverall = allMonthsSorted[0];
+        const [recentYear, recentMonthNum] = mostRecentOverall.month.split('-');
+        
+        // Buscar el mismo mes del año anterior
+        const previousYearMonth = dashboardData.monthlyTrends.find(month => {
+          const [year, monthNum] = month.month.split('-');
+          return monthNum === recentMonthNum && parseInt(year) === parseInt(recentYear) - 1;
+        });
+        
+        if (previousYearMonth && previousYearMonth.total > 0) {
+          yearOverYearGrowth = ((mostRecentOverall.total - previousYearMonth.total) / previousYearMonth.total) * 100;
+          yearOverYearGrowthDescription = `Year-over-Year growth for ${mostRecentOverall.month} (most recent data) compared to ${previousYearMonth.month}`;
+        } else {
+          // Fallback al método anterior si no hay datos comparables
+          const sortedMonths = _.orderBy(dashboardData.monthlyTrends, ['month'], ['asc']);
+          const midPoint = Math.floor(sortedMonths.length / 2);
+          const firstHalf = sortedMonths.slice(0, midPoint);
+          const secondHalf = sortedMonths.slice(midPoint);
+          
+          const firstHalfAvg = _.meanBy(firstHalf, 'total');
+          const secondHalfAvg = _.meanBy(secondHalf, 'total');
+          
+          yearOverYearGrowth = firstHalfAvg > 0 
+            ? ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100
+            : 0;
+          yearOverYearGrowthDescription = `Estimated Year-over-Year growth based on available data (no direct month comparison available)`;
+        }
+      }
     }
 
     return {
@@ -255,6 +326,7 @@ const KeyMetrics = () => {
       topMedia,
       wellsFargoPosition,
       yearOverYearGrowth,
+      yearOverYearGrowthDescription,
       averageMonthlyInvestment: dashboardData.monthlyTrends.length > 0 ? totalInvestment / dashboardData.monthlyTrends.length : 0,
       growthOpportunities: [],
       banksCount: dashboardData.banks.length,
@@ -325,7 +397,11 @@ const KeyMetrics = () => {
             </div>
             <div className="text-center">
               <div className="text-sm text-gray-800">
-                <span className={metrics.yearOverYearGrowth >= 0 ? 'text-green-500' : 'text-red-500'}>
+                <span 
+                  className={metrics.yearOverYearGrowth >= 0 ? 'text-green-500' : 'text-red-500'}
+                  title={metrics.yearOverYearGrowthDescription}
+                  style={{ cursor: 'help' }}
+                >
                   {metrics.yearOverYearGrowth >= 0 ? '↑ ' : '↓ '}
                   {Math.abs(metrics.yearOverYearGrowth).toFixed(2)}% YoY Growth
                 </span>
