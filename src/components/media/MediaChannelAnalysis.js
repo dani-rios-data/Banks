@@ -121,15 +121,13 @@ const MediaChannelAnalysis = () => {
                 }
               }}
             >
-              <span className="flex items-center justify-center mr-2 h-5 w-5">
-                {category === 'Digital' && Icons.digital}
-                {category === 'Television' && Icons.television}
-                {category === 'Audio' && Icons.audio}
-                {category === 'Print' && Icons.print}
-                {category === 'Outdoor' && Icons.outdoor}
-                {category === 'Streaming' && Icons.streaming}
-                {category === 'Cinema' && Icons.cinema}
-              </span>
+              {category === 'Digital' && Icons.digital}
+              {category === 'Television' && Icons.television}
+              {category === 'Audio' && Icons.audio}
+              {category === 'Print' && Icons.print}
+              {category === 'Outdoor' && Icons.outdoor}
+              {category === 'Streaming' && Icons.streaming}
+              {category === 'Cinema' && Icons.cinema}
               {category}
             </button>
           ))}
