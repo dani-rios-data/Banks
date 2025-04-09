@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaColors, bankColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
-import Icons from '../common/Icons';
+import Icons from '../common_copy/Icons';
 import MediaDetails from './MediaDetails';
 
 // Colores mejorados para categorías de medios
@@ -121,13 +121,15 @@ const MediaChannelAnalysis = () => {
                 }
               }}
             >
-              {category === 'Digital' && Icons.digital}
-              {category === 'Television' && Icons.television}
-              {category === 'Audio' && Icons.audio}
-              {category === 'Print' && Icons.print}
-              {category === 'Outdoor' && Icons.outdoor}
-              {category === 'Streaming' && Icons.streaming}
-              {category === 'Cinema' && Icons.cinema}
+              <span className="flex items-center justify-center mr-2">
+                {category === 'Digital' && Icons.digital}
+                {category === 'Television' && Icons.television}
+                {category === 'Audio' && Icons.audio}
+                {category === 'Print' && Icons.print}
+                {category === 'Outdoor' && Icons.outdoor}
+                {category === 'Streaming' && Icons.streaming}
+                {category === 'Cinema' && Icons.cinema}
+              </span>
               {category}
             </button>
           ))}

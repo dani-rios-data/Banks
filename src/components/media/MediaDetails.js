@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelL
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
+import Icons from '../common_copy/Icons';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 
 // Colores exactos para los bancos según el diseño

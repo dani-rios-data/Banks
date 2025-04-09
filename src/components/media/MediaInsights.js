@@ -1,4 +1,5 @@
 import React from 'react';
+import Icons from '../common_copy/Icons';
 
 // Static component with factual insights based on dashboard data
 const MediaInsights = () => {

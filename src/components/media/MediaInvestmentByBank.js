@@ -3,6 +3,7 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveCo
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import { formatCurrency } from '../../utils/formatters';
+import Icons from '../common_copy/Icons';
 
 // Nuevos colores más vibrantes para los bancos
 const enhancedBankColors = {
