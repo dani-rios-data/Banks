@@ -5,6 +5,7 @@ import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
 import Icons from '../common_copy/Icons';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { getFilteredDataByMonths } from '../../utils/excelData/excelDataLoader';
 
 // Colores exactos para los bancos según el diseño
 const bankColorScheme = {
@@ -48,61 +49,11 @@ const MediaDetails = ({ filteredData }) => {
     loading
   } = useDashboard();
 
-  // Process data based on selected months
+  // Process data based on selected months usando los datos del Excel
   const processedData = useMemo(() => {
-    if (!filteredData || !filteredData.monthlyTrends) return null;
-
-    // If no months selected, return all data
-    if (!selectedMonths.length) {
-      return filteredData;
-    }
-
-    // Filter data for selected months
-    const filteredMonths = filteredData.monthlyTrends.filter(month => 
-      selectedMonths.includes(month.month)
-    );
-
-    // Calculate bank totals for the filtered months
-    const bankTotals = {};
-    filteredMonths.forEach(month => {
-      month.bankShares.forEach(share => {
-        bankTotals[share.bank] = (bankTotals[share.bank] || 0) + share.investment;
-      });
-    });
-
-    // Calculate media category totals
-    const mediaCategoryTotals = {};
-    Object.entries(bankTotals).forEach(([bankName, total]) => {
-      const bank = filteredData.banks.find(b => b.name === bankName);
-      if (bank) {
-        bank.mediaBreakdown.forEach(media => {
-          const mediaAmount = (total * media.percentage) / 100;
-          mediaCategoryTotals[media.category] = (mediaCategoryTotals[media.category] || 0) + mediaAmount;
-        });
-      }
-    });
-
-    // Format media categories data
-    const mediaCategories = Object.entries(mediaCategoryTotals).map(([name, total]) => ({
-      name,
-      total,
-      bankShares: Object.entries(bankTotals).map(([bank, bankTotal]) => {
-        const bankData = filteredData.banks.find(b => b.name === bank);
-        const mediaData = bankData?.mediaBreakdown.find(m => m.category === name);
-        const amount = mediaData ? (bankTotal * mediaData.percentage) / 100 : 0;
-        return {
-          bank,
-          amount,
-          percentage: total > 0 ? (amount / total) * 100 : 0
-        };
-      })
-    }));
-
-    return {
-      ...filteredData,
-      mediaCategories
-    };
-  }, [filteredData, selectedMonths]);
+    // Utilizar los datos del Excel en lugar de los datos originales
+    return getFilteredDataByMonths(selectedMonths);
+  }, [selectedMonths]);
 
   if (loading || !processedData) {
     return (
@@ -116,10 +67,8 @@ const MediaDetails = ({ filteredData }) => {
   if (selectedMediaCategory === 'All') {
     // Prepare data for the overview chart using processed data
     const overviewData = Object.entries(
-      processedData.mediaCategories.reduce((acc, category) => {
-        category.bankShares.forEach(share => {
-          acc[share.bank] = (acc[share.bank] || 0) + share.amount;
-        });
+      processedData.banks.reduce((acc, bank) => {
+        acc[bank.name] = bank.totalInvestment;
         return acc;
       }, {})
     )
@@ -229,7 +178,7 @@ const MediaDetails = ({ filteredData }) => {
   }
 
   // Find the selected media category from processed data
-  const mediaCategory = processedData.mediaCategories.find(cat => cat.name === selectedMediaCategory) || processedData.mediaCategories[0];
+  const mediaCategory = processedData.mediaCategories.find(cat => cat.name === selectedMediaCategory);
   if (!mediaCategory) {
     return (
       <div className="h-96 flex items-center justify-center">
