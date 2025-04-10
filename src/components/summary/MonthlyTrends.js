@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import {
   
   Line,
@@ -175,6 +175,53 @@ const MonthlyTrends = ({ filteredData }) => {
     }
   }, [dataSource]);
 
+  // Helper function para el análisis competitivo
+  const findCompetitiveAdvantages = useCallback((bankComparison) => {
+    if (bankComparison.length < 2) return [];
+    
+    // Calculate average market share for each bank
+    const bankShares = {};
+    
+    bankComparison.forEach(month => {
+      Object.entries(month).forEach(([bank, share]) => {
+        if (bank !== 'name') {
+          if (!bankShares[bank]) bankShares[bank] = [];
+          bankShares[bank].push(share);
+        }
+      });
+    });
+    
+    // Calculate market share trends
+    const bankTrends = {};
+    Object.entries(bankShares).forEach(([bank, shares]) => {
+      bankTrends[bank] = {
+        average: _.mean(shares),
+        trend: calculateTrend(shares)
+      };
+    });
+    
+    // Find banks growing faster than Wells Fargo
+    const wfTrend = bankTrends['Wells Fargo']?.trend?.value || 0;
+    
+    const threats = Object.entries(bankTrends)
+      .filter(([bank, data]) => bank !== 'Wells Fargo' && data.trend.value > wfTrend && data.trend.value > 5)
+      .map(([bank, data]) => ({
+        bank,
+        advantage: data.trend.value - wfTrend,
+        growth: data.trend.value
+      }));
+    
+    const opportunities = Object.entries(bankTrends)
+      .filter(([bank, data]) => bank !== 'Wells Fargo' && data.trend.value < wfTrend && data.trend.value < -5)
+      .map(([bank, data]) => ({
+        bank,
+        advantage: wfTrend - data.trend.value,
+        decline: data.trend.value
+      }));
+    
+    return { threats: _.take(_.orderBy(threats, ['advantage'], ['desc']), 2), opportunities: _.take(_.orderBy(opportunities, ['advantage'], ['desc']), 2) };
+  }, [calculateTrend]);
+
   // Calculate trends and insights from monthly data
   const { trendsData, wfTrends, bankComparison, insights, marketMonthlyAvg } = useMemo(() => {
     if (!dataSource?.monthlyTrends) {
@@ -343,7 +390,7 @@ const MonthlyTrends = ({ filteredData }) => {
     }
 
     // Calculate Wells Fargo monthly average investment
-    const validInvestments = wfTrends.filter(item => !isNaN(item.investment) && item.investment > 0);
+    // Eliminar la línea que no se usa
     
     // Calcular el promedio mensual del mercado basado en los meses seleccionados
     // Usar el mismo filtro de meses que se aplica a trendsData
@@ -465,53 +512,6 @@ const MonthlyTrends = ({ filteredData }) => {
         value: minQuarter.average
       }
     ];
-  }
-
-  // Helper function to find competitive advantages
-  function findCompetitiveAdvantages(bankComparison) {
-    if (bankComparison.length < 2) return [];
-    
-    // Calculate average market share for each bank
-    const bankShares = {};
-    
-    bankComparison.forEach(month => {
-      Object.entries(month).forEach(([bank, share]) => {
-        if (bank !== 'name') {
-          if (!bankShares[bank]) bankShares[bank] = [];
-          bankShares[bank].push(share);
-        }
-      });
-    });
-    
-    // Calculate market share trends
-    const bankTrends = {};
-    Object.entries(bankShares).forEach(([bank, shares]) => {
-      bankTrends[bank] = {
-        average: _.mean(shares),
-        trend: calculateTrend(shares)
-      };
-    });
-    
-    // Find banks growing faster than Wells Fargo
-    const wfTrend = bankTrends['Wells Fargo']?.trend?.value || 0;
-    
-    const threats = Object.entries(bankTrends)
-      .filter(([bank, data]) => bank !== 'Wells Fargo' && data.trend.value > wfTrend && data.trend.value > 5)
-      .map(([bank, data]) => ({
-        bank,
-        advantage: data.trend.value - wfTrend,
-        growth: data.trend.value
-      }));
-    
-    const opportunities = Object.entries(bankTrends)
-      .filter(([bank, data]) => bank !== 'Wells Fargo' && data.trend.value < wfTrend && data.trend.value < -5)
-      .map(([bank, data]) => ({
-        bank,
-        advantage: wfTrend - data.trend.value,
-        decline: data.trend.value
-      }));
-    
-    return { threats: _.take(_.orderBy(threats, ['advantage'], ['desc']), 2), opportunities: _.take(_.orderBy(opportunities, ['advantage'], ['desc']), 2) };
   }
 
   // Bank selector component for multi-select dropdown

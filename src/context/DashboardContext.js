@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 import Papa from 'papaparse';
 import { 
@@ -117,7 +117,7 @@ export const DashboardProvider = ({ children }) => {
   };
   
   // Función para filtrar datos según los filtros seleccionados
-  const getFilteredData = () => {
+  const getFilteredData = useCallback(() => {
     if (!dashboardData) return null;
     
     console.log("Filtrando datos con:", {
@@ -334,7 +334,7 @@ export const DashboardProvider = ({ children }) => {
     }
     
     return filteredData;
-  };
+  }, [dashboardData, selectedYears, selectedMonths]);
   
   useEffect(() => {
     const loadData = async () => {

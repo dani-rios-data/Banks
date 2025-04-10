@@ -35,12 +35,10 @@ const DistributionCharts = ({ filteredData }) => {
     selectedMonths
   } = useDashboard();
   const [activeTab, setActiveTab] = useState('overview');
-  const [forceUpdate, setForceUpdate] = useState(0);
   
   // Re-render cuando cambia selectedMonths
   useEffect(() => {
     console.log("Selected months changed:", selectedMonths || []);
-    setForceUpdate(prev => prev + 1);
   }, [selectedMonths]);
 
   // Calculate distributions based on selected months
