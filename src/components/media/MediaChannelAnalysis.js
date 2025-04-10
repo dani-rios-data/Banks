@@ -36,7 +36,7 @@ const MediaChannelAnalysis = () => {
     setActiveMediaTab,
     selectedMonths
   } = useDashboard();
-  
+
   const loading = false;
   const processedDataState = {
     mediaCategories: [],

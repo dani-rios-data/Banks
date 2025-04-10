@@ -60,12 +60,12 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     setSelectedBank,
     selectedBank
   } = useDashboard();
-
-  const handleClickOutside = (event) => {
+  
+    const handleClickOutside = (event) => {
     if (selectedBank) {
       setSelectedBank(null);
-    }
-  };
+      }
+    };
 
   // Handle bank selection with mouse over
   const handleBankSelection = (bank) => {
@@ -77,7 +77,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
   // Process data for charts
   const chartData = useMemo(() => {
     if (!filteredData || !filteredData.banks || !filteredData.mediaCategories) {
-      return {
+          return {
         mediaByBankData: [],
         mediaTotalsByBank: [],
         selectedBankData: null
@@ -88,8 +88,8 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     const mediaByBankData = filteredData.banks.map(bank => {
       // Get media investments for this bank
       return {
-        name: bank.name,
-        totalInvestment: bank.totalInvestment,
+          name: bank.name,
+          totalInvestment: bank.totalInvestment,
         marketShare: bank.marketShare
       };
     }).sort((a, b) => b.totalInvestment - a.totalInvestment);
@@ -129,7 +129,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
       }
     }
     
-    return {
+        return {
       mediaByBankData,
       mediaTotalsByBank,
       selectedBankData
@@ -214,25 +214,25 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
           {/* Button removed for simplicity */}
         </div>
       </div>
-
+      
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Left side - Bar Chart */}
         <div className="lg:col-span-3">
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
+            <BarChart
                 data={enhancedBarData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 barSize={36}
-                layout="vertical"
+              layout="vertical"
               >
                 <XAxis 
                   type="number" 
                   tickFormatter={(value) => formatValue(value).replace('$', '')}
                   tick={{ fill: '#4b5563', fontSize: 12 }}
                 />
-                <YAxis 
-                  type="category" 
+              <YAxis 
+                type="category" 
                   dataKey="name" 
                   tick={{ fill: '#4b5563', fontSize: 13 }}
                 />
@@ -242,10 +242,10 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                 />
                 <Bar 
                   dataKey="totalInvestment" 
-                  radius={[0, 4, 4, 0]}
+                radius={[0, 4, 4, 0]}
                   onClick={(data) => handleBankSelection(data)}
                   onMouseEnter={(data) => handleBankSelection(data)}
-                >
+              >
                   {enhancedBarData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
@@ -255,12 +255,12 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                       strokeWidth={selectedBank === entry.name ? 2 : 0}
                     />
                   ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
           </div>
         </div>
-
+        
         {/* Right side - Pie Chart */}
         <div className="lg:col-span-2">
           <h3 className="text-lg font-medium text-gray-700 mb-4">
@@ -300,7 +300,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                   content={<CustomTooltipWrapper />}
                 />
               </PieChart>
-            </ResponsiveContainer>
+          </ResponsiveContainer>
           </div>
         </div>
 
@@ -317,7 +317,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
             <div 
               className="w-4 h-4 rounded-full mr-2" 
               style={{ backgroundColor: selectedBankColor }}
-            ></div>
+              ></div>
             <h3 className="text-lg font-semibold">{chartData.selectedBankData.name}</h3>
             <span className="ml-2 text-sm text-gray-500">
               {formatPercentage(chartData.selectedBankData.marketShare)} market share
@@ -328,26 +328,26 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="text-md font-medium text-gray-700 mb-3">Media Allocation</h4>
               {/* Media distribution details would go here */}
-            </div>
+                        </div>
             
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="text-md font-medium text-gray-700 mb-3">Investment Summary</h4>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Total Investment:</span>
                 <span className="font-semibold">{formatValue(chartData.selectedBankData.totalInvestment)}</span>
-              </div>
+                                  </div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Market Position:</span>
                 <span className="font-semibold">
                   #{enhancedBankData.findIndex(b => b.name === chartData.selectedBankData.name) + 1} of {enhancedBankData.length}
                 </span>
-              </div>
+                                  </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Market Share:</span>
                 <span className="font-semibold">{formatPercentage(chartData.selectedBankData.marketShare)}</span>
-              </div>
-            </div>
-          </div>
+                    </div>
+                        </div>
+                    </div>
         </div>
       )}
     </div>

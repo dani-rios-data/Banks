@@ -11,9 +11,16 @@ const formatMonthLabel = (month) => {
   return `${monthNames[parseInt(monthNum, 10) - 1]} ${year}`;
 };
 
-// Función para formatear valores en el eje Y (sin decimales)
+// Función para formatear valores en el eje Y (en millones con símbolo $ y sufijo M)
 const formatYAxis = (value) => {
-  return formatCurrencyNoDecimals(value).replace('$', '');
+  // Los valores son en dólares, mostrarlos directamente en millones sin decimales
+  if (value >= 1000000) {
+    return `$${Math.round(value/1000000)}M`;
+  } else if (value >= 1000) {
+    return `$${Math.round(value/1000)}K`;
+  } else {
+    return `$${Math.round(value)}`;
+  }
 };
 
 // Componente personalizado para el tooltip
@@ -27,16 +34,12 @@ const CustomMonthlyTooltip = ({ active, payload, bank }) => {
         </div>
         <div className="space-y-1">
           <div className="flex justify-between">
-            <span className="text-gray-600 mr-4">Inversión {bank.name}:</span>
+            <span className="text-gray-600 mr-4">{bank.name} Investment:</span>
             <span className="font-medium">{formatCurrency(data[bank.name])}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600 mr-4">Inversión Total:</span>
+            <span className="text-gray-600 mr-4">Total Investment:</span>
             <span className="font-medium">{formatCurrency(data.total)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600 mr-4">Participación:</span>
-            <span className="font-medium">{formatPercentage(data.percentage)}</span>
           </div>
         </div>
       </div>
@@ -194,7 +197,7 @@ const BankMonthlyTrend = ({ bank }) => {
       <div>
         <h3 className="text-lg font-medium text-gray-700 mb-4">Monthly Trend</h3>
         <div className="h-80 flex items-center justify-center">
-          <div className="text-gray-400">No hay datos disponibles para el período seleccionado</div>
+          <div className="text-gray-400">No data available for the selected period</div>
         </div>
       </div>
     );
@@ -211,12 +214,12 @@ const BankMonthlyTrend = ({ bank }) => {
           <div className="flex gap-2">
             {selectedMonths.length > 0 && (
               <span className="px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full">
-                {selectedMonths.length} {selectedMonths.length === 1 ? 'Mes' : 'Meses'}
+                {selectedMonths.length} {selectedMonths.length === 1 ? 'Month' : 'Months'}
               </span>
             )}
             {selectedYears.length > 0 && (
               <span className="px-2 py-0.5 text-xs bg-green-50 text-green-700 rounded-full">
-                {selectedYears.length} {selectedYears.length === 1 ? 'Año' : 'Años'}
+                {selectedYears.length} {selectedYears.length === 1 ? 'Year' : 'Years'}
               </span>
             )}
           </div>
