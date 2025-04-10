@@ -1,13 +1,10 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaCategoryColors } from '../../utils/colorSchemes';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import { chartColors } from '../../utils/bankColors';
 import _ from 'lodash';
-
-// Usar chartColors de bankColors.js en lugar de definir colores aquí
-// Borrar esta definición local de colores
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -27,30 +24,17 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-// Custom legend that shows both name and percentage
-const CustomLegend = ({ data, colors }) => {
-  if (!data || !Array.isArray(data)) return null;
-  
-  return (
-    <ul className="flex flex-col gap-2 text-sm">
-      {data.map((entry, index) => (
-        <li key={`item-${index}`} className="flex items-center">
-          <div 
-            className="w-3 h-3 mr-2 rounded-full" 
-            style={{ backgroundColor: colors[entry.name] || `hsl(${index * 45}, 70%, 50%)` }}
-          />
-          <span>{entry.name}</span>
-        </li>
-      ))}
-    </ul>
-  );
-};
-
 /**
- * Component that displays investment distribution charts with month filter support
+ * Component that displays various distribution charts
+ * This is the main component for the Summary tab
  */
-const DistributionCharts = ({ hideWellsFargoComparison = false, filteredData }) => {
-  const { dashboardData, loading, selectedMonths, focusedBank } = useDashboard();
+const DistributionCharts = ({ filteredData }) => {
+  const { 
+    dashboardData, 
+    loading,
+    selectedMonths, 
+    selectedYears 
+  } = useDashboard();
   const [activeTab, setActiveTab] = useState('overview');
   const [forceUpdate, setForceUpdate] = useState(0);
   
@@ -550,17 +534,6 @@ const DistributionCharts = ({ hideWellsFargoComparison = false, filteredData }) 
     };
   }, [filteredData, selectedMonths, forceUpdate]);
 
-  // Establecer la pestaña activa cuando cambia el focusedBank
-  useEffect(() => {
-    if (focusedBank) {
-      // Encontrar el banco completo por nombre
-      const bank = distributions.bankData.find(b => b.name.includes(focusedBank));
-      if (bank) {
-        setActiveTab(bank.name);
-      }
-    }
-  }, [focusedBank, distributions.bankData]);
-
   // Calculate Digital vs Traditional percentages
   const digitalTraditionalMetrics = useMemo(() => {
     // List of digital categories
@@ -590,11 +563,6 @@ const DistributionCharts = ({ hideWellsFargoComparison = false, filteredData }) 
     };
   }, [distributions.mediaData]);
   
-  const digitalPercentage = useMemo(() => {
-    if (!digitalTraditionalMetrics.total) return 0;
-    return (digitalTraditionalMetrics.digitalTotal / digitalTraditionalMetrics.total * 100).toFixed(1);
-  }, [digitalTraditionalMetrics]);
-  
   // Get the top bank from bankDistribution
   const topBank = useMemo(() => {
     return distributions.bankData.length > 0 ? distributions.bankData[0] : null;
@@ -618,32 +586,6 @@ const DistributionCharts = ({ hideWellsFargoComparison = false, filteredData }) 
       investment: wellsFargo.investment
     };
   }, [distributions.bankData]);
-
-  // Calculate market gap between top categories
-  const calculateMediaCategoryGap = () => {
-    // Get all categories sorted by investment
-    const sortedMedia = [...distributions.mediaData].sort((a, b) => b.share - a.share);
-    
-    // Return if there are less than 2 categories
-    if (!sortedMedia || sortedMedia.length < 2) {
-      return {
-        category1: 'No data',
-        category2: 'No data',
-        gap: 0
-      };
-    }
-
-    // Get the gap between the top two categories
-    const topCategory = sortedMedia[0];
-    const secondCategory = sortedMedia[1];
-    const gap = topCategory.share - secondCategory.share;
-
-    return {
-      category1: topCategory.name,
-      category2: secondCategory.name,
-      gap: gap
-    };
-  };
 
   if (loading) {
     return (
