@@ -4,15 +4,6 @@ import { useDashboard } from '../../context/DashboardContext';
 import { bankColors } from '../../utils/colorSchemes';
 import { formatCurrency, formatPercentage, formatCurrencyNoDecimals } from '../../utils/formatters';
 
-// Función para formatear el mes y año
-const formatMonth = (month, year) => {
-  const months = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
-  return `${months[month - 1]} ${year}`;
-};
-
 // Función para formatear meses en formato "Jan 2024"
 const formatMonthLabel = (month) => {
   const [year, monthNum] = month.split('-');

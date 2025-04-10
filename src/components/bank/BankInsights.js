@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { useDashboard } from '../../context/DashboardContext';
-import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 
 const InsightSection = ({ title, children, colorClass = "blue" }) => (
@@ -180,8 +179,6 @@ const BankInsights = ({ bank }) => {
       if (sortedMonths.length > 0) {
         const latestMonth = sortedMonths[0];
         const [year, monthNum] = latestMonth.month.split('-').map(num => parseInt(num, 10));
-        
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         
         // Buscar el mismo mes del año anterior
         const previousYearMonth = `${year - 1}-${monthNum.toString().padStart(2, '0')}`;

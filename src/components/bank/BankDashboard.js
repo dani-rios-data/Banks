@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import Icons from '../common/Icons';
 import { formatCurrency } from '../../utils/formatters';
 import { bankColors } from '../../utils/colorSchemes';
 import BankMediaMix from './BankMediaMix';
@@ -16,7 +15,6 @@ const BankDashboard = ({ bank }) => {
   const { 
     selectedMonths, 
     selectedYears, 
-    dashboardData,
     filteredData 
   } = useDashboard();
   

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { bankColors, bankSecondaryColors } from '../../utils/colorSchemes';
+import { bankColors } from '../../utils/colorSchemes';
 import Papa from 'papaparse';
 
 /**
