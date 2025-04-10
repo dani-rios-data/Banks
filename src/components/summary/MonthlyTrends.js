@@ -123,24 +123,11 @@ const MonthlyTrends = ({ filteredData }) => {
       }
     };
     
-    fetch('/processed/wells-fargo-performance.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setWellsFargoData(data);
-        setIsLoadingWfData(false);
-      })
-      .catch(error => {
-        console.error('Error loading Wells Fargo data:', error);
-        setIsLoadingWfData(false);
-        
-        // Always generate fallback data if there is an error
-        generateFallbackData();
-      });
+    // En lugar de intentar cargar un archivo JSON que no existe, 
+    // usamos directamente los datos del CSV a través de la función de respaldo
+    generateFallbackData();
+    setIsLoadingWfData(false);
+    
   }, [dataSource]);
 
   // Calculate market average excluding Wells Fargo
