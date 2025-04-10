@@ -27,6 +27,7 @@ export const DashboardProvider = ({ children }) => {
   const [activeMediaTab, setActiveMediaTab] = useState(DEFAULT_ACTIVE_MEDIA_TAB);
   const [focusedBank, setFocusedBank] = useState('All');
   const [selectedMediaCategory, setSelectedMediaCategory] = useState('Digital');
+  const [selectedBank, setSelectedBank] = useState(null);
   
   // Estados para filtros globales
   const [selectedMonths, setSelectedMonths] = useState([]);
@@ -653,7 +654,11 @@ export const DashboardProvider = ({ children }) => {
     
     // Estado de período seleccionado
     selectedPeriod,
-    setSelectedPeriod
+    setSelectedPeriod,
+    
+    // Selección de banco para gráficos interactivos
+    selectedBank,
+    setSelectedBank
   };
   
   return (

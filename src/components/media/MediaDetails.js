@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
-import { mediaColors } from '../../utils/colorSchemes';
+import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
-import { formatCurrency } from '../../utils/formatters';
+import Icons from '../common/Icons';
+import { formatCurrency, formatPercentage } from '../../utils/formatters';
 
 // Colores exactos para los bancos según el diseño
 const bankColorScheme = {
@@ -35,6 +36,31 @@ const formatValue = (value) => {
 };
 
 /**
+ * Helper function to find media category by name with support for different property structures
+ * @param {Array} mediaCategories - Array of media categories
+ * @param {String} categoryName - Name of category to find
+ * @returns {Object|null} - Found category object or null
+ */
+const findMediaCategory = (mediaCategories, categoryName) => {
+  if (!mediaCategories || !Array.isArray(mediaCategories)) {
+    console.error("mediaCategories is not an array or doesn't exist", mediaCategories);
+    return null;
+  }
+  
+  console.log("Looking for category:", categoryName, "in", mediaCategories.map(c => c.category || c.type || c.name));
+  
+  // Try to find category using multiple possible property names
+  const category = mediaCategories.find(cat => 
+    (cat.category === categoryName) || 
+    (cat.type === categoryName) || 
+    (cat.name === categoryName)
+  );
+  
+  console.log("Found category:", category);
+  return category;
+};
+
+/**
  * Component that displays details for a specific media channel with filtered data
  */
 const MediaDetails = ({ filteredData, enhancedBankColors }) => {
@@ -48,7 +74,7 @@ const MediaDetails = ({ filteredData, enhancedBankColors }) => {
   const processedData = useMemo(() => {
     // Verificamos si los datos filtrados existen
     if (!filteredData) return null;
-    console.log("MediaDetails usando datos filtrados del componente padre:", filteredData);
+    console.log("MediaDetails using filtered data from parent:", filteredData);
     return filteredData;
   }, [filteredData]);
 
@@ -176,8 +202,9 @@ const MediaDetails = ({ filteredData, enhancedBankColors }) => {
   }
 
   // Find the selected media category from processed data
-  const mediaCategory = processedData.mediaCategories.find(cat => cat.name === selectedMediaCategory);
-  if (!mediaCategory) {
+  const selectedMedia = findMediaCategory(processedData.mediaCategories, selectedMediaCategory);
+  
+  if (!selectedMedia) {
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="text-gray-400">No data available for {selectedMediaCategory}</div>
@@ -185,17 +212,30 @@ const MediaDetails = ({ filteredData, enhancedBankColors }) => {
     );
   }
 
+  // Get bank shares data with flexible property access
+  const getBankShares = (mediaCategory) => {
+    // Try different property names for bank shares
+    if (mediaCategory.bankShares && Array.isArray(mediaCategory.bankShares)) {
+      return mediaCategory.bankShares;
+    } else if (mediaCategory.shares && Array.isArray(mediaCategory.shares)) {
+      return mediaCategory.shares;
+    } else {
+      console.warn("No bank shares found for", mediaCategory);
+      return [];
+    }
+  };
+
   // Prepare data for the chart
-  const bankData = mediaCategory.bankShares
-    .map(share => ({
-      name: share.bank,
-      investment: share.amount,
-      percentage: share.percentage
-    }))
-    .sort((a, b) => b.investment - a.investment);
+  const bankShares = getBankShares(selectedMedia);
+  const bankData = bankShares.map(share => ({
+    name: share.bank,
+    investment: share.investment || share.amount || 0,
+    percentage: share.percentage || share.share || 0
+  })).sort((a, b) => b.investment - a.investment);
 
   // Calculate total investment
-  const totalInvestment = bankData.reduce((sum, item) => sum + item.investment, 0);
+  const totalInvestment = selectedMedia.totalInvestment || selectedMedia.total || 
+    bankData.reduce((sum, item) => sum + item.investment, 0);
   const formattedTotalInvestment = formatValue(totalInvestment);
 
   return (

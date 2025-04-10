@@ -55,6 +55,77 @@ const formatExactPercentage = (value) => {
 };
 
 /**
+ * Helper function to find media category data with support for different property names
+ * @param {Array} mediaCategories - Array of media categories
+ * @param {string} categoryName - Name of the category to find
+ * @returns {Object|null} - Found category or null
+ */
+const findMediaCategory = (mediaCategories, categoryName) => {
+  if (!mediaCategories || !Array.isArray(mediaCategories)) {
+    return null;
+  }
+
+  // Log the available categories for debugging
+  const categoryProps = mediaCategories.map(m => m.category || m.type || m.name);
+  console.log(`Looking for category: ${categoryName} in`, categoryProps);
+  
+  // Find category with flexible property matching
+  const category = mediaCategories.find(cat => 
+    (cat.category === categoryName) || 
+    (cat.type === categoryName) || 
+    (cat.name === categoryName)
+  );
+  
+  console.log("Found category:", category);
+  return category;
+};
+
+/**
+ * Helper function to safely access bank shares data with support for different property names
+ * @param {Object} categoryData - Media category data
+ * @returns {Array} - Bank shares data
+ */
+const getBankShares = (categoryData) => {
+  if (!categoryData) return [];
+  
+  // Try different property names for bank shares
+  const bankSharesProperty = 
+    Array.isArray(categoryData.bankShares) ? 'bankShares' : 
+    Array.isArray(categoryData.shares) ? 'shares' : null;
+  
+  if (!bankSharesProperty) return [];
+  
+  const bankShares = categoryData[bankSharesProperty] || [];
+  console.log(`Bank shares property: ${bankSharesProperty} length: ${bankShares.length}`);
+  
+  return bankShares;
+};
+
+/**
+ * Helper function to safely access investment value with support for different property names
+ * @param {Object} bankShare - Bank share data
+ * @returns {number} - Investment value
+ */
+const getInvestmentValue = (bankShare) => {
+  if (!bankShare) return 0;
+  
+  // Try different property names for investment amount
+  return bankShare.investment || bankShare.amount || 0;
+};
+
+/**
+ * Helper function to safely access percentage value with support for different property names
+ * @param {Object} bankShare - Bank share data
+ * @returns {number} - Percentage value
+ */
+const getPercentageValue = (bankShare) => {
+  if (!bankShare) return 0;
+  
+  // Try different property names for percentage
+  return bankShare.percentage || bankShare.share || 0;
+};
+
+/**
  * Main component for the media analysis dashboard
  */
 const MediaDashboard = () => {
@@ -72,7 +143,7 @@ const MediaDashboard = () => {
     return filteredData || dashboardData || {};
   }, [filteredData, dashboardData]);
 
-  // Genera dinámicamente los insights basados en los datos filtrados
+  // Generate dynamic insights based on filtered data
   const dynamicInsights = useMemo(() => {
     if (!dataSource || !dataSource.banks || !dataSource.mediaCategories) {
       return {
@@ -82,30 +153,21 @@ const MediaDashboard = () => {
       };
     }
 
-    // Obtener los datos de los bancos principales
+    // Get top banks data
     const topBanks = [...dataSource.banks]
       .sort((a, b) => b.totalInvestment - a.totalInvestment)
       .slice(0, 4);
 
-    // Datos de categorías de medios
+    // Media categories data
     const mediaCategories = dataSource.mediaCategories || [];
     
-    // Obtener categorías principales (TV, Digital)
-    const televisionData = mediaCategories.find(cat => 
-      cat.category === 'Television' || cat.type === 'Television'
-    );
-    
-    const digitalData = mediaCategories.find(cat => 
-      cat.category === 'Digital' || cat.type === 'Digital'
-    );
+    // Get main category data (TV, Digital)
+    const televisionData = findMediaCategory(mediaCategories, 'Television');
+    const digitalData = findMediaCategory(mediaCategories, 'Digital');
+    const audioData = findMediaCategory(mediaCategories, 'Audio');
 
-    // Obtener datos de Audio para los insights estacionales
-    const audioData = mediaCategories.find(cat => 
-      cat.category === 'Audio' || cat.type === 'Audio'
-    );
-
-    // Calcula el total de inversión de todos los bancos, no solo los top banks
-    // Se usa dataSource.totalInvestment si está disponible para mayor precisión
+    // Calculate total investment from all banks
+    // Use dataSource.totalInvestment if available for better precision
     const totalInvestment = dataSource.totalInvestment || 
       dataSource.banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
     
@@ -113,17 +175,16 @@ const MediaDashboard = () => {
     const primaryMediaChannels = [];
     
     if (televisionData) {
+      const televisionBankShares = getBankShares(televisionData);
       const televisionInsight = {
         color: mediaColors['Television'],
         text: `Television dominates media spending: ${
-          televisionData.bankShares?.length > 0 
-            ? televisionData.bankShares.slice(0, 3).map(share => 
-                `${share.bank} ${
-                  share.investment >= 100000000 
-                    ? formatCurrency(share.investment) 
-                    : formatCurrency(share.investment)
-                } (${formatExactPercentage(share.percentage)}%)`
-              ).join(', ')
+          televisionBankShares.length > 0 
+            ? televisionBankShares.slice(0, 3).map(share => {
+                const investment = getInvestmentValue(share);
+                const percentage = getPercentageValue(share);
+                return `${share.bank} ${formatCurrency(investment)} (${formatExactPercentage(percentage)}%)`;
+              }).join(', ')
             : 'Data not available for the selected period'
         }`
       };
@@ -131,13 +192,16 @@ const MediaDashboard = () => {
     }
     
     if (digitalData) {
+      const digitalBankShares = getBankShares(digitalData);
       const digitalInsight = {
         color: mediaColors['Digital'],
         text: `Digital ranks second: ${
-          digitalData.bankShares?.length > 0 
-            ? digitalData.bankShares.slice(0, 4).map(share => 
-                `${share.bank} ${formatCurrency(share.investment)} (${formatExactPercentage(share.percentage)}%)`
-              ).join(', ')
+          digitalBankShares.length > 0 
+            ? digitalBankShares.slice(0, 4).map(share => {
+                const investment = getInvestmentValue(share);
+                const percentage = getPercentageValue(share);
+                return `${share.bank} ${formatCurrency(investment)} (${formatExactPercentage(percentage)}%)`;
+              }).join(', ')
             : 'Data not available for the selected period'
         }`
       };
@@ -147,7 +211,7 @@ const MediaDashboard = () => {
     // Seasonal Investment Patterns insights
     const seasonalPatterns = [];
     
-    // Insight para patrones estacionales (si hay datos de meses)
+    // Insight for seasonal patterns (if month data is available)
     if (selectedMonths.length > 0) {
       const seasonalInsight = {
         color: mediaColors['Television'],
@@ -176,13 +240,16 @@ const MediaDashboard = () => {
     
     // Audio investment insight
     if (audioData) {
+      const audioBankShares = getBankShares(audioData);
       const audioInsight = {
         color: mediaColors['Audio'],
         text: `Audio investment varies by bank: ${
-          audioData.bankShares?.length > 0 
-            ? audioData.bankShares.slice(0, 3).map(share => 
-                `${share.bank} ${formatCurrency(share.investment)} (${formatExactPercentage(share.percentage)}%)`
-              ).join(', ')
+          audioBankShares.length > 0 
+            ? audioBankShares.slice(0, 3).map(share => {
+                const investment = getInvestmentValue(share);
+                const percentage = getPercentageValue(share);
+                return `${share.bank} ${formatCurrency(investment)} (${formatExactPercentage(percentage)}%)`;
+              }).join(', ')
             : 'Data not available for the selected period'
         }`
       };
@@ -204,7 +271,7 @@ const MediaDashboard = () => {
       marketDistribution.push(marketShareInsight);
     }
     
-    // Quarterly data insight (si tenemos datos de Q4)
+    // Quarterly data insight (for Q4 data)
     const q4Data = selectedPeriod === 'Q4' || selectedPeriod.includes('Q4') || !selectedPeriod;
     const q4Insight = {
       color: "#22c55e",
@@ -220,6 +287,27 @@ const MediaDashboard = () => {
       marketDistribution
     };
   }, [dataSource, selectedMonths, selectedYears, selectedPeriod]);
+
+  // Process and normalize the media category before passing it to child components
+  const normalizedMediaCategory = useMemo(() => {
+    if (selectedMediaCategory === 'All') return 'All';
+    
+    // Verify the selected category exists in the data
+    if (dataSource && dataSource.mediaCategories) {
+      const categoryExists = dataSource.mediaCategories.some(cat => 
+        (cat.category === selectedMediaCategory) || 
+        (cat.type === selectedMediaCategory) || 
+        (cat.name === selectedMediaCategory)
+      );
+      
+      if (categoryExists) {
+        return selectedMediaCategory;
+      }
+    }
+    
+    // Default to 'All' if the category doesn't exist
+    return 'All';
+  }, [selectedMediaCategory, dataSource]);
 
   return (
     <div className="space-y-6">
@@ -344,7 +432,7 @@ const MediaDashboard = () => {
       <MediaChannelAnalysis />
       
       {/* Media Investment by Bank */}
-      <MediaInvestmentByBank activeCategory={selectedMediaCategory} />
+      <MediaInvestmentByBank activeCategory={normalizedMediaCategory} />
     </div>
   );
 };
