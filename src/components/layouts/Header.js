@@ -12,7 +12,10 @@ const Header = () => {
     // Función para obtener el rango de fechas del CSV
     const fetchDateRange = async () => {
       try {
-        const response = await fetch('/data/consolidated_banks_data.csv');
+        const response = await fetch('consolidated_banks_data.csv');
+        if (!response.ok) {
+          throw new Error('No se pudo descargar el archivo CSV');
+        }
         const csvData = await response.text();
         
         // Parsear CSV
