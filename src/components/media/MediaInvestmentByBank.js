@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { BarChart, Bar, PieChart, Pie, XAxis, YAxis, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import ChartInsights from '../common/ChartInsights';
@@ -52,7 +52,7 @@ const CustomTooltipWrapper = ({ active, payload, label }) => {
 /**
  * Component that shows investment distribution by bank 
  */
-const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
+const MediaInvestmentByBank = () => {
   const { 
     filteredData, 
     loading, 
@@ -61,7 +61,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     selectedBank
   } = useDashboard();
   
-    const handleClickOutside = (event) => {
+  const handleClickOutside = () => {
     if (selectedBank) {
       setSelectedBank(null);
       }
@@ -157,9 +157,6 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     color: getBankColor(bank.name),
   }));
   
-  // Calculate total for the pie chart
-  const totalPieValue = chartData.mediaTotalsByBank.reduce((sum, item) => sum + item.value, 0);
-
   // Get selected bank color
   const selectedBankColor = selectedBank ? getBankColor(selectedBank) : null;
   
@@ -194,11 +191,6 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     }
     
     return insights;
-  };
-  
-  // Get media category color
-  const getMediaColor = (mediaType) => {
-    return enhancedMediaColors[mediaType] || '#6B7280'; // Fallback to gray
   };
 
   return (
