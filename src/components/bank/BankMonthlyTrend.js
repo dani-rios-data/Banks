@@ -3,7 +3,16 @@ import { LineChart, Line, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } fro
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatPercentage } from '../../utils/formatters';
+
+// Función para formatear el mes y año
+const formatMonth = (month, year) => {
+  const months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  return `${months[month - 1]} ${year}`;
+};
 
 // Función para formatear meses en formato "Jan 2024"
 const formatMonthLabel = (month) => {
@@ -154,7 +163,7 @@ const BankMonthlyTrend = ({ bank }) => {
     if (filteredTrendData.length > 0) {
       return filteredTrendData.map(data => ({
         ...data,
-        percentage: data.total > 0 ? (data[bank.name] / data.total) * 100 : 0
+        percentage: data.total > 0 ? (data[bank.name] / data.total) : 0
       }));
     }
     
@@ -224,10 +233,31 @@ const BankMonthlyTrend = ({ bank }) => {
               width={60}
             />
             <Tooltip 
-              content={<CustomTooltip 
-                formatter={(value) => formatCurrency(value)}
-                labelFormatter={(label) => `Mes: ${label}`}
-              />} 
+              content={(tooltipProps) => {
+                const { payload } = tooltipProps;
+                if (payload && payload.length > 0) {
+                  const data = payload[0].payload;
+                  const month = data.month;
+                  const year = data.year;
+                  const formattedMonth = formatMonth(month, year);
+                  
+                  return (
+                    <div className="custom-tooltip">
+                      <p className="tooltip-date">{formattedMonth}</p>
+                      <p className="tooltip-bank">
+                        {bank.name}: {formatCurrency(data[bank.name])}
+                      </p>
+                      <p className="tooltip-total">
+                        Total: {formatCurrency(data.total)}
+                      </p>
+                      <p className="tooltip-share">
+                        Participación: {formatPercentage(data.percentage, 2)}
+                      </p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
             <Line 
               type="monotone" 

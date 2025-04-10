@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaColors } from '../../utils/colorSchemes';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatPercentage } from '../../utils/formatters';
 
 /**
  * Component that displays the media mix for a specific bank
@@ -130,7 +130,7 @@ const BankMediaMix = ({ bank }) => {
       // Crear resultado con porcentajes calculados
       const result = Object.entries(mediaCategoryTotals)
         .map(([category, value]) => {
-          const percentage = bankTotal > 0 ? (value / bankTotal) * 100 : 0;
+          const percentage = bankTotal > 0 ? (value / bankTotal) : 0;
           return {
             name: category,
             value,
@@ -179,7 +179,7 @@ const BankMediaMix = ({ bank }) => {
               </tr>
               <tr>
                 <td className="text-gray-600 pr-2">Percentage:</td>
-                <td className="text-right font-medium">{data.percentage.toFixed(2)}%</td>
+                <td className="text-right font-medium">{formatPercentage(data.percentage)}</td>
               </tr>
               <tr>
                 <td className="text-gray-600 pr-2">Bank:</td>
@@ -222,7 +222,7 @@ const BankMediaMix = ({ bank }) => {
                     {entry.value}
                   </div>
                   <div className="text-xs text-gray-500 flex gap-2">
-                    <span>{dataItem?.percentage.toFixed(2)}%</span>
+                    <span>{formatPercentage(dataItem?.percentage)}</span>
                     <span>{dataItem?.formattedValue}</span>
                   </div>
                 </div>
