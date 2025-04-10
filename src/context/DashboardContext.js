@@ -342,7 +342,7 @@ export const DashboardProvider = ({ children }) => {
         setLoading(true);
         
         // Cargar datos del CSV consolidado
-        const response = await fetch('/data/consolidated_banks_data.csv');
+        const response = await fetch('./data/consolidated_banks_data.csv');
         if (!response.ok) {
           throw new Error('No se pudo cargar el archivo CSV consolidado');
         }
