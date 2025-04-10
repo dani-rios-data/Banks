@@ -194,8 +194,10 @@ const BankMonthlyTrend = ({ bank }) => {
           </div>
         )}
       </h3>
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
+      
+      {/* Chart */}
+      <div className="w-full mt-2">
+        <ResponsiveContainer width="100%" height={400}>
           <LineChart
             data={monthlyData}
             margin={{ top: 5, right: 20, left: 10, bottom: 20 }}

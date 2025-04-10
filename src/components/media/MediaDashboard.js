@@ -27,7 +27,7 @@ const formatCurrency = (value) => {
 
   if (value >= 1000000000) {
     return `$${getExactDecimals(value / 1000000000)}B`;
-  } 
+  }
   else if (value >= 1000000) {
     return `$${getExactDecimals(value / 1000000)}M`;
   } else if (value >= 1000) {
@@ -277,16 +277,16 @@ const MediaDashboard = () => {
                   <li key={index} className="flex items-start p-3 bg-white bg-opacity-60 rounded-lg border-l-3 border-amber-400 transition-all duration-300 hover:bg-opacity-80">
                     <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5 flex-shrink-0" style={{backgroundColor: insight.color}}></span>
                     <span className="text-amber-900">{insight.text}</span>
-                  </li>
+              </li>
                 ))
               ) : (
                 <li className="flex items-start p-3 bg-white bg-opacity-60 rounded-lg border-l-3 border-amber-400">
                   <span className="text-amber-900">No data available for the selected filters</span>
-                </li>
+              </li>
               )}
             </ul>
           </div>
-          
+
           {/* Market Distribution */}
           <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5 border border-green-200 transition-all duration-300 hover:shadow-md hover:border-green-300">
             <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
@@ -304,12 +304,12 @@ const MediaDashboard = () => {
                   <li key={index} className="flex items-start p-3 bg-white bg-opacity-60 rounded-lg border-l-3 border-green-400 transition-all duration-300 hover:bg-opacity-80">
                     <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5 flex-shrink-0" style={{backgroundColor: insight.color}}></span>
                     <span className="text-green-900">{insight.text}</span>
-                  </li>
+              </li>
                 ))
               ) : (
                 <li className="flex items-start p-3 bg-white bg-opacity-60 rounded-lg border-l-3 border-green-400">
                   <span className="text-green-900">No data available for the selected filters</span>
-                </li>
+              </li>
               )}
             </ul>
           </div>

@@ -125,14 +125,26 @@ const BankDashboard = ({ bank }) => {
           </div>
         </div>
         
-        {/* Media Mix & Monthly Trend */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-          <BankMediaMix bank={bankData} />
-          <BankMonthlyTrend bank={bankData} />
+        {/* Main Dashboard Content - Nueva estructura */}
+        <div className="flex flex-col gap-6">
+          {/* Fila superior: Media Mix y Bank Insights lado a lado */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[420px]">
+            {/* Media Mix - Columna izquierda */}
+            <div className="h-full">
+              <BankMediaMix bank={bankData} />
+            </div>
+            
+            {/* Bank Insights - Columna derecha */}
+            <div className="h-full">
+              <BankInsights bank={bankData} />
+            </div>
+          </div>
+          
+          {/* Fila inferior: Monthly Trend debajo de ambos */}
+          <div className="mt-6">
+            <BankMonthlyTrend bank={bankData} />
+          </div>
         </div>
-        
-        {/* Bank Insights */}
-        <BankInsights bank={bankData} />
       </div>
     </div>
   );

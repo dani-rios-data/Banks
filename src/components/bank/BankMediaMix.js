@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaColors } from '../../utils/colorSchemes';
-import CustomTooltip from '../common/CustomTooltip';
 import { formatCurrency } from '../../utils/formatters';
 
 /**
@@ -136,7 +135,10 @@ const BankMediaMix = ({ bank }) => {
             name: category,
             value,
             percentage,
-            formattedValue: formatCurrency(value)
+            formattedValue: formatCurrency(value),
+            bankName: bank.name,
+            bankTotal: bankTotal,
+            formattedBankTotal: formatCurrency(bankTotal)
           };
         })
         .filter(entry => entry.value > 0)
@@ -151,35 +153,92 @@ const BankMediaMix = ({ bank }) => {
     return [];
   }, [dashboardData, bank, selectedMonths, selectedYears]);
   
-  // Función personalizada para renderizar la leyenda con porcentajes
+  // Custom tooltip component
+  const CustomMediaMixTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      
+      return (
+        <div className="custom-tooltip bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+          <div 
+            className="mb-2 flex items-center gap-2 pb-2 border-b border-gray-200"
+            style={{ color: mediaColors[data.name] }}
+          >
+            <span 
+              className="w-3 h-3 rounded-full" 
+              style={{ backgroundColor: mediaColors[data.name] }}
+            />
+            <span className="font-semibold text-base">{data.name}</span>
+          </div>
+          
+          <table className="w-full text-sm">
+            <tbody>
+              <tr>
+                <td className="text-gray-600 pr-2">Investment:</td>
+                <td className="text-right font-medium">{data.formattedValue}</td>
+              </tr>
+              <tr>
+                <td className="text-gray-600 pr-2">Percentage:</td>
+                <td className="text-right font-medium">{data.percentage.toFixed(2)}%</td>
+              </tr>
+              <tr>
+                <td className="text-gray-600 pr-2">Bank:</td>
+                <td className="text-right font-medium">{data.bankName}</td>
+              </tr>
+              <tr className="border-t border-gray-200 mt-1">
+                <td className="text-gray-600 pr-2 pt-1">Total Budget:</td>
+                <td className="text-right font-medium pt-1">{data.formattedBankTotal}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+    return null;
+  };
+  
+  // Función mejorada para renderizar la leyenda con porcentajes
   const renderCustomLegend = (props) => {
     const { payload } = props;
     
     return (
-      <ul className="flex flex-wrap justify-center gap-4 mt-4">
-        {payload.map((entry, index) => {
-          const dataItem = mediaData.find(item => item.name === entry.value);
-          return (
-            <li key={`item-${index}`} className="flex items-center">
-              <span
-                className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-sm text-gray-600">
-                {entry.value} ({dataItem?.percentage.toFixed(1)}%) - {dataItem?.formattedValue}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="pl-4 border-l border-gray-200">
+        <div className="text-sm font-medium text-gray-700 mb-3">Media Investment Breakdown</div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+          {payload.map((entry, index) => {
+            const dataItem = mediaData.find(item => item.name === entry.value);
+            
+            return (
+              <div 
+                key={`item-${index}`} 
+                className="flex items-start p-1.5"
+              >
+                <div
+                  className="flex-shrink-0 w-4 h-4 rounded-full mt-0.5 mr-2"
+                  style={{ backgroundColor: entry.color }}
+                />
+                <div>
+                  <div className="text-sm font-medium text-gray-800">
+                    {entry.value}
+                  </div>
+                  <div className="text-xs text-gray-500 flex gap-2">
+                    <span>{dataItem?.percentage.toFixed(2)}%</span>
+                    <span>{dataItem?.formattedValue}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     );
   };
 
   if (mediaData.length === 0) {
     return (
-      <div>
+      <div className="h-full flex flex-col">
         <h3 className="text-lg font-medium text-gray-700 mb-4">Media Mix</h3>
-        <div className="h-80 flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-400">No hay datos disponibles para el período seleccionado</div>
         </div>
       </div>
@@ -187,7 +246,7 @@ const BankMediaMix = ({ bank }) => {
   }
 
   return (
-    <div>
+    <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm h-full flex flex-col">
       <h3 className="text-lg font-medium text-gray-700 mb-4 flex items-center justify-between">
         <div className="flex items-center">
           <span className="w-3 h-3 rounded-full mr-2" style={{backgroundColor: mediaColors[mediaData[0]?.name]}}></span>
@@ -197,55 +256,47 @@ const BankMediaMix = ({ bank }) => {
           <div className="flex gap-2">
             {selectedMonths.length > 0 && (
               <span className="px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full">
-                {selectedMonths.length} {selectedMonths.length === 1 ? 'Mes' : 'Meses'}
+                {selectedMonths.length} {selectedMonths.length === 1 ? 'Month' : 'Months'}
               </span>
             )}
             {selectedYears.length > 0 && (
               <span className="px-2 py-0.5 text-xs bg-green-50 text-green-700 rounded-full">
-                {selectedYears.length} {selectedYears.length === 1 ? 'Año' : 'Años'}
+                {selectedYears.length} {selectedYears.length === 1 ? 'Year' : 'Years'}
               </span>
             )}
           </div>
         )}
       </h3>
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={mediaData}
-              cx="50%"
-              cy="50%"
-              innerRadius={70}
-              outerRadius={100}
-              paddingAngle={3}
-              dataKey="value"
-              cornerRadius={4}
-              stroke="#fff"
-              strokeWidth={2}
-            >
-              {mediaData.map((entry) => (
-                <Cell 
-                  key={`cell-${entry.name}`}
-                  fill={mediaColors[entry.name]}
-                />
-              ))}
-            </Pie>
-            <Tooltip 
-              content={<CustomTooltip 
-                formatter={(value) => formatCurrency(value)}
-                labelFormatter={(name) => name}
-              />} 
-            />
-            <Legend 
-              content={renderCustomLegend}
-              iconType="circle"
-              iconSize={8}
-              layout="horizontal"
-              verticalAlign="bottom"
-              align="center"
-            />
-          </PieChart>
-        </ResponsiveContainer>
+      <div className="flex items-start flex-grow">
+        <div className="w-2/3 h-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={mediaData}
+                cx="50%"
+                cy="50%"
+                innerRadius={70}
+                outerRadius={100}
+                paddingAngle={3}
+                dataKey="value"
+                cornerRadius={4}
+                stroke="#fff"
+                strokeWidth={2}
+              >
+                {mediaData.map((entry) => (
+                  <Cell 
+                    key={`cell-${entry.name}`}
+                    fill={mediaColors[entry.name]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomMediaMixTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="w-1/3 h-full flex items-center">
+          {renderCustomLegend({ payload: mediaData.map(item => ({ value: item.name, color: mediaColors[item.name] })) })}
+        </div>
       </div>
     </div>
   );
