@@ -384,7 +384,17 @@ export const DashboardProvider = ({ children }) => {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
+                delimiter: "auto", // Auto-detectar delimitador
+                transformHeader: header => header.trim(), // Eliminar espacios en blanco de los encabezados
                 complete: (results) => {
+                  console.log("PapaParse directo - Resultados:", {
+                    totalRows: results.data ? results.data.length : 0,
+                    headers: results.meta ? results.meta.fields : [],
+                    delimiter: results.meta ? results.meta.delimiter : 'unknown',
+                    errors: results.errors || []
+                  });
+                  console.log("PapaParse directo - Primera fila:", results.data && results.data.length > 0 ? results.data[0] : 'No hay datos');
+                  
                   if (results.data && results.data.length > 0) {
                     resolve(results);
                   } else {
@@ -626,8 +636,30 @@ export const DashboardProvider = ({ children }) => {
         // Procesar CSV con Papa Parse
         Papa.parse(csvText, {
           header: true,
+          skipEmptyLines: true,
+          delimiter: "auto", // Auto-detectar delimitador
+          transformHeader: header => header.trim(), // Eliminar espacios en blanco de los encabezados
           complete: (results) => {
-            const csvData = results.data.filter(row => row.Bank && row.dollars);
+            console.log("Resultados completos del parseo:", results);
+            console.log("Headers detectados:", results.meta.fields);
+            console.log("Delimitador detectado:", results.meta.delimiter);
+            console.log("Errores durante el parseo:", results.errors);
+            
+            // Verificar si hay datos
+            if (!results.data || results.data.length === 0) {
+              console.error("El CSV se cargó pero no contiene datos procesables");
+              // Intentar mostrar el contenido crudo del CSV para debug
+              console.log("Contenido crudo del CSV (primeros 200 caracteres):", csvText.substring(0, 200));
+              setError('El archivo CSV no contiene datos procesables');
+              setLoading(false);
+              return;
+            }
+            
+            // Aplicar filtro más flexible
+            const csvData = results.data.filter(row => 
+              row && ((row.Bank && row.dollars) || 
+              Object.values(row).some(val => val && val.trim() !== ''))
+            );
             
             // DEBUG: Ver datos del CSV
             console.log("===== DATOS CARGADOS DEL CSV =====");
