@@ -341,13 +341,42 @@ export const DashboardProvider = ({ children }) => {
       try {
         setLoading(true);
         
-        // Cargar datos del CSV consolidado
-        const response = await fetch('./data/consolidated_banks_data.csv');
-        if (!response.ok) {
-          throw new Error('No se pudo cargar el archivo CSV consolidado');
+        // Intentar cargar el CSV probando diferentes rutas
+        const publicUrl = process.env.PUBLIC_URL || '';
+        const possiblePaths = [
+          `${publicUrl}/data/consolidated_banks_data.csv`,
+          './data/consolidated_banks_data.csv',
+          '/data/consolidated_banks_data.csv',
+          'data/consolidated_banks_data.csv', 
+          '../data/consolidated_banks_data.csv',
+          'consolidated_banks_data.csv'
+        ];
+        
+        let response = null;
+        let successPath = '';
+        
+        // Intentar cada ruta hasta que una funcione
+        for (const path of possiblePaths) {
+          try {
+            console.log(`Intentando cargar CSV desde: ${path}`);
+            const tempResponse = await fetch(path);
+            if (tempResponse.ok) {
+              response = tempResponse;
+              successPath = path;
+              console.log(`¡Éxito! CSV cargado desde: ${path}`);
+              break;
+            }
+          } catch (pathError) {
+            console.warn(`Error al intentar ruta ${path}:`, pathError.message);
+          }
+        }
+        
+        if (!response || !response.ok) {
+          throw new Error(`No se pudo cargar el archivo CSV consolidado. Rutas intentadas: ${possiblePaths.join(', ')}`);
         }
         
         const csvText = await response.text();
+        console.log(`CSV cargado correctamente desde: ${successPath} (${csvText.length} bytes)`);
         
         // Procesar CSV con Papa Parse
         Papa.parse(csvText, {
