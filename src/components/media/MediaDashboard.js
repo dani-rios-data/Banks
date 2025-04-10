@@ -5,17 +5,53 @@ import MediaInsights from './MediaInsights';
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaColors } from '../../utils/colorSchemes';
 
-// Function to format currency values
+// Function to format currency values with exactly 2 decimals without rounding
 const formatCurrency = (value) => {
+  // Helper function to get exactly 2 decimals without rounding
+  const getExactDecimals = (num) => {
+    const numStr = num.toString();
+    const decimalPos = numStr.indexOf('.');
+    
+    if (decimalPos === -1) {
+      return `${numStr}.00`;
+    } else {
+      const intPart = numStr.substring(0, decimalPos);
+      const decPart = numStr.substring(decimalPos + 1);
+      const formattedDecPart = decPart.length >= 2 
+        ? decPart.substring(0, 2) 
+        : decPart.padEnd(2, '0');
+      
+      return `${intPart}.${formattedDecPart}`;
+    }
+  };
+
   if (value >= 1000000000) {
-    return `$${(value / 1000000000).toFixed(2)}B`;
+    return `$${getExactDecimals(value / 1000000000)}B`;
   } 
   else if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(2)}M`;
+    return `$${getExactDecimals(value / 1000000)}M`;
   } else if (value >= 1000) {
-    return `$${(value / 1000).toFixed(2)}K`;
+    return `$${getExactDecimals(value / 1000)}K`;
   }
-  return `$${value.toFixed(2)}`;
+  return `$${getExactDecimals(value)}`;
+};
+
+// Function to format percentage with exactly 2 decimals without rounding
+const formatExactPercentage = (value) => {
+  const numStr = value.toString();
+  const decimalPos = numStr.indexOf('.');
+  
+  if (decimalPos === -1) {
+    return `${numStr}.00`;
+  } else {
+    const intPart = numStr.substring(0, decimalPos);
+    const decPart = numStr.substring(decimalPos + 1);
+    const formattedDecPart = decPart.length >= 2 
+      ? decPart.substring(0, 2) 
+      : decPart.padEnd(2, '0');
+    
+    return `${intPart}.${formattedDecPart}`;
+  }
 };
 
 /**
@@ -68,8 +104,10 @@ const MediaDashboard = () => {
       cat.category === 'Audio' || cat.type === 'Audio'
     );
 
-    // Calcula el total de inversión
-    const totalInvestment = topBanks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
+    // Calcula el total de inversión de todos los bancos, no solo los top banks
+    // Se usa dataSource.totalInvestment si está disponible para mayor precisión
+    const totalInvestment = dataSource.totalInvestment || 
+      dataSource.banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
     
     // Primary Media Channels insights
     const primaryMediaChannels = [];
@@ -84,7 +122,7 @@ const MediaDashboard = () => {
                   share.investment >= 100000000 
                     ? formatCurrency(share.investment) 
                     : formatCurrency(share.investment)
-                } (${share.percentage.toFixed(2)}%)`
+                } (${formatExactPercentage(share.percentage)}%)`
               ).join(', ')
             : 'Data not available for the selected period'
         }`
@@ -98,7 +136,7 @@ const MediaDashboard = () => {
         text: `Digital ranks second: ${
           digitalData.bankShares?.length > 0 
             ? digitalData.bankShares.slice(0, 4).map(share => 
-                `${share.bank} ${formatCurrency(share.investment)} (${share.percentage.toFixed(2)}%)`
+                `${share.bank} ${formatCurrency(share.investment)} (${formatExactPercentage(share.percentage)}%)`
               ).join(', ')
             : 'Data not available for the selected period'
         }`
@@ -116,7 +154,7 @@ const MediaDashboard = () => {
         text: `Seasonal spending in ${selectedMonths.join(', ')}: ${
           topBanks.length > 0 
             ? topBanks.slice(0, 2).map(bank => 
-                `${bank.name} ${formatCurrency(bank.totalInvestment)} (${(bank.totalInvestment / totalInvestment * 100).toFixed(2)}% of selected period)`
+                `${bank.name} ${formatCurrency(bank.totalInvestment)} (${formatExactPercentage((bank.totalInvestment / totalInvestment * 100))}% of selected period)`
               ).join('; ')
             : 'Data not available for the selected period'
         }`
@@ -143,7 +181,7 @@ const MediaDashboard = () => {
         text: `Audio investment varies by bank: ${
           audioData.bankShares?.length > 0 
             ? audioData.bankShares.slice(0, 3).map(share => 
-                `${share.bank} ${formatCurrency(share.investment)} (${share.percentage.toFixed(2)}%)`
+                `${share.bank} ${formatCurrency(share.investment)} (${formatExactPercentage(share.percentage)}%)`
               ).join(', ')
             : 'Data not available for the selected period'
         }`
@@ -159,7 +197,7 @@ const MediaDashboard = () => {
         color: "#4ade80",
         text: `Bank market share distribution: ${
           topBanks.map(bank => 
-            `${bank.name} ${(bank.marketShare).toFixed(2)}% (${formatCurrency(bank.totalInvestment)})`
+            `${bank.name} ${formatExactPercentage(bank.marketShare)}% (${formatCurrency(bank.totalInvestment)})`
           ).join(', ')
         }`
       };
@@ -171,7 +209,7 @@ const MediaDashboard = () => {
     const q4Insight = {
       color: "#22c55e",
       text: q4Data
-        ? `${selectedPeriod || 'Selected period'} accounts for ${(totalInvestment / (dataSource.totalInvestment || totalInvestment) * 100).toFixed(2)}% of ${selectedYears.length ? selectedYears.join('/') : 'annual'} spend (${formatCurrency(totalInvestment)})`
+        ? `${selectedPeriod || 'Selected period'} accounts for ${formatExactPercentage(totalInvestment / (dataSource.totalInvestment || totalInvestment) * 100)}% of ${selectedYears.length ? selectedYears.join('/') : 'annual'} spend (${formatCurrency(totalInvestment)})`
         : `Total investment for ${selectedPeriod || 'selected period'}: ${formatCurrency(totalInvestment)}`
     };
     marketDistribution.push(q4Insight);

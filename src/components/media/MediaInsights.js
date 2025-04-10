@@ -2,6 +2,24 @@ import React, { useMemo } from 'react';
 import { useDashboard } from '../../context/DashboardContext';
 import { formatCurrency } from '../../utils/formatters';
 
+// Función para formatear porcentajes con exactamente 2 decimales sin redondeo
+const formatExactPercentage = (value) => {
+  const numStr = value.toString();
+  const decimalPos = numStr.indexOf('.');
+  
+  if (decimalPos === -1) {
+    return `${numStr}.00`;
+  } else {
+    const intPart = numStr.substring(0, decimalPos);
+    const decPart = numStr.substring(decimalPos + 1);
+    const formattedDecPart = decPart.length >= 2 
+      ? decPart.substring(0, 2) 
+      : decPart.padEnd(2, '0');
+    
+    return `${intPart}.${formattedDecPart}`;
+  }
+};
+
 // Enhanced component with more responsive design and filter support
 const MediaInsights = () => {
   const { 
@@ -41,7 +59,7 @@ const MediaInsights = () => {
     );
     const televisionInsight = {
       text: televisionData 
-        ? `Television investment reaches ${formatCurrency(televisionData.totalInvestment)} across all banks${selectedPeriod !== 'All Period' ? ` in ${selectedPeriod}` : ''}, representing ${(televisionData.totalInvestment / totalInvestment * 100).toFixed(1)}% of total spend, with ${televisionData.bankShares?.[0]?.bank || 'Capital One'} leading with ${formatCurrency(televisionData.bankShares?.[0]?.investment || 0)}.`
+        ? `Television investment reaches ${formatCurrency(televisionData.totalInvestment)} across all banks${selectedPeriod !== 'All Period' ? ` in ${selectedPeriod}` : ''}, representing ${formatExactPercentage(televisionData.totalInvestment / totalInvestment * 100)}% of total spend, with ${televisionData.bankShares?.[0]?.bank || 'Capital One'} leading with ${formatCurrency(televisionData.bankShares?.[0]?.investment || 0)}.`
         : "Television data not available for the selected period.",
       color: "#3B82F6",
       icon: "📺",
@@ -54,7 +72,7 @@ const MediaInsights = () => {
     );
     const digitalInsight = {
       text: digitalData 
-        ? `Digital media accounts for ${formatCurrency(digitalData.totalInvestment)} (${(digitalData.totalInvestment / totalInvestment * 100).toFixed(1)}%) of total banking sector spend${selectedMonths.length > 0 ? ` during the selected ${selectedMonths.length} month(s)` : ''}, with ${digitalData.bankShares?.[0]?.bank || 'Chase Bank'} leading digital investment.`
+        ? `Digital media accounts for ${formatCurrency(digitalData.totalInvestment)} (${formatExactPercentage(digitalData.totalInvestment / totalInvestment * 100)}%) of total banking sector spend${selectedMonths.length > 0 ? ` during the selected ${selectedMonths.length} month(s)` : ''}, with ${digitalData.bankShares?.[0]?.bank || 'Chase Bank'} leading digital investment.`
         : "Digital media data not available for the selected period.",
       color: "#DC2626",
       icon: "📱",
@@ -67,7 +85,7 @@ const MediaInsights = () => {
     );
     const audioInsight = {
       text: audioData 
-        ? `Audio investment totals ${formatCurrency(audioData.totalInvestment)} (${(audioData.totalInvestment / totalInvestment * 100).toFixed(1)}%) across ${dataSource.banks.length} banks${selectedYears.length > 0 ? ` in ${selectedYears.join(', ')}` : ''}, with ${audioData.bankShares?.[0]?.bank || 'Chase Bank'} (${formatCurrency(audioData.bankShares?.[0]?.investment || 0)}) leading spend in this category.`
+        ? `Audio investment totals ${formatCurrency(audioData.totalInvestment)} (${formatExactPercentage(audioData.totalInvestment / totalInvestment * 100)}%) across ${dataSource.banks.length} banks${selectedYears.length > 0 ? ` in ${selectedYears.join(', ')}` : ''}, with ${audioData.bankShares?.[0]?.bank || 'Chase Bank'} (${formatCurrency(audioData.bankShares?.[0]?.investment || 0)}) leading spend in this category.`
         : "Audio data not available for the selected period.",
       color: "#22C55E",
       icon: "🎧",
@@ -85,7 +103,7 @@ const MediaInsights = () => {
     
     const printOutdoorInsight = {
       text: (printData || outdoorData) 
-        ? `Print and outdoor advertising represent ${formatCurrency(combinedInvestment)} combined spend${selectedPeriod !== 'All Period' ? ` in ${selectedPeriod}` : ''}, with ${(combinedInvestment / totalInvestment * 100).toFixed(1)}% of total media investment, primarily distributed among ${printData?.bankShares?.length || outdoorData?.bankShares?.length || 'major'} banks.`
+        ? `Print and outdoor advertising represent ${formatCurrency(combinedInvestment)} combined spend${selectedPeriod !== 'All Period' ? ` in ${selectedPeriod}` : ''}, with ${formatExactPercentage(combinedInvestment / totalInvestment * 100)}% of total media investment, primarily distributed among ${printData?.bankShares?.length || outdoorData?.bankShares?.length || 'major'} banks.`
         : "Print and outdoor data not available for the selected period.",
       color: "#6D28D9",
       icon: "📰",
@@ -95,8 +113,8 @@ const MediaInsights = () => {
     // Insight estacional basado en los filtros aplicados
     const seasonalInsight = {
       text: selectedMonths.length > 0 
-        ? `The selected period shows a total investment of ${formatCurrency(totalInvestment)} across all media categories, with ${dataSource.banks[0]?.name || 'the leading bank'} representing ${(dataSource.banks[0]?.marketShare || 0).toFixed(1)}% market share.`
-        : `Total media investment across all periods is ${formatCurrency(totalInvestment)}, with seasonal variations and ${dataSource.banks[0]?.name || 'the leading bank'} maintaining ${(dataSource.banks[0]?.marketShare || 0).toFixed(1)}% average market share.`,
+        ? `The selected period shows a total investment of ${formatCurrency(totalInvestment)} across all media categories, with ${dataSource.banks[0]?.name || 'the leading bank'} representing ${formatExactPercentage(dataSource.banks[0]?.marketShare || 0)}% market share.`
+        : `Total media investment across all periods is ${formatCurrency(totalInvestment)}, with seasonal variations and ${dataSource.banks[0]?.name || 'the leading bank'} maintaining ${formatExactPercentage(dataSource.banks[0]?.marketShare || 0)}% average market share.`,
       color: "#10B981",
       icon: "📈",
       category: "Seasonal"
@@ -105,7 +123,7 @@ const MediaInsights = () => {
     // Nuevo insight sobre concentración del mercado
     const marketConcentrationInsight = {
       text: sortedBanks.length > 0 
-        ? `Market concentration shows top ${Math.min(3, sortedBanks.length)} banks representing ${(sortedBanks.slice(0, 3).reduce((sum, bank) => sum + (bank.marketShare || 0), 0)).toFixed(1)}% of total media investment. ${sortedBanks[0]?.name || 'Leading bank'} commands ${(sortedBanks[0]?.marketShare || 0).toFixed(1)}% share, followed by ${sortedBanks[1]?.name || 'second bank'} with ${(sortedBanks[1]?.marketShare || 0).toFixed(1)}%.`
+        ? `Market concentration shows top ${Math.min(3, sortedBanks.length)} banks representing ${formatExactPercentage(sortedBanks.slice(0, 3).reduce((sum, bank) => sum + (bank.marketShare || 0), 0))}% of total media investment. ${sortedBanks[0]?.name || 'Leading bank'} commands ${formatExactPercentage(sortedBanks[0]?.marketShare || 0)}% share, followed by ${sortedBanks[1]?.name || 'second bank'} with ${formatExactPercentage(sortedBanks[1]?.marketShare || 0)}%.`
         : "Market concentration data not available for the selected period.",
       color: "#8B5CF6",
       icon: "📊",
