@@ -4,7 +4,10 @@ import { formatCurrency } from '../../utils/formatters';
 
 // Función para formatear porcentajes con exactamente 2 decimales sin redondeo
 const formatExactPercentage = (value) => {
-  const numStr = value.toString();
+  // Determinar si el valor ya está en formato porcentual
+  const percentValue = value > 1 ? value : value * 100;
+  
+  const numStr = percentValue.toString();
   const decimalPos = numStr.indexOf('.');
   
   if (decimalPos === -1) {
@@ -18,6 +21,64 @@ const formatExactPercentage = (value) => {
     
     return `${intPart}.${formattedDecPart}`;
   }
+};
+
+/**
+ * Helper function to find media category data with support for different property names
+ * @param {Array} mediaCategories - Array of media categories
+ * @param {string} categoryName - Name of the category to find
+ * @returns {Object|null} - Found category or null
+ */
+const findMediaCategory = (mediaCategories, categoryName) => {
+  if (!mediaCategories || !Array.isArray(mediaCategories) || mediaCategories.length === 0) {
+    console.log("Category found: undefined (mediaCategories empty or not an array)");
+    return null;
+  }
+  
+  // Normalize category name for case-insensitive comparison
+  const normalizedCategoryName = categoryName.toLowerCase();
+  
+  // Try to find the category using multiple possible property names and case-insensitive comparison
+  const category = mediaCategories.find(cat => {
+    // Try different property names that might contain the category name
+    const categoryNames = [
+      cat.category, 
+      cat.type, 
+      cat.name,
+      cat.mediaCategory,
+      cat.mediaType,
+      cat.categoryName
+    ].filter(Boolean); // Remove null/undefined values
+    
+    // Check if any of the possible category names match (case-insensitive)
+    return categoryNames.some(name => 
+      name && name.toLowerCase() === normalizedCategoryName
+    );
+  });
+  
+  // If we couldn't find an exact match, try partial matching (contains)
+  if (!category) {
+    const partialMatch = mediaCategories.find(cat => {
+      const categoryNames = [
+        cat.category, 
+        cat.type, 
+        cat.name,
+        cat.mediaCategory,
+        cat.mediaType,
+        cat.categoryName
+      ].filter(Boolean);
+      
+      return categoryNames.some(name => 
+        name && name.toLowerCase().includes(normalizedCategoryName)
+      );
+    });
+    
+    if (partialMatch) {
+      return partialMatch;
+    }
+  }
+  
+  return category;
 };
 
 // Enhanced component with more responsive design and filter support
@@ -54,9 +115,7 @@ const MediaInsights = () => {
       .sort((a, b) => (b.totalInvestment || 0) - (a.totalInvestment || 0));
     
     // Información de televisión
-    const televisionData = sortedCategories.find(cat => 
-      cat.category === 'Television' || cat.type === 'Television'
-    );
+    const televisionData = findMediaCategory(sortedCategories, 'Television');
     const televisionInsight = {
       text: televisionData 
         ? `Television investment reaches ${formatCurrency(televisionData.totalInvestment)} across all banks${selectedPeriod !== 'All Period' ? ` in ${selectedPeriod}` : ''}, representing ${formatExactPercentage(televisionData.totalInvestment / totalInvestment * 100)}% of total spend, with ${televisionData.bankShares?.[0]?.bank || 'Capital One'} leading with ${formatCurrency(televisionData.bankShares?.[0]?.investment || 0)}.`
@@ -67,9 +126,7 @@ const MediaInsights = () => {
     };
     
     // Información de medios digitales
-    const digitalData = sortedCategories.find(cat => 
-      cat.category === 'Digital' || cat.type === 'Digital'
-    );
+    const digitalData = findMediaCategory(sortedCategories, 'Digital');
     const digitalInsight = {
       text: digitalData 
         ? `Digital media accounts for ${formatCurrency(digitalData.totalInvestment)} (${formatExactPercentage(digitalData.totalInvestment / totalInvestment * 100)}%) of total banking sector spend${selectedMonths.length > 0 ? ` during the selected ${selectedMonths.length} month(s)` : ''}, with ${digitalData.bankShares?.[0]?.bank || 'Chase Bank'} leading digital investment.`
@@ -80,9 +137,7 @@ const MediaInsights = () => {
     };
     
     // Información de audio
-    const audioData = sortedCategories.find(cat => 
-      cat.category === 'Audio' || cat.type === 'Audio'
-    );
+    const audioData = findMediaCategory(sortedCategories, 'Audio');
     const audioInsight = {
       text: audioData 
         ? `Audio investment totals ${formatCurrency(audioData.totalInvestment)} (${formatExactPercentage(audioData.totalInvestment / totalInvestment * 100)}%) across ${dataSource.banks.length} banks${selectedYears.length > 0 ? ` in ${selectedYears.join(', ')}` : ''}, with ${audioData.bankShares?.[0]?.bank || 'Chase Bank'} (${formatCurrency(audioData.bankShares?.[0]?.investment || 0)}) leading spend in this category.`
@@ -93,12 +148,8 @@ const MediaInsights = () => {
     };
     
     // Información de print y outdoor combinados
-    const printData = sortedCategories.find(cat => 
-      cat.category === 'Print' || cat.type === 'Print'
-    );
-    const outdoorData = sortedCategories.find(cat => 
-      cat.category === 'Outdoor' || cat.type === 'Outdoor'
-    );
+    const printData = findMediaCategory(sortedCategories, 'Print');
+    const outdoorData = findMediaCategory(sortedCategories, 'Outdoor');
     const combinedInvestment = (printData?.totalInvestment || 0) + (outdoorData?.totalInvestment || 0);
     
     const printOutdoorInsight = {

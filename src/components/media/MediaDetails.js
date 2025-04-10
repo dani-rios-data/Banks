@@ -48,15 +48,99 @@ const findMediaCategory = (mediaCategories, categoryName) => {
   
   console.log("Looking for category:", categoryName, "in", mediaCategories.map(c => c.category || c.type || c.name));
   
-  // Try to find category using multiple possible property names
-  const category = mediaCategories.find(cat => 
-    (cat.category === categoryName) || 
-    (cat.type === categoryName) || 
-    (cat.name === categoryName)
-  );
+  // Normalize category name for case-insensitive comparison
+  const normalizedCategoryName = categoryName.toLowerCase();
+  
+  // Try to find the category using multiple possible property names and case-insensitive comparison
+  const category = mediaCategories.find(cat => {
+    // Try different property names that might contain the category name
+    const categoryNames = [
+      cat.category, 
+      cat.type, 
+      cat.name,
+      cat.mediaCategory,
+      cat.mediaType,
+      cat.categoryName
+    ].filter(Boolean); // Remove null/undefined values
+    
+    // Check if any of the possible category names match (case-insensitive)
+    return categoryNames.some(name => 
+      name && name.toLowerCase() === normalizedCategoryName
+    );
+  });
+  
+  // If we couldn't find an exact match, try partial matching (contains)
+  if (!category) {
+    console.log(`No exact match for ${categoryName}, trying partial matches...`);
+    
+    const partialMatch = mediaCategories.find(cat => {
+      const categoryNames = [
+        cat.category, 
+        cat.type, 
+        cat.name,
+        cat.mediaCategory,
+        cat.mediaType,
+        cat.categoryName
+      ].filter(Boolean);
+      
+      return categoryNames.some(name => 
+        name && name.toLowerCase().includes(normalizedCategoryName)
+      );
+    });
+    
+    if (partialMatch) {
+      console.log(`Found partial match for ${categoryName}:`, partialMatch);
+      return partialMatch;
+    }
+  }
   
   console.log("Found category:", category);
   return category;
+};
+
+/**
+ * Helper function to safely access bank shares data with support for different property names
+ * @param {Object} categoryData - Media category data
+ * @returns {Array} - Bank shares data
+ */
+const getBankShares = (categoryData) => {
+  if (!categoryData) return [];
+  
+  // Try different property names for bank shares
+  const bankSharesProperty = 
+    Array.isArray(categoryData.bankShares) ? 'bankShares' : 
+    Array.isArray(categoryData.shares) ? 'shares' : null;
+  
+  if (!bankSharesProperty) return [];
+  
+  const bankShares = categoryData[bankSharesProperty] || [];
+  console.log(`Bank shares property: ${bankSharesProperty} length: ${bankShares.length}`);
+  
+  return bankShares;
+};
+
+/**
+ * Helper function to safely access investment value with support for different property names
+ * @param {Object} bankShare - Bank share data
+ * @returns {number} - Investment value
+ */
+const getInvestmentValue = (bankShare) => {
+  if (!bankShare) return 0;
+  
+  // Try different property names for investment amount
+  return bankShare.investment || bankShare.amount || 0;
+};
+
+/**
+ * Helper function to safely access percentage value with support for different property names
+ * @param {Object} bankShare - Bank share data
+ * @returns {number} - Percentage value
+ */
+const getPercentageValue = (bankShare) => {
+  if (!bankShare) return 0;
+  
+  // Try different property names for percentage
+  return bankShare.percentage || bankShare.share || 0;
 };
 
 /**
@@ -211,28 +295,17 @@ const MediaDetails = ({ filteredData, enhancedBankColors }) => {
     );
   }
 
-  // Get bank shares data with flexible property access
-  const getBankShares = (mediaCategory) => {
-    // Try different property names for bank shares
-    if (mediaCategory.bankShares && Array.isArray(mediaCategory.bankShares)) {
-      return mediaCategory.bankShares;
-    } else if (mediaCategory.shares && Array.isArray(mediaCategory.shares)) {
-      return mediaCategory.shares;
-    } else {
-      console.warn("No bank shares found for", mediaCategory);
-      return [];
-    }
-  };
-
-  // Prepare data for the chart
+  // Get bank shares data with our helper function
   const bankShares = getBankShares(selectedMedia);
+  
+  // Prepare data for the chart
   const bankData = bankShares.map(share => ({
     name: share.bank,
-    investment: share.investment || share.amount || 0,
-    percentage: share.percentage || share.share || 0
+    investment: getInvestmentValue(share),
+    percentage: getPercentageValue(share)
   })).sort((a, b) => b.investment - a.investment);
 
-  // Calculate total investment
+  // Calculate total investment using a robust method
   const totalInvestment = selectedMedia.totalInvestment || selectedMedia.total || 
     bankData.reduce((sum, item) => sum + item.investment, 0);
   const formattedTotalInvestment = formatValue(totalInvestment);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaColors } from '../../utils/colorSchemes';
 import MediaDetails from './MediaDetails';
+import MediaInsights from './MediaInsights';
 import Papa from 'papaparse';
 
 // Función para formatear valores numéricos
@@ -47,10 +48,68 @@ const enhancedBankColors = {
   'Bank of America': '#22C55E',   // Verde
   'Wells Fargo': '#DC2626',       // Rojo
   'TD Bank': '#EAB308',           // Amarillo
-  'Capital One Bank': '#6D28D9',  // Morado
-  'PNC Bank': '#2563EB',          // Azul
-  'Chase Bank': '#117ACA',        // Azul Chase
-  'US Bank': '#0046AD',           // Azul US Bank
+  'Capital One Bank': '#8B5CF6',  // Brighter Purple
+  'PNC Bank': '#3B82F6',          // Brighter Blue
+  'Chase Bank': '#0284C7',        // Brighter Chase Blue
+  'US Bank': '#1D4ED8',           // Brighter US Bank Blue
+};
+
+/**
+ * Helper function to find media category data with support for different property names
+ * @param {Array} mediaCategories - Array of media categories
+ * @param {string} categoryName - Name of the category to find
+ * @returns {Object|null} - Found category or null
+ */
+const findMediaCategory = (mediaCategories, categoryName) => {
+  if (!mediaCategories || !Array.isArray(mediaCategories) || mediaCategories.length === 0) {
+    console.log("Category found: undefined (mediaCategories empty or not an array)");
+    return null;
+  }
+  
+  // Normalize category name for case-insensitive comparison
+  const normalizedCategoryName = categoryName.toLowerCase();
+  
+  // Try to find the category using multiple possible property names and case-insensitive comparison
+  const category = mediaCategories.find(cat => {
+    // Try different property names that might contain the category name
+    const categoryNames = [
+      cat.category, 
+      cat.type, 
+      cat.name,
+      cat.mediaCategory,
+      cat.mediaType,
+      cat.categoryName
+    ].filter(Boolean); // Remove null/undefined values
+    
+    // Check if any of the possible category names match (case-insensitive)
+    return categoryNames.some(name => 
+      name && name.toLowerCase() === normalizedCategoryName
+    );
+  });
+  
+  // If we couldn't find an exact match, try partial matching (contains)
+  if (!category) {
+    const partialMatch = mediaCategories.find(cat => {
+      const categoryNames = [
+        cat.category, 
+        cat.type, 
+        cat.name,
+        cat.mediaCategory,
+        cat.mediaType,
+        cat.categoryName
+      ].filter(Boolean);
+      
+      return categoryNames.some(name => 
+        name && name.toLowerCase().includes(normalizedCategoryName)
+      );
+    });
+    
+    if (partialMatch) {
+      return partialMatch;
+    }
+  }
+  
+  return category;
 };
 
 /**
@@ -70,6 +129,7 @@ const MediaChannelAnalysis = () => {
   const [csvData, setCsvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processedDataState, setProcessedDataState] = useState(null);
+  const [activeTab, setActiveTab] = useState('details'); // 'details' or 'insights'
 
   // Cargar datos del CSV solo si no tenemos datos del contexto
   useEffect(() => {
@@ -168,7 +228,7 @@ const MediaChannelAnalysis = () => {
           const percentage = share.percentage || share.share || 0;
           
           return {
-            bank: share.bank,
+          bank: share.bank,
             investment: amount,
             amount,
             formattedAmount: formatCurrency(amount),
@@ -201,7 +261,7 @@ const MediaChannelAnalysis = () => {
           const sharePercentage = month.total ? (investment / month.total) * 100 : 0;
           
           return {
-            bank: share.bank,
+          bank: share.bank,
             investment,
             share: sharePercentage,
             formattedInvestment: formatCurrency(investment),
@@ -470,8 +530,9 @@ const MediaChannelAnalysis = () => {
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="h-96 flex items-center justify-center">
-          <div className="animate-pulse text-gray-400">Loading media analysis data...</div>
+        <div className="h-96 flex flex-col items-center justify-center">
+          <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mb-4"></div>
+          <div className="text-gray-500 font-medium">Loading media analysis data...</div>
         </div>
       </div>
     );
@@ -494,6 +555,30 @@ const MediaChannelAnalysis = () => {
                 </span>
               )}
             </p>
+          </div>
+          
+          {/* Tabs para detalles/insights */}
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setActiveTab('details')}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                activeTab === 'details' 
+                  ? 'bg-blue-100 text-blue-700 font-medium' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Details
+            </button>
+            <button
+              onClick={() => setActiveTab('insights')}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                activeTab === 'insights' 
+                  ? 'bg-blue-100 text-blue-700 font-medium' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Insights
+            </button>
           </div>
         </div>
         
@@ -606,12 +691,16 @@ const MediaChannelAnalysis = () => {
           ))}
         </div>
         
-        {/* Media Details */}
+        {/* Media Content - Switch between details and insights */}
         <div>
+          {activeTab === 'details' ? (
           <MediaDetails 
             filteredData={processedDataState} 
             enhancedBankColors={enhancedBankColors}
           />
+          ) : (
+            <MediaInsights />
+          )}
         </div>
       </div>
     </div>
