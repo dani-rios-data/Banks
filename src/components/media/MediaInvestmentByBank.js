@@ -23,16 +23,25 @@ const formatValue = (value) => {
   return formatCurrency(value);
 };
 
-// Customize tooltip to show only investment value
+// Customize tooltip to show investment value and percentage when available
 const SimpleInvestmentTooltip = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null;
+  
+  // Check if percentage is available in the payload
+  const hasPercentage = payload[0].payload && (payload[0].payload.percentage !== undefined);
         
-  return (
+        return (
     <div className="bg-white p-4 shadow-lg rounded-md border border-gray-200 transition-all duration-200 animate-fadeIn">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-1">
         <span className="font-semibold">Investment:</span>
         <span className="font-medium ml-3" style={{ color: payload[0].color || '#333' }}>{formatValue(payload[0].value)}</span>
-      </div>
+          </div>
+      {hasPercentage && (
+        <div className="flex items-center justify-between pt-1 border-t border-gray-100 mt-1">
+          <span className="font-semibold">Share:</span>
+          <span className="font-medium ml-3 text-blue-600">{formatPercentage(payload[0].payload.percentage)}%</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -292,12 +301,18 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
     }
   }, [loading, processedData, mediaCategory, selectedMediaType]);
 
-  const handleClickOutside = () => {
-    if (selectedBank) {
-      setSelectedBank(null);
-    }
-    if (selectedMediaType) {
-      setSelectedMediaType(null);
+  const handleClickOutside = (e) => {
+    // Verificar si el clic fue en un botón de categoría o banco
+    const isTabClick = e.target.closest('button[data-tab-button="true"]');
+    
+    // Solo resetear selecciones si no fue un clic en un botón
+    if (!isTabClick) {
+      if (selectedBank) {
+        setSelectedBank(null);
+      }
+      if (selectedMediaType) {
+        setSelectedMediaType(null);
+      }
     }
   };
 
@@ -385,16 +400,19 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
     // Calculate bank shares for the selected media category
     let bankSharesByMedia = [];
     
-    // Use active category if provided, otherwise use selectedMediaType
-    const categoryToFind = selectedMediaType || mediaCategory === 'All' 
-      ? (selectedMediaType || 'Digital') 
-      : mediaCategory;
+    // Fix the default category to use when in "All" tab
+    const categoryToFind = selectedMediaType || (mediaCategory !== 'All' 
+      ? mediaCategory 
+      : 'All'); // Use 'All' instead of defaulting to 'Digital'
     
     console.log("Looking for category:", categoryToFind);
     
-    const selectedMediaData = processedData.mediaCategories.find(
-      media => (media.category === categoryToFind || media.type === categoryToFind)
-    );
+    // Get data for selected or default category
+    const selectedMediaData = categoryToFind === 'All'
+      ? null  // No specific category when in "All" tab without selection
+      : processedData.mediaCategories.find(
+          media => (media.category === categoryToFind || media.type === categoryToFind)
+        );
     
     if (selectedMediaData) {
       // Find the bank shares property
@@ -412,6 +430,19 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
           percentage: bankShare[percentageProperty]
         };
       }).sort((a, b) => b.value - a.value);
+    } else if (categoryToFind === 'All') {
+      // When in All category with no selection, show distribution across all banks
+      const allBanks = processedData.banks || [];
+      
+      // Format all banks data for the pie chart
+      bankSharesByMedia = allBanks
+        .filter(bank => bank.totalInvestment > 0)
+        .map(bank => ({
+          name: bank.name,
+          value: bank.totalInvestment,
+          percentage: bank.marketShare || (bank.totalInvestment / processedData.totalInvestment * 100)
+        }))
+        .sort((a, b) => b.value - a.value);
     }
     
     // Get data for the selected media category detail view
@@ -520,7 +551,7 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
             <span className="ml-3 px-3 py-1 bg-blue-50 text-blue-600 text-sm font-medium rounded-full">
               {formatCurrency(totalInvestmentValue)}
             </span>
-          </h2>
+      </h2>
           <p className="text-gray-600 mt-1">
             Media categories investment distribution across banks
           </p>
@@ -533,41 +564,70 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
             >
               Clear Selection
             </button>
-          )}
-        </div>
-      </div>
-      
+              )}
+            </div>
+          </div>
+
       {/* Media Category Tabs */}
-      <div className="flex flex-wrap overflow-x-auto pb-2 mb-6 border-b">
+      <div className="flex flex-wrap border-b mb-6 pb-1">
         <button
-          className={`px-4 py-2 mr-2 mb-2 rounded-lg transition-all duration-300 font-medium flex items-center
-            ${!selectedMediaType 
-              ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-sm' 
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          onClick={() => setSelectedMediaType(null)}
+          data-tab-button="true"
+          className={`px-4 py-2 mr-3 font-medium focus:outline-none rounded-lg transition duration-300 flex items-center transform hover:scale-105 hover:shadow-md`}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevenir propagación
+            setSelectedMediaType(null);
+          }}
+          style={!selectedMediaType ? {
+            background: 'linear-gradient(135deg, #3b82f680, #3b82f6)',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+          } : {
+            color: '#4b5563', 
+            borderBottom: '3px solid transparent'
+          }}
         >
-          <span className="mr-2">{mediaCategoryIcons['All']}</span>
+          <span className="flex items-center justify-center mr-2">
+            {mediaCategoryIcons['All']}
+          </span>
           All Media Categories
         </button>
         
         {enhancedMediaData.slice(0, 7).map((media) => (
           <button
             key={media.name}
-            className={`px-4 py-2 mr-2 mb-2 rounded-lg transition-all duration-300 font-medium flex items-center
-              ${selectedMediaType === media.name 
-                ? 'bg-gradient-to-r shadow-sm' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            style={selectedMediaType === media.name 
-              ? { 
-                  backgroundImage: `linear-gradient(to right, ${media.color}30, ${media.color}60)`,
-                  color: media.color.replace('60', '800')
-                } 
-              : {}}
-            onClick={() => setSelectedMediaType(media.name)}
+            data-tab-button="true"
+            className={`px-4 py-2 mr-3 font-medium focus:outline-none rounded-lg transition duration-300 flex items-center transform hover:scale-105 hover:shadow-md`}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevenir propagación
+              setSelectedMediaType(media.name);
+            }}
+            style={selectedMediaType === media.name ? {
+              background: `linear-gradient(135deg, ${media.color}80, ${media.color})`,
+              color: '#ffffff',
+              fontWeight: 'bold',
+              boxShadow: `0 2px 8px ${media.color}50`
+            } : {
+              color: '#4b5563',
+              borderBottom: '3px solid transparent',
+              transition: 'all 0.3s ease-in-out'
+            }}
+            onMouseOver={(e) => {
+              if (selectedMediaType !== media.name) {
+                e.currentTarget.style.background = `linear-gradient(135deg, ${media.color}15, ${media.color}30)`;
+                e.currentTarget.style.color = media.color;
+              }
+            }}
+            onMouseOut={(e) => {
+              if (selectedMediaType !== media.name) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#4b5563';
+              }
+            }}
           >
-            <span className="mr-2">{getMediaIcon(media.name)}</span>
+            <span className="flex items-center justify-center mr-2">
+              {getMediaIcon(media.name)}
+                      </span>
             {media.name}
           </button>
         ))}
@@ -581,11 +641,11 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
           </h3>
           <div className={`h-[400px] transition-all duration-700 transform ${animateChart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
+            <BarChart
                 data={enhancedBarData}
                 margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
                 barSize={36}
-                layout="vertical"
+              layout="vertical"
                 animationDuration={1500}
                 animationEasing="ease-in-out"
               >
@@ -604,8 +664,8 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                   axisLine={{ stroke: '#e5e7eb' }}
                   tickLine={{ stroke: '#e5e7eb' }}
                 />
-                <YAxis 
-                  type="category" 
+              <YAxis 
+                type="category" 
                   dataKey="name" 
                   tick={{ fill: '#4b5563', fontSize: 13 }}
                   axisLine={{ stroke: '#e5e7eb' }}
@@ -638,9 +698,9 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                       strokeWidth={selectedMediaType === entry.name ? 2 : 0}
                     />
                   ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
           </div>
         </div>
         
@@ -649,13 +709,13 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
           <h3 className="text-lg font-medium text-gray-700 mb-3">
             {selectedMediaType 
               ? `${selectedMediaType} Distribution by Bank` 
-              : 'Digital Distribution by Bank'
+              : (mediaCategory !== 'All' ? `${mediaCategory} Distribution by Bank` : 'Overall Media Distribution by Bank')
             }
           </h3>
           <div className={`h-[400px] transition-all duration-700 transform ${animateChart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             {hasBankData ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+              <PieChart>
                   <defs>
                     {chartData.bankSharesByMedia.map((entry, index) => (
                       <linearGradient key={`bankGradient-${index}`} id={`bankGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
@@ -666,46 +726,49 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                   </defs>
                   <Pie
                     data={chartData.bankSharesByMedia}
-                    cx="50%"
-                    cy="50%"
+                  cx="50%"
+                  cy="50%"
                     outerRadius={140}
                     innerRadius={85}
-                    paddingAngle={2}
-                    dataKey="value"
+                  paddingAngle={2}
+                  dataKey="value"
                     nameKey="name"
                     label={false}
-                    labelLine={false}
+                  labelLine={false}
                     onClick={(data) => setSelectedBank(data.name)}
                     animationDuration={1800}
                     animationEasing="ease-in-out"
                     animationBegin={300}
-                  >
+                >
                     {chartData.bankSharesByMedia.map((entry, index) => (
-                      <Cell 
+                    <Cell 
                         key={`cell-${index}`} 
                         fill={`url(#bankGradient-${index})`}
                         fillOpacity={selectedBank ? (selectedBank === entry.name ? 1 : 0.7) : 0.9}
                         stroke="#ffffff"
                         strokeWidth={3}
-                      />
-                    ))}
-                  </Pie>
+                    />
+                  ))}
+                </Pie>
                   <Tooltip 
-                    formatter={(value) => [formatValue(value), 'Investment']}
+                    formatter={(value, name, props) => {
+                      // Return both value and name to ensure all data is passed to tooltip
+                      return [formatValue(value), 'Investment'];
+                    }}
                     content={<SimpleInvestmentTooltip />}
                     animationDuration={300}
-                    wrapperStyle={{
+                  wrapperStyle={{
                       borderRadius: '8px',
                       boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
                       background: 'rgba(255, 255, 255, 0.95)',
                       transition: 'all 0.3s ease'
                     }}
                   />
-                  <Legend
-                    layout="vertical"
-                    verticalAlign="middle"
+                <Legend
+                  layout="vertical"
+                  verticalAlign="middle"
                     align="right"
-                    wrapperStyle={{ 
+                  wrapperStyle={{
                       fontSize: '12px', 
                       paddingLeft: '10px',
                       lineHeight: '1.5em' 
@@ -716,10 +779,10 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                           {value}
                         </span>
                       );
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+                  }}
+                />
+              </PieChart>
+          </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center">
                 <div className="text-gray-500 bg-gray-100 p-4 rounded-lg">
@@ -727,9 +790,9 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                 </div>
               </div>
             )}
-          </div>
         </div>
-
+      </div>
+      
         {/* Insights Section - Only show if there are insights */}
         {generateInsights().length > 0 && (
           <div className="lg:col-span-2">
@@ -769,7 +832,7 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                       style={style}
                     >
                       {header}
-                    </th>
+                  </th>
                   );
                 })}
               </tr>
@@ -784,7 +847,7 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                 const mediaCategoryColor = isTotal ? '#1D4ED8' : getMediaColor(mediaCategory);
                 const mediaCategoryIcon = !isTotal ? getMediaIcon(mediaCategory) : mediaCategoryIcons['All'];
                 
-                return (
+                  return (
                   <tr 
                     key={rowIdx} 
                     className={`
@@ -813,11 +876,11 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                               className="px-6 py-4 whitespace-nowrap font-medium"
                               style={cellStyle}
                             >
-                              <div className="flex items-center">
+                          <div className="flex items-center">
                                 {getMediaIcon(mediaCategory)}
                                 <span className="ml-2">{cell}</span>
-                              </div>
-                            </td>
+                        </div>
+                      </td>
                           );
                         }
                       } 
@@ -840,7 +903,7 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                         };
                       }
                       
-                      return (
+                          return (
                         <td 
                           key={cellIdx}
                           className={`px-6 py-4 whitespace-nowrap transition-colors duration-150
@@ -849,15 +912,15 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                           style={cellStyle}
                         >
                           {cellIdx === 0 ? cell : formatValue(cell)}
-                        </td>
-                      );
+                            </td>
+                          );
                     })}
-                  </tr>
-                );
-              })}
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
-        </div>
+                    </div>
       </div>
       
       {/* Selected Media Detail */}
@@ -887,8 +950,8 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                   const amount = bank.amount || bank.investment || 0;
                   const percentage = bank.percentage || bank.share || 0;
                   const bankColor = getBankColor(bankName);
-                  
-                  return (
+                    
+                    return (
                     <div key={idx} className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
                       <span className="text-gray-700 font-medium" style={{ color: bankColor }}>
                         <BankIcon />
@@ -897,12 +960,12 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                       <div className="flex space-x-4">
                         <span className="font-semibold text-gray-900">{formatCurrency(amount)}</span>
                         <span className="text-blue-600 bg-blue-50 px-2 rounded">{formatPercentage(percentage)}</span>
-                      </div>
+                        </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                    );
+                  })}
+                    </div>
+        </div>
             
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
               <h4 className="text-md font-medium text-gray-800 mb-4 flex items-center">
@@ -915,7 +978,7 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                 <div className="flex justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <span className="text-gray-700 font-medium">Total Investment:</span>
                   <span className="font-semibold text-gray-900">{formatValue(chartData.selectedMediaData.totalInvestment)}</span>
-                </div>
+      </div>
                 <div className="flex justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <span className="text-gray-700 font-medium">Category Position:</span>
                   <div className="flex items-center">
