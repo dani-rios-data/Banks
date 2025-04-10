@@ -39,7 +39,9 @@ const CustomLegend = ({ payload }) => {
     <div className="flex flex-col gap-2 mt-2">
       {payload.map((entry, index) => {
         // Usar el porcentaje que ya ha sido calculado y almacenado en el payload
-        const percentage = entry.payload.percentage ? entry.payload.percentage.toFixed(1) : '0.0';
+        const percentage = entry.payload && entry.payload.percentage !== undefined 
+          ? entry.payload.percentage.toFixed(1) 
+          : '0.0';
         
         return (
           <div key={`legend-${index}`} className="flex items-center">
@@ -154,7 +156,7 @@ const CustomTooltip = ({ active, payload }) => {
           <span className="font-semibold">Investment:</span> {formatCurrency(payload[0].value)}
         </p>
         <p className="text-sm text-gray-600">
-          <span className="font-semibold">Share:</span> {payload[0].payload.percentage ? payload[0].payload.percentage.toFixed(1) : '0'}%
+          <span className="font-semibold">Share:</span> {payload[0].payload.percentage !== undefined ? payload[0].payload.percentage.toFixed(1) : '0'}%
         </p>
       </div>
     );
@@ -959,7 +961,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                                     {formatCurrency(bankShare.investment)}
                                   </div>
                                   <div className="text-xs text-gray-500 mt-1">
-                                    {bankShare.share.toFixed(1)}%
+                                    {(bankShare.share !== undefined && bankShare.share !== null) ? bankShare.share.toFixed(1) : '0'}%
                                   </div>
                                 </>
                               ) : (

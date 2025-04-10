@@ -26,7 +26,7 @@ export const formatCurrency = (value) => {
     }
   };
   
-  // Para valores mayores o iguales a 1 billón (1,000 millones)
+  // Solo para valores iguales o mayores a 1 billón (1,000 millones)
   if (numValue >= 1000000000) {
     const billions = numValue / 1000000000;
     return `$${getExactDecimals(billions)}B`;

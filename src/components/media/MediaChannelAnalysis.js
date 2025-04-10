@@ -64,9 +64,7 @@ const MediaChannelAnalysis = () => {
     setActiveMediaTab,
     selectedMonths,
     filteredData: contextFilteredData, // Obtener datos filtrados del contexto
-    dashboardData, // Obtener datos del dashboard
-    selectedYears,
-    selectedPeriod
+    dashboardData // Obtener datos del dashboard
   } = useDashboard();
 
   const [csvData, setCsvData] = useState(null);
@@ -446,91 +444,6 @@ const MediaChannelAnalysis = () => {
     
     setProcessedDataState(processedData);
   }, [contextFilteredData, dashboardData, csvData, selectedMonths]);  // Recalcular cuando cambian los datos o filtros
-
-  // Process data for charts from filtered dashboard data
-  const { barChartData, pieChartData, totalInvestment: pieChartTotalInvestment } = useMemo(() => {
-    // Use filtered data if available, otherwise use complete dashboard data
-    const sourceData = contextFilteredData || dashboardData;
-    
-    // If no data available yet, return empty datasets
-    if (!sourceData || !sourceData.mediaCategories) {
-      return { 
-        barChartData: [], 
-        pieChartData: [],
-        totalInvestment: 0
-      };
-    }
-
-    // Sort media categories by investment (descending) for bar chart
-    const sortedCategories = [...sourceData.mediaCategories]
-      .sort((a, b) => b.totalInvestment - a.totalInvestment);
-    
-    // Calculate total investment
-    const totalInvestment = sourceData.totalInvestment || 
-      sortedCategories.reduce((sum, cat) => sum + cat.totalInvestment, 0);
-    
-    // Format data for bar chart
-    const barChartData = sortedCategories.map(category => ({
-      name: category.category || category.type,
-      Investment: category.totalInvestment,
-      percentage: (category.totalInvestment / totalInvestment) * 100
-    }));
-    
-    // Format data for pie chart - use top 5 categories and combine the rest
-    let pieChartData = [];
-    if (sortedCategories.length > 5) {
-      const top5 = sortedCategories.slice(0, 5);
-      const otherCategories = sortedCategories.slice(5);
-      
-      // Add top 5 categories
-      pieChartData = top5.map(category => ({
-        name: category.category || category.type,
-        value: category.totalInvestment,
-        percentage: (category.totalInvestment / totalInvestment) * 100
-      }));
-      
-      // Add "Other" category as the sum of remaining categories
-      const otherInvestment = otherCategories.reduce(
-        (sum, cat) => sum + cat.totalInvestment, 
-        0
-      );
-      
-      if (otherInvestment > 0) {
-        pieChartData.push({
-          name: "Other",
-          value: otherInvestment,
-          percentage: (otherInvestment / totalInvestment) * 100
-        });
-      }
-    } else {
-      // If 5 or fewer categories, just use all of them
-      pieChartData = sortedCategories.map(category => ({
-        name: category.category || category.type,
-        value: category.totalInvestment,
-        percentage: (category.totalInvestment / totalInvestment) * 100
-      }));
-    }
-    
-    return { barChartData, pieChartData, totalInvestment };
-  }, [contextFilteredData, dashboardData]);
-
-  // Get period label for display
-  const periodLabel = useMemo(() => {
-    if (selectedPeriod && selectedPeriod !== 'All Period') {
-      return selectedPeriod;
-    } else if (selectedYears.length > 0 || selectedMonths.length > 0) {
-      const yearText = selectedYears.length > 0 
-        ? (selectedYears.length === 1 ? selectedYears[0] : `${selectedYears.join(', ')}`) 
-        : '';
-      
-      const monthText = selectedMonths.length > 0 
-        ? (selectedMonths.length === 1 ? selectedMonths[0] : `${selectedMonths.join(', ')}`) 
-        : '';
-        
-      return [monthText, yearText].filter(Boolean).join(' ');
-    }
-    return 'All Period';
-  }, [selectedPeriod, selectedYears, selectedMonths]);
 
   if (loading || !processedDataState) {
     return (
