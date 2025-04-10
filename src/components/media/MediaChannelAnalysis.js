@@ -1,9 +1,6 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import React, { useState, useEffect } from 'react';
 import { useDashboard } from '../../context/DashboardContext';
-import { mediaColors, bankColors } from '../../utils/colorSchemes';
-import CustomTooltip from '../common/CustomTooltip';
-import Icons from '../common/Icons';
+import { mediaColors } from '../../utils/colorSchemes';
 import MediaDetails from './MediaDetails';
 import Papa from 'papaparse';
 
@@ -595,10 +592,9 @@ const MediaChannelAnalysis = () => {
                 )}
                 {category.type === 'Cinema' && (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <circle cx="7" cy="12" r="5" strokeWidth={1.5} />
-                    <circle cx="17" cy="12" r="5" strokeWidth={1.5} />
-                    <path d="M7 7v10M17 7v10" strokeWidth={1.5} />
-                    <path d="M4 9h6M4 12h6M4 15h6M14 9h6M14 12h6M14 15h6" strokeWidth={1.2} />
+                    <path d="M4 4h2v2H4V4zm0 7h2v2H4v-2zm0 7h2v2H4v-2zm14-14h2v2h-2V4zm0 7h2v2h-2v-2zm0 7h2v2h-2v-2z" strokeWidth={1.5} />
+                    <path d="M7 4h10v16H7V4z" strokeWidth={1.5} />
+                    <path d="M8 7h8M8 12h8M8 17h8" strokeWidth={1.2} strokeLinecap="round" />
                   </svg>
                 )}
               </span>

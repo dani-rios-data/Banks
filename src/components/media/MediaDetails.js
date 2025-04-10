@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
-import { bankColors, mediaColors } from '../../utils/colorSchemes';
+import { mediaColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
-import Icons from '../common/Icons';
-import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { formatCurrency } from '../../utils/formatters';
 
 // Colores exactos para los bancos según el diseño
 const bankColorScheme = {
