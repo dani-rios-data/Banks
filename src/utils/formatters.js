@@ -49,6 +49,38 @@ export const formatCurrency = (value) => {
 };
 
 /**
+ * Formatea un valor numérico como moneda en formato abreviado sin decimales
+ * @param {number} value - Valor a formatear
+ * @returns {string} Valor formateado sin decimales y con sufijo apropiado
+ */
+export const formatCurrencyNoDecimals = (value) => {
+  if (value === undefined || value === null) return '$0';
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) return '$0';
+  
+  // Solo para valores iguales o mayores a 1 billón (1,000 millones)
+  if (numValue >= 1000000000) {
+    const billions = Math.floor(numValue / 1000000000);
+    return `$${billions}B`;
+  }
+  
+  // Para valores mayores o iguales a 1 millón
+  if (numValue >= 1000000) {
+    const millions = Math.floor(numValue / 1000000);
+    return `$${millions}M`;
+  }
+  
+  // Para valores mayores o iguales a 1 mil
+  if (numValue >= 1000) {
+    const thousands = Math.floor(numValue / 1000);
+    return `$${thousands}K`;
+  }
+  
+  // Para valores menores a 1000, mostrar sin centavos
+  return `$${Math.floor(numValue)}`;
+};
+
+/**
  * Limpia y convierte un valor de dólar en número
  * @param {string} value - Valor en formato de dólar (e.g., "$1,234.56")
  * @returns {number} - Valor numérico

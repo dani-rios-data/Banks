@@ -2,8 +2,7 @@ import React, { useMemo } from 'react';
 import { LineChart, Line, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors } from '../../utils/colorSchemes';
-import CustomTooltip from '../common/CustomTooltip';
-import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { formatCurrency, formatPercentage, formatCurrencyNoDecimals } from '../../utils/formatters';
 
 // Función para formatear el mes y año
 const formatMonth = (month, year) => {
@@ -21,9 +20,38 @@ const formatMonthLabel = (month) => {
   return `${monthNames[parseInt(monthNum, 10) - 1]} ${year}`;
 };
 
-// Función para formatear valores en el eje Y
+// Función para formatear valores en el eje Y (sin decimales)
 const formatYAxis = (value) => {
-  return formatCurrency(value).replace('$', '');
+  return formatCurrencyNoDecimals(value).replace('$', '');
+};
+
+// Componente personalizado para el tooltip
+const CustomMonthlyTooltip = ({ active, payload, bank }) => {
+  if (active && payload && payload.length > 0) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 text-sm">
+        <div className="font-medium border-b border-gray-200 pb-2 mb-2">
+          {data.formattedMonth}
+        </div>
+        <div className="space-y-1">
+          <div className="flex justify-between">
+            <span className="text-gray-600 mr-4">Inversión {bank.name}:</span>
+            <span className="font-medium">{formatCurrency(data[bank.name])}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600 mr-4">Inversión Total:</span>
+            <span className="font-medium">{formatCurrency(data.total)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600 mr-4">Participación:</span>
+            <span className="font-medium">{formatPercentage(data.percentage)}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
 };
 
 /**
@@ -232,33 +260,7 @@ const BankMonthlyTrend = ({ bank }) => {
               tickLine={false}
               width={60}
             />
-            <Tooltip 
-              content={(tooltipProps) => {
-                const { payload } = tooltipProps;
-                if (payload && payload.length > 0) {
-                  const data = payload[0].payload;
-                  const month = data.month;
-                  const year = data.year;
-                  const formattedMonth = formatMonth(month, year);
-                  
-                  return (
-                    <div className="custom-tooltip">
-                      <p className="tooltip-date">{formattedMonth}</p>
-                      <p className="tooltip-bank">
-                        {bank.name}: {formatCurrency(data[bank.name])}
-                      </p>
-                      <p className="tooltip-total">
-                        Total: {formatCurrency(data.total)}
-                      </p>
-                      <p className="tooltip-share">
-                        Participación: {formatPercentage(data.percentage, 2)}
-                      </p>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
+            <Tooltip content={<CustomMonthlyTooltip bank={bank} />} />
             <Line 
               type="monotone" 
               dataKey={bank.name} 
