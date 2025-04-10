@@ -137,6 +137,7 @@ const getPercentageValue = (bankShare) => {
 /**
  * Main component for the media analysis dashboard
  */
+// eslint-disable-next-line react/prop-types
 const MediaDashboard = ({ dataSource }) => {
   // DEBUG: Inspeccionar el dataSource recibido
   console.log("===== MEDIA DASHBOARD =====");
@@ -150,15 +151,13 @@ const MediaDashboard = ({ dataSource }) => {
     }
   }
 
-  const { loading } = useDashboard();
-
   const { 
     selectedMediaCategory, 
-    filteredData, 
-    dashboardData, 
-    selectedMonths, 
+    selectedMonths,
     selectedYears,
-    selectedPeriod 
+    selectedPeriod,
+    filteredData,
+    dashboardData
   } = useDashboard();
 
   // Use filteredData if available, otherwise use dashboardData
