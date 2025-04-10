@@ -39,7 +39,10 @@ const formatCurrency = (value) => {
 
 // Function to format percentage with exactly 2 decimals without rounding
 const formatExactPercentage = (value) => {
-  const numStr = value.toString();
+  // Determinar si el valor ya está en formato porcentual
+  const percentValue = value > 1 ? value : value * 100;
+  
+  const numStr = percentValue.toString();
   const decimalPos = numStr.indexOf('.');
   
   if (decimalPos === -1) {

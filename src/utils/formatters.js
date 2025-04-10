@@ -109,7 +109,7 @@ export const formatDollarValue = (value) => {
 
 /**
  * Formatea un número como porcentaje
- * @param {number} value - Valor numérico (decimal)
+ * @param {number} value - Valor numérico (decimal o ya en porcentaje)
  * @returns {string} - Valor formateado como porcentaje con exactamente 2 decimales sin redondear (e.g., "12.34%")
  */
 export const formatPercentage = (value) => {
@@ -117,8 +117,9 @@ export const formatPercentage = (value) => {
   const numValue = Number(value);
   if (isNaN(numValue)) return '0.00%';
   
-  // Multiplicar por 100 para convertir de decimal a porcentaje
-  const percentValue = numValue * 100;
+  // Determinar si el valor ya está en formato porcentual (mayor que 1 generalmente indica un porcentaje)
+  // Esto evita la doble multiplicación para valores que ya son porcentajes
+  const percentValue = numValue > 1 ? numValue : numValue * 100;
   
   // Obtener el valor con 2 decimales sin redondear
   const valueStr = String(percentValue);

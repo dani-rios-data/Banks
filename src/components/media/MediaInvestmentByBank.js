@@ -1,20 +1,20 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { BarChart, Bar, PieChart, Pie, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import ChartInsights from '../common/ChartInsights';
 import CustomTooltip from '../common/CustomTooltip';
 import Papa from 'papaparse';
 
-// Enhanced colors for banks
+// Enhanced colors for banks with better contrast
 const enhancedBankColors = {
   'Bank of America': '#22C55E',   // Green
   'Wells Fargo': '#DC2626',       // Red
   'TD Bank': '#EAB308',           // Yellow
-  'Capital One Bank': '#6D28D9',  // Purple
-  'PNC Bank': '#2563EB',          // Blue
-  'Chase Bank': '#117ACA',        // Chase Blue
-  'US Bank': '#0046AD',           // US Bank Blue
+  'Capital One Bank': '#8B5CF6',  // Brighter Purple
+  'PNC Bank': '#3B82F6',          // Brighter Blue
+  'Chase Bank': '#0284C7',        // Brighter Chase Blue
+  'US Bank': '#1D4ED8',           // Brighter US Bank Blue
 };
 
 // Function to format values in millions with one decimal
@@ -22,16 +22,17 @@ const formatValue = (value) => {
   return formatCurrency(value);
 };
 
-// Customize tooltip to show formatted values
+// Customize tooltip to show formatted values with enhanced styling
 const CustomTooltipWrapper = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null;
   
   return (
-    <div className="bg-white p-3 shadow-md rounded-md border border-gray-200">
-      <p className="text-sm font-semibold text-gray-800">{label}</p>
+    <div className="bg-white p-4 shadow-lg rounded-md border border-gray-200 transition-all duration-200 animate-fadeIn">
+      <p className="text-sm font-semibold text-gray-800 mb-2 border-b pb-1">{label}</p>
       {payload.map((entry, index) => (
-        <p key={index} className="text-xs" style={{ color: entry.color }}>
-          {entry.name}: {formatValue(entry.value)}
+        <p key={index} className="text-sm flex justify-between items-center py-1" style={{ color: entry.color }}>
+          <span>{entry.name}:</span>
+          <span className="font-medium ml-3">{formatValue(entry.value)}</span>
         </p>
       ))}
     </div>
@@ -39,7 +40,7 @@ const CustomTooltipWrapper = ({ active, payload, label }) => {
 };
 
 /**
- * Component that shows investment distribution by bank 
+ * Component that shows investment distribution by bank with enhanced visuals
  */
 const MediaInvestmentByBank = ({ activeCategory }) => {
   const { 
@@ -54,6 +55,7 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
   const [csvData, setCsvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processedData, setProcessedData] = useState(null);
+  const [animateChart, setAnimateChart] = useState(false);
   
   // Use the activeCategory prop if provided, otherwise use selectedMediaCategory from context
   const mediaCategory = activeCategory || selectedMediaCategory || 'All';
@@ -195,6 +197,14 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
     setProcessedData(processedCsvData);
   }, [contextFilteredData, dashboardData, csvData]);
 
+  // Trigger animation when data changes
+  useEffect(() => {
+    if (!loading && processedData) {
+      setAnimateChart(false);
+      setTimeout(() => setAnimateChart(true), 100);
+    }
+  }, [loading, processedData, mediaCategory]);
+
   const handleClickOutside = () => {
     if (selectedBank) {
       setSelectedBank(null);
@@ -298,8 +308,9 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="h-96 flex items-center justify-center">
-          <div className="animate-pulse text-gray-400">Loading investment data...</div>
+        <div className="h-96 flex flex-col items-center justify-center">
+          <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mb-4"></div>
+          <div className="text-gray-500 font-medium">Loading investment data...</div>
         </div>
       </div>
     );
@@ -355,51 +366,78 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
   // Check if there's data to display in the pie chart
   const hasMediaData = chartData.mediaTotalsByBank && chartData.mediaTotalsByBank.length > 0;
 
+  // Calculate total investment for this view
+  const totalInvestmentValue = enhancedBankData.reduce((sum, bank) => sum + bank.totalInvestment, 0);
+
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 transition duration-300 hover:shadow-lg border border-gray-100" onClick={handleClickOutside}>
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg border border-gray-100" onClick={handleClickOutside}>
+      {/* Header with total investment badge */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-800">Media Investment by Bank</h2>
+          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+            Investment by Bank
+            <span className="ml-3 px-3 py-1 bg-blue-50 text-blue-600 text-sm font-medium rounded-full">
+              {formatCurrency(totalInvestmentValue)}
+            </span>
+          </h2>
           <p className="text-gray-600 mt-1">
             {mediaCategory === 'All' ? 'Overall' : mediaCategory} media investment distribution across banking institutions
           </p>
         </div>
-        <div className="flex space-x-2">
-          {/* Button removed for simplicity */}
+        <div className="flex space-x-2 mt-3 sm:mt-0">
+          {selectedBank && (
+            <button 
+              onClick={(e) => {e.stopPropagation(); setSelectedBank(null);}}
+              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+            >
+              Clear Selection
+            </button>
+          )}
         </div>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left side - Bar Chart */}
-        <div className="lg:col-span-3">
-          <div className="h-[400px]">
+        <div className="lg:col-span-3 bg-gray-50 rounded-xl p-4">
+          <h3 className="text-lg font-medium text-gray-700 mb-3">
+            Banking Sector Investment Distribution
+          </h3>
+          <div className={`h-[400px] transition-opacity duration-500 ${animateChart ? 'opacity-100' : 'opacity-0'}`}>
             <ResponsiveContainer width="100%" height="100%">
-            <BarChart
+              <BarChart
                 data={enhancedBarData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 barSize={36}
-              layout="vertical"
+                layout="vertical"
               >
                 <XAxis 
                   type="number" 
                   tickFormatter={(value) => formatValue(value).replace('$', '')}
                   tick={{ fill: '#4b5563', fontSize: 12 }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  tickLine={{ stroke: '#e5e7eb' }}
                 />
-              <YAxis 
-                type="category" 
+                <YAxis 
+                  type="category" 
                   dataKey="name" 
                   tick={{ fill: '#4b5563', fontSize: 13 }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  tickLine={false}
+                  width={120}
                 />
                 <Tooltip 
                   content={<CustomTooltip />}
                   cursor={{ fill: 'rgba(224, 231, 255, 0.2)' }} 
+                  animationDuration={300}
                 />
                 <Bar 
                   dataKey="totalInvestment" 
-                radius={[0, 4, 4, 0]}
+                  radius={[0, 4, 4, 0]}
                   onClick={(data) => handleBankSelection(data)}
                   onMouseEnter={(data) => handleBankSelection(data)}
-              >
+                  animationDuration={1000}
+                  animationEasing="ease-out"
+                >
                   {enhancedBarData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
@@ -409,56 +447,67 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                       strokeWidth={selectedBank === entry.name ? 2 : 0}
                     />
                   ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
         
         {/* Right side - Pie Chart */}
-        <div className="lg:col-span-2">
-          <h3 className="text-lg font-medium text-gray-700 mb-4">
+        <div className="lg:col-span-2 bg-gray-50 rounded-xl p-4">
+          <h3 className="text-lg font-medium text-gray-700 mb-3">
             {mediaCategory === 'All' 
               ? 'Digital Spend Distribution' 
               : `${mediaCategory} Spend Distribution`}
           </h3>
-          <div className="h-[350px]">
+          <div className={`h-[350px] transition-opacity duration-500 ${animateChart ? 'opacity-100' : 'opacity-0'}`}>
             {hasMediaData ? (
               <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
+                <PieChart>
+                  <Pie
                     data={chartData.mediaTotalsByBank}
-                  cx="50%"
-                  cy="50%"
-                    outerRadius={130}
-                    innerRadius={65}
-                    paddingAngle={1}
-                  dataKey="value"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={120}
+                    innerRadius={60}
+                    paddingAngle={2}
+                    dataKey="value"
                     nameKey="name"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                  labelLine={false}
+                    label={({ name, percent }) => `${name.split(' ')[0]}: ${(percent * 100).toFixed(0)}%`}
+                    labelLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
                     onClick={(data) => handleBankSelection(data)}
                     onMouseEnter={(data) => handleBankSelection(data)}
-                >
+                    animationDuration={1200}
+                    animationEasing="ease-in-out"
+                  >
                     {chartData.mediaTotalsByBank.map((entry, index) => (
-                    <Cell 
+                      <Cell 
                         key={`cell-${index}`} 
                         fill={getBankColor(entry.name)}
                         fillOpacity={selectedBank ? (selectedBank === entry.name ? 1 : 0.4) : 1}
                         stroke={selectedBank === entry.name ? getBankColor(entry.name) : ''}
                         strokeWidth={selectedBank === entry.name ? 2 : 0}
-                    />
-                  ))}
-                </Pie>
+                      />
+                    ))}
+                  </Pie>
                   <Tooltip 
                     formatter={(value) => [formatValue(value), 'Investment']}
                     content={<CustomTooltipWrapper />}
-                />
-              </PieChart>
+                    animationDuration={300}
+                  />
+                  <Legend 
+                    layout="vertical" 
+                    verticalAlign="middle" 
+                    align="right"
+                    wrapperStyle={{ fontSize: '12px', paddingLeft: '10px' }}
+                  />
+                </PieChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center">
-                <div className="text-gray-500">No data available for {mediaCategory === 'All' ? 'Digital' : mediaCategory} category</div>
+                <div className="text-gray-500 bg-gray-100 p-4 rounded-lg">
+                  No data available for {mediaCategory === 'All' ? 'Digital' : mediaCategory} category
+                </div>
               </div>
             )}
           </div>
@@ -472,22 +521,27 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
       
       {/* Selected Bank Detail */}
       {chartData.selectedBankData && (
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <div className="flex items-center mb-4">
+        <div className={`mt-8 pt-6 border-t border-gray-200 transition-all duration-500 ${selectedBank ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+          <div className="flex items-center mb-5">
             <div 
-              className="w-4 h-4 rounded-full mr-2" 
+              className="w-5 h-5 rounded-full mr-3" 
               style={{ backgroundColor: selectedBankColor }}
-              ></div>
-            <h3 className="text-lg font-semibold">{chartData.selectedBankData.name}</h3>
-            <span className="ml-2 text-sm text-gray-500">
+            ></div>
+            <h3 className="text-xl font-semibold text-gray-800">{chartData.selectedBankData.name}</h3>
+            <span className="ml-3 px-3 py-1 bg-blue-50 text-blue-600 text-sm font-medium rounded-full">
               {formatPercentage(chartData.selectedBankData.marketShare)} market share
             </span>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="text-md font-medium text-gray-700 mb-3">Media Allocation</h4>
-              <div className="space-y-2">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-xl shadow-sm border border-gray-200">
+              <h4 className="text-md font-medium text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                </svg>
+                Media Allocation
+              </h4>
+              <div className="space-y-3">
                 {chartData.selectedBankData.mediaBreakdown && chartData.selectedBankData.mediaBreakdown.map((media, idx) => {
                   // Handle different property names for category, amount and percentage
                   const category = media.category || media.type || 'Unknown';
@@ -495,36 +549,52 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
                   const percentage = media.percentage || media.share || 0;
                   
                   return (
-                    <div key={idx} className="flex justify-between items-center">
-                      <span className="text-gray-600">{category}:</span>
-                      <div className="flex space-x-3">
-                        <span className="font-medium">{formatCurrency(amount)}</span>
-                        <span className="text-gray-500">{formatPercentage(percentage)}</span>
-                          </div>
-                          </div>
+                    <div key={idx} className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-white transition-colors">
+                      <span className="text-gray-700 font-medium">{category}:</span>
+                      <div className="flex space-x-4">
+                        <span className="font-semibold text-gray-900">{formatCurrency(amount)}</span>
+                        <span className="text-blue-600 bg-blue-50 px-2 rounded">{formatPercentage(percentage)}</span>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-                    </div>
+            </div>
             
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="text-md font-medium text-gray-700 mb-3">Investment Summary</h4>
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">Total Investment:</span>
-                <span className="font-semibold">{formatValue(chartData.selectedBankData.totalInvestment)}</span>
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-xl shadow-sm border border-gray-200">
+              <h4 className="text-md font-medium text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm9 4a1 1 0 10-2 0v6a1 1 0 102 0V7zm-3 2a1 1 0 10-2 0v4a1 1 0 102 0V9zm-3 3a1 1 0 10-2 0v1a1 1 0 102 0v-1z" clipRule="evenodd" />
+                </svg>
+                Investment Summary
+              </h4>
+              <div className="space-y-4">
+                <div className="flex justify-between py-2 px-3 rounded-lg hover:bg-white transition-colors">
+                  <span className="text-gray-700 font-medium">Total Investment:</span>
+                  <span className="font-semibold text-gray-900">{formatValue(chartData.selectedBankData.totalInvestment)}</span>
+                </div>
+                <div className="flex justify-between py-2 px-3 rounded-lg hover:bg-white transition-colors">
+                  <span className="text-gray-700 font-medium">Market Position:</span>
+                  <div className="flex items-center">
+                    <span className="font-semibold text-gray-900 mr-2">
+                      #{enhancedBankData.findIndex(b => b.name === chartData.selectedBankData.name) + 1}
+                    </span>
+                    <span className="text-gray-500">of {enhancedBankData.length}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between py-2 px-3 rounded-lg hover:bg-white transition-colors">
+                  <span className="text-gray-700 font-medium">Market Share:</span>
+                  <span className="font-semibold text-gray-900">{formatPercentage(chartData.selectedBankData.marketShare)}</span>
+                </div>
+                <div className="flex justify-between py-2 px-3 rounded-lg hover:bg-white transition-colors">
+                  <span className="text-gray-700 font-medium">Avg. Monthly Investment:</span>
+                  <span className="font-semibold text-gray-900">
+                    {formatValue(chartData.selectedBankData.totalInvestment / 12)}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">Market Position:</span>
-                <span className="font-semibold">
-                  #{enhancedBankData.findIndex(b => b.name === chartData.selectedBankData.name) + 1} of {enhancedBankData.length}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Market Share:</span>
-                <span className="font-semibold">{formatPercentage(chartData.selectedBankData.marketShare)}</span>
-              </div>
-                        </div>
-                    </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

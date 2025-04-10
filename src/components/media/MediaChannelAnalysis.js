@@ -25,7 +25,9 @@ const formatCurrency = (value) => {
 
 // Función para formatear porcentajes
 const formatPercentage = (value) => {
-  return `${value.toFixed(2)}%`;
+  // Determinar si el valor ya está en formato porcentual
+  const percentValue = value > 1 ? value : value * 100;
+  return `${percentValue.toFixed(2)}%`;
 };
 
 // Colores mejorados para categorías de medios
