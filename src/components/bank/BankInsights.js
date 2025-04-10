@@ -4,9 +4,9 @@ import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 
 const InsightSection = ({ title, children, colorClass = "blue" }) => (
-  <div className={`mb-4 border-l-4 border-${colorClass}-500 pl-4`}>
-    <h3 className="text-lg font-medium text-gray-800 mb-2">{title}</h3>
-    <div className="space-y-2">
+  <div className={`mb-3 border-l-4 border-${colorClass}-500 pl-3`}>
+    <h3 className="text-lg font-medium text-gray-800 mb-1">{title}</h3>
+    <div className="space-y-1">
       {children}
     </div>
   </div>
@@ -15,7 +15,7 @@ const InsightSection = ({ title, children, colorClass = "blue" }) => (
 const BulletPoint = ({ text }) => (
   <div className="flex items-start">
     <div className="mt-1 mr-2 h-2 w-2 rounded-full bg-gray-500 flex-shrink-0"></div>
-    <p className="text-sm text-gray-600">{text}</p>
+    <p className="text-sm text-gray-600 leading-tight">{text}</p>
   </div>
 );
 
@@ -25,16 +25,17 @@ const BulletPoint = ({ text }) => (
  * @param {Object} props.bank - Bank data to display
  */
 const BankInsights = ({ bank }) => {
-  const { dashboardData, loading, selectedMonths, selectedYears } = useDashboard();
+  const { dashboardData, loading, selectedMonths, selectedYears, filteredData } = useDashboard();
   
   console.log('BankInsights rendered for', bank?.name, 'bank object:', bank);
   console.log('Loading state:', loading);
   console.log('Selected months:', selectedMonths);
   console.log('Selected years:', selectedYears);
   console.log('Dashboard data available:', !!dashboardData);
+  console.log('Filtered data available:', !!filteredData);
 
   // Ensure insights are generated using all data for descriptive purposes
-  const { 
+  const {
     topMediaCategory,
     secondMediaCategory,
     peakMonth,
@@ -42,30 +43,9 @@ const BankInsights = ({ bank }) => {
     marketPosition,
     channelEfficiency,
   } = useMemo(() => {
-    if (!bank || !bank.name) {
-      console.error('BankInsights: Invalid bank object provided:', bank);
+    if (!bank || !bank.name || !dashboardData) {
       return {
-        topMediaCategory: {
-          category: "No bank data available",
-          amount: 0,
-          percentage: 0,
-        },
-        secondMediaCategory: null,
-        peakMonth: null,
-        yearOverYearGrowth: null,
-        marketPosition: null,
-        channelEfficiency: null,
-      };
-    }
-    
-    if (!dashboardData || !dashboardData.monthlyTrends || !dashboardData.mediaCategories) {
-      console.log('No dashboard data available');
-      return {
-        topMediaCategory: {
-          category: "No dashboard data available",
-          amount: 0,
-          percentage: 0,
-        },
+        topMediaCategory: null,
         secondMediaCategory: null,
         peakMonth: null,
         yearOverYearGrowth: null,
@@ -74,31 +54,47 @@ const BankInsights = ({ bank }) => {
       };
     }
 
-    console.log('Calculating insights for', bank?.name);
-    console.log('Media categories available:', dashboardData.mediaCategories.length);
-    console.log('Monthly trends available:', dashboardData.monthlyTrends.length);
+    // Use filteredData if available and filters are applied, otherwise use dashboardData
+    const dataToUse = (filteredData && (selectedMonths.length > 0 || selectedYears.length > 0)) 
+                      ? filteredData 
+                      : dashboardData;
     
-    // Filter monthly trends based on selected months and years if any
-    let filteredMonthlyTrends = [...dashboardData.monthlyTrends];
+    // Filter raw data for the specific bank and apply month/year filters
+    const bankRawData = dataToUse.rawData ? dataToUse.rawData.filter(row => 
+      row.Bank === bank.name &&
+      (selectedYears.length === 0 || selectedYears.includes(row.Year)) &&
+      (selectedMonths.length === 0 || selectedMonths.includes(row.Month))
+    ) : [];
     
-    if (selectedMonths.length > 0 || selectedYears.length > 0) {
-      filteredMonthlyTrends = filteredMonthlyTrends.filter(item => {
-        if (!item || !item.month) return false;
+    // Calculate media categories for this bank from raw data
+    const bankMediaData = [];
+    
+    if (bankRawData.length > 0) {
+      // Agrupar por categoría de medios
+      const mediaByCategory = {};
+      
+      bankRawData.forEach(row => {
+        const category = row['Media Category'];
+        if (!category) return;
         
-        const [year, month] = item.month.split('-');
-        const matchesMonth = selectedMonths.length === 0 || selectedMonths.includes(month);
-        const matchesYear = selectedYears.length === 0 || selectedYears.includes(year);
-        return matchesMonth && matchesYear;
+        const amount = parseFloat(row.dollars || '0');
+        
+        if (!mediaByCategory[category]) {
+          mediaByCategory[category] = {
+            category,
+            investment: 0,
+            dataPoints: 0
+          };
+        }
+        
+        mediaByCategory[category].investment += amount;
+        mediaByCategory[category].dataPoints += 1;
       });
-      console.log('Filtered monthly trends:', filteredMonthlyTrends.length);
+      
+      Object.values(mediaByCategory).forEach(item => {
+        bankMediaData.push(item);
+      });
     }
-
-    // Calculate media categories for this bank
-    const bankMediaData = dashboardData.mediaCategories.filter(
-      item => item && item.bank === bank.name
-    );
-    
-    console.log('Bank media data items found:', bankMediaData.length);
     
     // Sort by investment amount to find top categories
     const sortedMediaData = [...bankMediaData].sort(
@@ -110,161 +106,194 @@ const BankInsights = ({ bank }) => {
       0
     );
     
-    console.log('Total bank investment calculated:', totalBankInvestment);
+    const effectiveBankInvestment = totalBankInvestment > 0 ? totalBankInvestment : bank.totalInvestment;
     
     // Find peak month for this bank
-    const bankMonthlyData = filteredMonthlyTrends
+    const bankMonthlyData = dataToUse.monthlyTrends
       .map(month => {
-        // Add safety check for month.banks
-        if (!month || !month.banks) {
-          console.warn('Invalid month data structure:', month);
-          return {
-            rawMonth: month?.month || 'unknown',
-            month: month?.month ? month.month.replace('-', ' ') : 'unknown',
-            investment: 0,
-            percentage: 0,
-          };
+        if (!month || !month.bankShares) {
+          return null;
         }
         
-        const bankData = month.banks.find(b => b && b.name === bank.name);
-        if (!bankData) {
-          console.log(`No data found for bank ${bank.name} in month ${month.month}`);
-        }
+        const bankData = month.bankShares.find(b => b && b.bank === bank.name);
+        if (!bankData) return null;
         
         return {
           rawMonth: month.month,
           month: month.month.replace('-', ' '),
-          investment: bankData ? bankData.investment : 0,
+          investment: bankData.investment,
           percentage: bankData && month.totalInvestment 
             ? bankData.investment / month.totalInvestment 
             : 0,
         };
       })
-      .filter(m => m.investment > 0)
+      .filter(m => m && m.investment > 0)
       .sort((a, b) => b.investment - a.investment);
     
-    console.log('Bank monthly data points:', bankMonthlyData.length);
-    
     const peakMonthData = bankMonthlyData.length > 0 ? bankMonthlyData[0] : null;
-    console.log('Peak month data:', peakMonthData);
     
     // Calculate market position
     const allBanks = Array.from(
       new Set(
-        dashboardData.monthlyTrends
-          .filter(month => month && month.banks) // Add safety check
+        dataToUse.monthlyTrends
+          .filter(month => month && month.bankShares)
           .flatMap(month => 
-            month.banks
-              .filter(b => b && b.name) // Ensure bank exists and has name
-              .map(b => b.name)
+            month.bankShares
+              .filter(b => b && b.bank)
+              .map(b => b.bank)
           )
       )
     );
     
-    console.log('All banks found:', allBanks.length, allBanks);
-    
     const bankTotals = allBanks.map(bankName => {
-      const total = filteredMonthlyTrends.reduce((sum, month) => {
-        // Add safety check for month.banks
-        if (!month || !month.banks) return sum;
+      const total = dataToUse.monthlyTrends.reduce((sum, month) => {
+        if (!month || !month.bankShares) return sum;
         
-        const bankData = month.banks.find(b => b && b.name === bankName);
+        const bankData = month.bankShares.find(b => b && b.bank === bankName);
         return sum + (bankData ? bankData.investment : 0);
       }, 0);
       return { name: bankName, total };
     }).sort((a, b) => b.total - a.total);
-    
-    console.log('Bank totals calculated:', bankTotals.length);
     
     const totalMarketInvestment = bankTotals.reduce(
       (sum, b) => sum + (b?.total || 0), 
       0
     );
     
-    console.log('Total market investment:', totalMarketInvestment);
-    
     const rank = bankTotals.findIndex(b => b && b.name === bank.name) + 1;
-    console.log('Bank rank:', rank);
-
-    // Channel Efficiency calculation
-    // For this example, we'll use a simple ROI-based metric for each channel
-    // In a real implementation, this would be based on actual performance data
-    const channelEfficiencyData = sortedMediaData.length > 0 
+    
+    // Calculate Year over Year growth 
+    let yearOverYearGrowthData = null;
+    
+    if (dataToUse.monthlyTrends && dataToUse.monthlyTrends.length > 0) {
+      // Ordenar meses cronológicamente para encontrar el más reciente
+      const sortedMonths = [...dataToUse.monthlyTrends].sort((a, b) => {
+        const [yearA, monthA] = a.month.split('-').map(num => parseInt(num, 10));
+        const [yearB, monthB] = b.month.split('-').map(num => parseInt(num, 10));
+        
+        if (yearA !== yearB) {
+          return yearB - yearA;
+        }
+        return monthB - monthA;
+      });
+      
+      if (sortedMonths.length > 0) {
+        const latestMonth = sortedMonths[0];
+        const [year, monthNum] = latestMonth.month.split('-').map(num => parseInt(num, 10));
+        
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        // Buscar el mismo mes del año anterior
+        const previousYearMonth = `${year - 1}-${monthNum.toString().padStart(2, '0')}`;
+        const allMonthlyData = dataToUse.allMonthlyTrends || [];
+        const previousYearData = allMonthlyData.find(m => m.month === previousYearMonth);
+        
+        if (previousYearData) {
+          const bankLatestData = latestMonth.bankShares.find(b => b.bank === bank.name);
+          const bankPreviousData = previousYearData.bankShares.find(b => b.bank === bank.name);
+          
+          if (bankLatestData && bankPreviousData && bankPreviousData.investment > 0) {
+            const growthRate = (bankLatestData.investment - bankPreviousData.investment) / bankPreviousData.investment;
+            
+            yearOverYearGrowthData = {
+              currentYear: year.toString(),
+              previousYear: (year-1).toString(),
+              growthRate: growthRate,
+              currentAmount: bankLatestData.investment,
+              previousAmount: bankPreviousData.investment
+            };
+          }
+        }
+      }
+    }
+    
+    // Calculate channel efficiency metrics from raw data
+    const mediaCategories = {};
+    bankRawData.forEach(row => {
+      const category = row['Media Category'];
+      if (!category) return;
+      
+      const amount = parseFloat(row.dollars || '0');
+      
+      if (!mediaCategories[category]) {
+        mediaCategories[category] = {
+          totalInvestment: 0,
+          dataPoints: 0
+        };
+      }
+      
+      mediaCategories[category].totalInvestment += amount;
+      mediaCategories[category].dataPoints += 1;
+    });
+    
+    const mediaCategoriesArray = Object.entries(mediaCategories).map(([category, data]) => ({
+      category,
+      ...data,
+      efficiencyScore: data.dataPoints > 0 ? data.totalInvestment / data.dataPoints : 0
+    })).sort((a, b) => b.efficiencyScore - a.efficiencyScore);
+    
+    const digitalCategories = ['Digital', 'Social', 'Online', 'Search'];
+    const digitalInvestment = mediaCategoriesArray
+      .filter(item => digitalCategories.includes(item.category))
+      .reduce((sum, item) => sum + item.totalInvestment, 0);
+    
+    const totalCategoryInvestment = mediaCategoriesArray.reduce(
+      (sum, item) => sum + item.totalInvestment, 0
+    );
+    
+    const channelEfficiencyData = mediaCategoriesArray.length > 0 
       ? {
-          mostEfficient: {
-            category: sortedMediaData[0].category,
-            roi: 2.7 // This would be calculated from actual performance metrics
-          },
-          leastEfficient: sortedMediaData.length > 1
-            ? {
-                category: sortedMediaData[sortedMediaData.length - 1].category,
-                roi: 1.2 // This would be calculated from actual performance metrics
-              }
-            : null,
-          averageRoi: 1.8, // This would be calculated from actual performance metrics
-          digitalRatio: sortedMediaData.filter(item => 
-            ['Digital', 'Social', 'Online', 'Search'].includes(item.category)
-          ).reduce((sum, item) => sum + item.investment, 0) / totalBankInvestment
+          mostEfficient: mediaCategoriesArray[0],
+          leastEfficient: mediaCategoriesArray.length > 1 ? 
+            mediaCategoriesArray[mediaCategoriesArray.length - 1] : null,
+          digitalRatio: totalCategoryInvestment > 0 ? 
+            digitalInvestment / totalCategoryInvestment : 0
         }
       : null;
     
-    // Year over year growth would be calculated here if we had previous year data
-    // This is a placeholder for now
-    
     // Check if we have enough data to show insights
-    const hasValidData = sortedMediaData.length > 0 && totalBankInvestment > 0;
-    console.log('Has valid data for insights:', hasValidData);
+    const hasMediaData = sortedMediaData.length > 0;
+    const hasMonthlyData = bankMonthlyData.length > 0;
+    const hasMarketData = allBanks.length > 0 && bankTotals.length > 0;
     
-    if (!hasValidData) {
-      // Return default insights with placeholders
+    if (!hasMediaData && !hasMonthlyData && !hasMarketData) {
       return {
-        topMediaCategory: {
-          category: "No data available",
-          amount: 0,
-          percentage: 0,
-        },
+        topMediaCategory: null,
         secondMediaCategory: null,
-        peakMonth: peakMonthData || {
-          month: "No data available",
-          investment: 0,
-        },
+        peakMonth: null,
         yearOverYearGrowth: null,
-        marketPosition: {
-          rank: rank || 0,
-          totalBanks: allBanks.length,
-          marketShare: 0,
-        },
+        marketPosition: null,
         channelEfficiency: null,
       };
     }
-    
+
     return {
-      topMediaCategory: sortedMediaData.length > 0 
+      topMediaCategory: hasMediaData && sortedMediaData.length > 0 
         ? {
             category: sortedMediaData[0].category,
             amount: sortedMediaData[0].investment,
-            percentage: sortedMediaData[0].investment / totalBankInvestment,
+            percentage: sortedMediaData[0].investment / effectiveBankInvestment,
           } 
         : null,
-      secondMediaCategory: sortedMediaData.length > 1 
+      secondMediaCategory: hasMediaData && sortedMediaData.length > 1 
         ? {
             category: sortedMediaData[1].category,
             amount: sortedMediaData[1].investment,
-            percentage: sortedMediaData[1].investment / totalBankInvestment,
+            percentage: sortedMediaData[1].investment / effectiveBankInvestment,
           } 
         : null,
       peakMonth: peakMonthData,
-      yearOverYearGrowth: null, // Would be implemented if we had YoY data
-      marketPosition: {
+      yearOverYearGrowth: yearOverYearGrowthData,
+      marketPosition: hasMarketData ? {
         rank,
         totalBanks: allBanks.length,
         marketShare: bankTotals.find(b => b && b.name === bank.name)?.total / totalMarketInvestment || 0,
-      },
+      } : null,
       channelEfficiency: channelEfficiencyData,
     };
-  }, [dashboardData, bank, selectedMonths, selectedYears]);
+  }, [dashboardData, filteredData, bank, selectedMonths, selectedYears]);
 
-  console.log('Calculated insights:', { topMediaCategory, secondMediaCategory, peakMonth, marketPosition, channelEfficiency });
+  console.log('Calculated insights:', { topMediaCategory, secondMediaCategory, peakMonth, marketPosition, channelEfficiency, yearOverYearGrowth });
 
   if (loading) {
     console.log('Showing loading state');
@@ -280,20 +309,14 @@ const BankInsights = ({ bank }) => {
             <div className="h-4 bg-gray-200 rounded w-full"></div>
             <div className="h-4 bg-gray-200 rounded w-5/6"></div>
           </div>
-          <div className="h-6 bg-gray-200 rounded w-3/4 mt-4"></div>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          </div>
         </div>
       </div>
     );
   }
 
-  // Always show some content even if data is incomplete
   return (
-    <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm h-full flex flex-col">
-      <h3 className="text-lg font-medium text-gray-700 mb-4 flex items-center justify-between">
+    <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm h-full flex flex-col">
+      <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center justify-between">
         <div className="flex items-center">
           <span className="w-3 h-3 rounded-full mr-2 bg-indigo-500"></span>
           Bank Insights
@@ -313,24 +336,19 @@ const BankInsights = ({ bank }) => {
           </div>
         )}
       </h3>
-      <div className="space-y-4 flex-grow overflow-auto">
-        {/* Media Investment Strategy */}
+      <div className="space-y-3 flex-grow overflow-auto pr-1">
+        {/* Media Investment Strategy - Simplificado */}
         <InsightSection title="Media Investment Strategy" colorClass="blue">
           {topMediaCategory ? (
             <BulletPoint 
-              text={`Main investment focus is ${topMediaCategory.category} with ${formatCurrency(topMediaCategory.amount)} (${formatPercentage(topMediaCategory.percentage)} of total media budget).`} 
+              text={`Main investment focus is ${topMediaCategory.category} with ${formatCurrency(topMediaCategory.amount)} (${formatPercentage(topMediaCategory.percentage)} of total).`} 
             />
           ) : (
             <BulletPoint text="No media category data available for this bank." />
           )}
-          {secondMediaCategory && (
-            <BulletPoint 
-              text={`Secondary focus on ${secondMediaCategory.category} with ${formatCurrency(secondMediaCategory.amount)} (${formatPercentage(secondMediaCategory.percentage)} of total media budget).`} 
-            />
-          )}
         </InsightSection>
         
-        {/* Investment Peak Period */}
+        {/* Investment Peak Period - Simplificado */}
         <InsightSection title="Investment Peak Period" colorClass="green">
           {peakMonth ? (
             <BulletPoint 
@@ -339,54 +357,37 @@ const BankInsights = ({ bank }) => {
           ) : (
             <BulletPoint text="No investment period data available for this bank." />
           )}
-          {selectedMonths.length > 0 && (
-            <BulletPoint 
-              text={`Analysis based on ${selectedMonths.length} selected month(s).`} 
-            />
-          )}
-          {selectedYears.length > 0 && (
-            <BulletPoint 
-              text={`Analysis filtered to include data from ${selectedYears.join(', ')}.`} 
-            />
-          )}
         </InsightSection>
         
-        {/* Channel Efficiency */}
-        <InsightSection title="Channel Efficiency" colorClass="amber">
-          {channelEfficiency ? (
-            <>
-              <BulletPoint 
-                text={`Most efficient channel is ${channelEfficiency.mostEfficient.category} with estimated ROI of ${channelEfficiency.mostEfficient.roi.toFixed(1)}x.`} 
-              />
-              {channelEfficiency.leastEfficient && (
-                <BulletPoint 
-                  text={`Lowest performing channel is ${channelEfficiency.leastEfficient.category} with ROI of ${channelEfficiency.leastEfficient.roi.toFixed(1)}x.`} 
-                />
-              )}
-              <BulletPoint 
-                text={`Digital channels represent ${formatPercentage(channelEfficiency.digitalRatio)} of media spend with higher than average engagement rates.`} 
-              />
-            </>
-          ) : (
-            <BulletPoint text="No channel efficiency data available for this bank." />
-          )}
-        </InsightSection>
+        {/* Year-over-Year Growth - Simplificado */}
+        {yearOverYearGrowth && (
+          <InsightSection title="Year-over-Year Growth" colorClass="purple">
+            <BulletPoint 
+              text={`Investment ${yearOverYearGrowth.growthRate >= 0 ? 'increased' : 'decreased'} by ${formatPercentage(Math.abs(yearOverYearGrowth.growthRate))} from ${yearOverYearGrowth.previousYear} to ${yearOverYearGrowth.currentYear} (${formatCurrency(yearOverYearGrowth.previousAmount)} → ${formatCurrency(yearOverYearGrowth.currentAmount)}).`}
+            />
+          </InsightSection>
+        )}
         
-        {/* Market Position */}
-        <InsightSection title="Market Position" colorClass="indigo">
-          {marketPosition ? (
-            <>
-              <BulletPoint 
-                text={`Ranks #${marketPosition.rank} out of ${marketPosition.totalBanks} banks in total advertising investment.`} 
-              />
-              <BulletPoint 
-                text={`Holds ${formatPercentage(marketPosition.marketShare)} market share of total banking advertising investment.`} 
-              />
-            </>
-          ) : (
-            <BulletPoint text="No market position data available for this bank." />
-          )}
-        </InsightSection>
+        {/* Channel Efficiency - Simplificado */}
+        {channelEfficiency && (
+          <InsightSection title="Channel Efficiency" colorClass="amber">
+            <BulletPoint 
+              text={`Most efficient channel is ${channelEfficiency.mostEfficient.category} with ${formatCurrency(channelEfficiency.mostEfficient.totalInvestment)} invested.`} 
+            />
+            <BulletPoint 
+              text={`Digital channels represent ${formatPercentage(channelEfficiency.digitalRatio)} of total media spend.`} 
+            />
+          </InsightSection>
+        )}
+        
+        {/* Market Position - Simplificado */}
+        {marketPosition && (
+          <InsightSection title="Market Position" colorClass="indigo">
+            <BulletPoint 
+              text={`Ranks #${marketPosition.rank} out of ${marketPosition.totalBanks} banks with ${formatPercentage(marketPosition.marketShare)} market share.`} 
+            />
+          </InsightSection>
+        )}
       </div>
     </div>
   );

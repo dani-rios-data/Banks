@@ -197,10 +197,10 @@ const BankMonthlyTrend = ({ bank }) => {
       
       {/* Chart */}
       <div className="w-full mt-2">
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={380}>
           <LineChart
             data={monthlyData}
-            margin={{ top: 5, right: 20, left: 10, bottom: 20 }}
+            margin={{ top: 10, right: 30, left: 20, bottom: 30 }}
           >
             <defs>
               <linearGradient id="bankLineGradient" x1="0" y1="0" x2="0" y2="1">
@@ -214,12 +214,14 @@ const BankMonthlyTrend = ({ bank }) => {
               axisLine={{ stroke: '#f3f4f6' }}
               tickLine={false}
               dy={10}
+              height={50}
             />
             <YAxis 
               tickFormatter={formatYAxis} 
               tick={{ fill: '#6b7280', fontSize: 12 }}
               axisLine={{ stroke: '#f3f4f6' }}
               tickLine={false}
+              width={60}
             />
             <Tooltip 
               content={<CustomTooltip 

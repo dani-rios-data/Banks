@@ -88,10 +88,10 @@ const BankDashboard = ({ bank }) => {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="bg-white rounded-xl shadow-md p-6 transition duration-300 hover:shadow-lg border border-gray-100">
+    <div className="space-y-10">
+      <div className="bg-white rounded-xl shadow-md p-8 transition duration-300 hover:shadow-lg border border-gray-100">
         {/* Encabezado para el banco con información de filtros */}
-        <div className="flex items-center pl-4 py-5 bg-blue-50/70 rounded-lg border-l-4 mb-6" style={{borderLeftColor: bankColors[bank.name]}}>
+        <div className="flex items-center pl-4 py-5 bg-blue-50/70 rounded-lg border-l-4 mb-8" style={{borderLeftColor: bankColors[bank.name]}}>
           <div 
             className="w-12 h-12 bg-gray-100 rounded-full mr-4 flex items-center justify-center shadow-sm"
           >
@@ -126,22 +126,22 @@ const BankDashboard = ({ bank }) => {
         </div>
         
         {/* Main Dashboard Content - Nueva estructura */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-12">
           {/* Fila superior: Media Mix y Bank Insights lado a lado */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[420px]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 h-[500px]">
             {/* Media Mix - Columna izquierda */}
-            <div className="h-full">
+            <div className="h-full bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
               <BankMediaMix bank={bankData} />
             </div>
             
             {/* Bank Insights - Columna derecha */}
-            <div className="h-full">
+            <div className="h-full bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
               <BankInsights bank={bankData} />
             </div>
           </div>
           
-          {/* Fila inferior: Monthly Trend debajo de ambos */}
-          <div className="mt-6">
+          {/* Fila inferior: Monthly Trend en un contenedor independiente */}
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm h-[450px]">
             <BankMonthlyTrend bank={bankData} />
           </div>
         </div>
