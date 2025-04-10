@@ -68,19 +68,19 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
     }
     
     setLoading(true);
-    console.log("Loading CSV data (fallback)...");
+    console.log("Cargando datos del CSV (fallback)...");
     
-    Papa.parse('/data/consolidated_banks_data.csv', {
+    Papa.parse('consolidated_banks_data.csv', {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        console.log("CSV data loaded:", results.data.length, "rows");
+        console.log("CSV datos cargados:", results.data.length, "filas");
         setCsvData(results.data);
         setLoading(false);
       },
       error: (error) => {
-        console.error("Error loading CSV:", error);
+        console.error("Error al cargar CSV:", error);
         setLoading(false);
       }
     });

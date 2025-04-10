@@ -61,15 +61,14 @@ const formatExactPercentage = (value) => {
  * @returns {Object|null} - Found category or null
  */
 const findMediaCategory = (mediaCategories, categoryName) => {
-  if (!mediaCategories || !Array.isArray(mediaCategories)) {
+  if (!mediaCategories || !Array.isArray(mediaCategories) || mediaCategories.length === 0) {
+    console.log("Categoría encontrada: undefined (mediaCategories vacío o no es un array)");
     return null;
   }
-
-  // Log the available categories for debugging
-  const categoryProps = mediaCategories.map(m => m.category || m.type || m.name);
-  console.log(`Looking for category: ${categoryName} in`, categoryProps);
   
-  // Find category with flexible property matching
+  console.log("Looking for category:", categoryName, "in", mediaCategories.map(c => c.category || c.type || c.name));
+  
+  // Intentar encontrar la categoría usando múltiples propiedades posibles
   const category = mediaCategories.find(cat => 
     (cat.category === categoryName) || 
     (cat.type === categoryName) || 
@@ -308,6 +307,18 @@ const MediaDashboard = () => {
     // Default to 'All' if the category doesn't exist
     return 'All';
   }, [selectedMediaCategory, dataSource]);
+
+  // Si no hay datos disponibles, mostrar un mensaje
+  if (!dataSource || !dataSource.mediaCategories || dataSource.mediaCategories.length === 0) {
+    return (
+      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div className="flex flex-col items-center justify-center h-64">
+          <div className="text-xl text-gray-400 mb-2">No hay datos disponibles</div>
+          <p className="text-gray-500">Asegúrese de que el archivo CSV está cargado correctamente.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

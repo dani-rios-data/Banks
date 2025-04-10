@@ -81,7 +81,7 @@ const MediaChannelAnalysis = () => {
     setLoading(true);
     console.log("Cargando datos del CSV (fallback)...");
     
-    Papa.parse('/data/consolidated_banks_data.csv', {
+    Papa.parse('data/consolidated_banks_data.csv', {
       download: true,
       header: true,
       skipEmptyLines: true,
