@@ -63,6 +63,16 @@ const formatExactPercentage = (value) => {
 const findMediaCategory = (mediaCategories, categoryName) => {
   if (!mediaCategories || !Array.isArray(mediaCategories) || mediaCategories.length === 0) {
     console.log("Categoría encontrada: undefined (mediaCategories vacío o no es un array)");
+    console.log("Valor de mediaCategories:", mediaCategories);
+    
+    if (!mediaCategories) {
+      console.log("mediaCategories es null o undefined");
+    } else if (!Array.isArray(mediaCategories)) {
+      console.log("mediaCategories no es un array, es:", typeof mediaCategories);
+    } else {
+      console.log("mediaCategories es un array vacío");
+    }
+    
     return null;
   }
   
@@ -127,7 +137,21 @@ const getPercentageValue = (bankShare) => {
 /**
  * Main component for the media analysis dashboard
  */
-const MediaDashboard = () => {
+const MediaDashboard = ({ dataSource }) => {
+  // DEBUG: Inspeccionar el dataSource recibido
+  console.log("===== MEDIA DASHBOARD =====");
+  console.log("dataSource recibido:", dataSource);
+  
+  if (dataSource) {
+    console.log("Propiedades disponibles:", Object.keys(dataSource));
+    if (dataSource.mediaCategories) {
+      console.log("Media categories disponibles:", dataSource.mediaCategories.length);
+      console.log("Primer elemento de mediaCategories:", dataSource.mediaCategories[0]);
+    }
+  }
+
+  const { loading } = useDashboard();
+
   const { 
     selectedMediaCategory, 
     filteredData, 
@@ -138,13 +162,13 @@ const MediaDashboard = () => {
   } = useDashboard();
 
   // Use filteredData if available, otherwise use dashboardData
-  const dataSource = useMemo(() => {
+  const dataSourceMemo = useMemo(() => {
     return filteredData || dashboardData || {};
   }, [filteredData, dashboardData]);
 
   // Generate dynamic insights based on filtered data
   const dynamicInsights = useMemo(() => {
-    if (!dataSource || !dataSource.banks || !dataSource.mediaCategories) {
+    if (!dataSourceMemo || !dataSourceMemo.banks || !dataSourceMemo.mediaCategories) {
       return {
         primaryMediaChannels: [],
         seasonalPatterns: [],
@@ -153,12 +177,12 @@ const MediaDashboard = () => {
     }
 
     // Get top banks data
-    const topBanks = [...dataSource.banks]
+    const topBanks = [...dataSourceMemo.banks]
       .sort((a, b) => b.totalInvestment - a.totalInvestment)
       .slice(0, 4);
 
     // Media categories data
-    const mediaCategories = dataSource.mediaCategories || [];
+    const mediaCategories = dataSourceMemo.mediaCategories || [];
     
     // Get main category data (TV, Digital)
     const televisionData = findMediaCategory(mediaCategories, 'Television');
@@ -166,9 +190,9 @@ const MediaDashboard = () => {
     const audioData = findMediaCategory(mediaCategories, 'Audio');
 
     // Calculate total investment from all banks
-    // Use dataSource.totalInvestment if available for better precision
-    const totalInvestment = dataSource.totalInvestment || 
-      dataSource.banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
+    // Use dataSourceMemo.totalInvestment if available for better precision
+    const totalInvestment = dataSourceMemo.totalInvestment || 
+      dataSourceMemo.banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
     
     // Primary Media Channels insights
     const primaryMediaChannels = [];
@@ -275,7 +299,7 @@ const MediaDashboard = () => {
     const q4Insight = {
       color: "#22c55e",
       text: q4Data
-        ? `${selectedPeriod || 'Selected period'} accounts for ${formatExactPercentage(totalInvestment / (dataSource.totalInvestment || totalInvestment) * 100)}% of ${selectedYears.length ? selectedYears.join('/') : 'annual'} spend (${formatCurrency(totalInvestment)})`
+        ? `${selectedPeriod || 'Selected period'} accounts for ${formatExactPercentage(totalInvestment / (dataSourceMemo.totalInvestment || totalInvestment) * 100)}% of ${selectedYears.length ? selectedYears.join('/') : 'annual'} spend (${formatCurrency(totalInvestment)})`
         : `Total investment for ${selectedPeriod || 'selected period'}: ${formatCurrency(totalInvestment)}`
     };
     marketDistribution.push(q4Insight);
@@ -285,15 +309,15 @@ const MediaDashboard = () => {
       seasonalPatterns,
       marketDistribution
     };
-  }, [dataSource, selectedMonths, selectedYears, selectedPeriod]);
+  }, [dataSourceMemo, selectedMonths, selectedYears, selectedPeriod]);
 
   // Process and normalize the media category before passing it to child components
   const normalizedMediaCategory = useMemo(() => {
     if (selectedMediaCategory === 'All') return 'All';
     
     // Verify the selected category exists in the data
-    if (dataSource && dataSource.mediaCategories) {
-      const categoryExists = dataSource.mediaCategories.some(cat => 
+    if (dataSourceMemo && dataSourceMemo.mediaCategories) {
+      const categoryExists = dataSourceMemo.mediaCategories.some(cat => 
         (cat.category === selectedMediaCategory) || 
         (cat.type === selectedMediaCategory) || 
         (cat.name === selectedMediaCategory)
@@ -306,10 +330,10 @@ const MediaDashboard = () => {
     
     // Default to 'All' if the category doesn't exist
     return 'All';
-  }, [selectedMediaCategory, dataSource]);
+  }, [selectedMediaCategory, dataSourceMemo]);
 
   // Si no hay datos disponibles, mostrar un mensaje
-  if (!dataSource || !dataSource.mediaCategories || dataSource.mediaCategories.length === 0) {
+  if (!dataSourceMemo || !dataSourceMemo.mediaCategories || dataSourceMemo.mediaCategories.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
         <div className="flex flex-col items-center justify-center h-64">
