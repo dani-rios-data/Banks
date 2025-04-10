@@ -339,16 +339,16 @@ export const DashboardProvider = ({ children }) => {
   
   // Cargar datos iniciales cuando el componente se monta
   const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
+      try {
+        setLoading(true);
       
       // Intentar cargar el CSV probando diferentes rutas
       const possiblePaths = [
-        'consolidated_banks_data.csv',
         '/data/consolidated_banks_data.csv',
         'data/consolidated_banks_data.csv',
         './data/consolidated_banks_data.csv',
-        '../data/consolidated_banks_data.csv'
+        '../data/consolidated_banks_data.csv',
+        'consolidated_banks_data.csv'
       ];
       
       let response = null;
@@ -612,213 +612,213 @@ export const DashboardProvider = ({ children }) => {
       
       const csvText = await response.text();
       console.log(`CSV cargado correctamente desde: ${successPath} (${csvText.length} bytes)`);
-      
-      // Procesar CSV con Papa Parse
-      Papa.parse(csvText, {
-        header: true,
-        complete: (results) => {
-          const csvData = results.data.filter(row => row.Bank && row.dollars);
-          
-          // Calcular inversión total
-          const totalInvestment = csvData.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
-          
-          // Obtener lista de bancos únicos
-          const bankNames = [...new Set(csvData.map(row => row.Bank))];
-          
-          // Obtener lista de años y meses únicos para los filtros
-          const years = [...new Set(csvData.map(row => row.Year))].sort();
-          const months = [...new Set(csvData.map(row => {
-            const monthPart = row.Month.split(' ')[0]; // Extraer solo el nombre del mes
-            return monthPart;
-          }))];
-          
-          // Procesar datos de bancos
-          const banks = bankNames.map(bankName => {
-            const bankRows = csvData.filter(row => row.Bank === bankName);
-            const bankInvestment = bankRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+        
+        // Procesar CSV con Papa Parse
+        Papa.parse(csvText, {
+          header: true,
+          complete: (results) => {
+            const csvData = results.data.filter(row => row.Bank && row.dollars);
             
-            // Procesar categorías de medios
-            const mediaCategories = [...new Set(bankRows.map(row => row.Media_Category || row['Media Category']))];
-            const mediaBreakdown = mediaCategories.map(category => {
-              const categoryRows = bankRows.filter(row => (row.Media_Category || row['Media Category']) === category);
+            // Calcular inversión total
+            const totalInvestment = csvData.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+            
+            // Obtener lista de bancos únicos
+            const bankNames = [...new Set(csvData.map(row => row.Bank))];
+            
+            // Obtener lista de años y meses únicos para los filtros
+            const years = [...new Set(csvData.map(row => row.Year))].sort();
+            const months = [...new Set(csvData.map(row => {
+              const monthPart = row.Month.split(' ')[0]; // Extraer solo el nombre del mes
+              return monthPart;
+            }))];
+            
+            // Procesar datos de bancos
+            const banks = bankNames.map(bankName => {
+              const bankRows = csvData.filter(row => row.Bank === bankName);
+              const bankInvestment = bankRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+              
+              // Procesar categorías de medios
+              const mediaCategories = [...new Set(bankRows.map(row => row.Media_Category || row['Media Category']))];
+              const mediaBreakdown = mediaCategories.map(category => {
+                const categoryRows = bankRows.filter(row => (row.Media_Category || row['Media Category']) === category);
+                const categoryInvestment = categoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+                
+                return {
+                  category,
+                  amount: categoryInvestment,
+                  percentage: (categoryInvestment / bankInvestment) * 100
+                };
+              }).sort((a, b) => b.amount - a.amount);
+              
+              return {
+                name: bankName,
+                totalInvestment: bankInvestment,
+                mediaBreakdown,
+                marketShare: (bankInvestment / totalInvestment) * 100
+              };
+            }).sort((a, b) => b.totalInvestment - a.totalInvestment);
+            
+            // Procesar tendencias mensuales
+            const monthsData = [];
+            
+            // Extraer todos los meses únicos
+            const uniqueMonths = csvData.map(row => {
+              const monthStr = row.Month;
+              const [monthName, yearStr] = monthStr.split(' ');
+              const year = parseInt(yearStr);
+              const monthNum = getMonthOrder(monthName);
+              
+              return {
+                rawMonth: monthStr,
+                month: `${year}-${monthNum.toString().padStart(2, '0')}`,
+                monthNum,
+                year
+              };
+            });
+            
+            // Filtrar meses únicos
+            const uniqueMonthsMap = {};
+            uniqueMonths.forEach(m => {
+              uniqueMonthsMap[m.month] = m;
+            });
+            
+            // Ordenar meses cronológicamente
+            const sortedMonths = sortMonths(Object.values(uniqueMonthsMap));
+            
+            // Para cada mes, calcular inversiones por banco y categoría de medios
+            sortedMonths.forEach(monthData => {
+              const monthStr = monthData.rawMonth;
+              const monthRows = csvData.filter(row => row.Month === monthStr);
+              const monthTotal = monthRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+              
+              // Calcular inversiones por banco
+              const bankShares = bankNames.map(bankName => {
+                const bankMonthRows = monthRows.filter(row => row.Bank === bankName);
+                const bankMonthInvestment = bankMonthRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+                
+                return {
+                  bank: bankName,
+                  investment: bankMonthInvestment,
+                  percentage: (bankMonthInvestment / monthTotal) * 100
+                };
+              }).filter(share => share.investment > 0)
+                .sort((a, b) => b.investment - a.investment);
+              
+              // Agregar datos del mes
+              monthsData.push({
+                month: monthData.month,
+                rawMonth: monthStr,
+                total: monthTotal,
+                bankShares
+              });
+            });
+            
+            // Calcular categorías de medios principales
+            const mediaCategories = [...new Set(csvData.map(row => row.Media_Category || row['Media Category']))];
+            const mediaCategoryData = mediaCategories.map(category => {
+              const categoryRows = csvData.filter(row => (row.Media_Category || row['Media Category']) === category);
               const categoryInvestment = categoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
               
-              return {
+              // Calcular inversiones por banco para esta categoría
+              const bankShares = bankNames.map(bankName => {
+                const bankCategoryRows = categoryRows.filter(row => row.Bank === bankName);
+                const bankCategoryInvestment = bankCategoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+                
+                return {
+                  bank: bankName,
+                  investment: bankCategoryInvestment,
+                  percentage: (bankCategoryInvestment / categoryInvestment) * 100
+                };
+              }).filter(share => share.investment > 0)
+                .sort((a, b) => b.investment - a.investment);
+            
+            return {
                 category,
-                amount: categoryInvestment,
-                percentage: (categoryInvestment / bankInvestment) * 100
+                totalInvestment: categoryInvestment,
+                marketShare: (categoryInvestment / totalInvestment) * 100,
+                bankShares
               };
-            }).sort((a, b) => b.amount - a.amount);
+            }).sort((a, b) => b.totalInvestment - a.totalInvestment);
             
-            return {
-              name: bankName,
-              totalInvestment: bankInvestment,
-              mediaBreakdown,
-              marketShare: (bankInvestment / totalInvestment) * 100
-            };
-          }).sort((a, b) => b.totalInvestment - a.totalInvestment);
-          
-          // Procesar tendencias mensuales
-          const monthsData = [];
-          
-          // Extraer todos los meses únicos
-          const uniqueMonths = csvData.map(row => {
-            const monthStr = row.Month;
-            const [monthName, yearStr] = monthStr.split(' ');
-            const year = parseInt(yearStr);
-            const monthNum = getMonthOrder(monthName);
+            // Procesar datos de meses con información de categorías de medios
+            const processedMonthsData = processBankMediaMonthlyData(monthsData, banks);
             
-            return {
-              rawMonth: monthStr,
-              month: `${year}-${monthNum.toString().padStart(2, '0')}`,
-              monthNum,
-              year
+            // Calcular Year-over-Year (YoY) para cada mes
+            const yoyData = {};
+            
+            // Ordenar los meses cronológicamente para facilitar el cálculo
+            const chronologicalMonths = _.orderBy(processedMonthsData, 
+              [month => {
+                const [year, monthNum] = month.month.split('-');
+                return parseInt(year) * 100 + parseInt(monthNum);
+              }], 
+              ['asc']
+            );
+            
+            // Para cada mes, buscar el dato del mismo mes del año anterior
+            chronologicalMonths.forEach(monthData => {
+              const [year, monthNum] = monthData.month.split('-');
+              const previousYearMonth = `${parseInt(year) - 1}-${monthNum}`;
+              
+              // Buscar el mismo mes del año anterior
+              const previousYearData = chronologicalMonths.find(m => m.month === previousYearMonth);
+              
+              let yoyGrowth = 0;
+              let yoyDescription = '';
+              
+              if (previousYearData && previousYearData.total > 0) {
+                // Calcular YoY growth
+                yoyGrowth = ((monthData.total - previousYearData.total) / previousYearData.total) * 100;
+                
+                // Formato para mostrar los meses
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const currentMonthFormatted = `${monthNames[parseInt(monthNum) - 1]} ${year}`;
+                const prevMonthFormatted = `${monthNames[parseInt(monthNum) - 1]} ${parseInt(year) - 1}`;
+                
+                yoyDescription = `${prevMonthFormatted} vs ${currentMonthFormatted}`;
+              } else {
+                yoyDescription = `No data available for comparison`;
+              }
+              
+              // Almacenar los datos calculados
+              yoyData[monthData.month] = {
+                growth: yoyGrowth,
+                description: yoyDescription,
+                currentTotal: monthData.total,
+                previousYearTotal: previousYearData ? previousYearData.total : 0
             };
           });
           
-          // Filtrar meses únicos
-          const uniqueMonthsMap = {};
-          uniqueMonths.forEach(m => {
-            uniqueMonthsMap[m.month] = m;
-          });
-          
-          // Ordenar meses cronológicamente
-          const sortedMonths = sortMonths(Object.values(uniqueMonthsMap));
-          
-          // Para cada mes, calcular inversiones por banco y categoría de medios
-          sortedMonths.forEach(monthData => {
-            const monthStr = monthData.rawMonth;
-            const monthRows = csvData.filter(row => row.Month === monthStr);
-            const monthTotal = monthRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
-            
-            // Calcular inversiones por banco
-            const bankShares = bankNames.map(bankName => {
-              const bankMonthRows = monthRows.filter(row => row.Bank === bankName);
-              const bankMonthInvestment = bankMonthRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
-              
-              return {
-                bank: bankName,
-                investment: bankMonthInvestment,
-                percentage: (bankMonthInvestment / monthTotal) * 100
-              };
-            }).filter(share => share.investment > 0)
-              .sort((a, b) => b.investment - a.investment);
-            
-            // Agregar datos del mes
-            monthsData.push({
-              month: monthData.month,
-              rawMonth: monthStr,
-              total: monthTotal,
-              bankShares
-            });
-          });
-          
-          // Calcular categorías de medios principales
-          const mediaCategories = [...new Set(csvData.map(row => row.Media_Category || row['Media Category']))];
-          const mediaCategoryData = mediaCategories.map(category => {
-            const categoryRows = csvData.filter(row => (row.Media_Category || row['Media Category']) === category);
-            const categoryInvestment = categoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
-            
-            // Calcular inversiones por banco para esta categoría
-            const bankShares = bankNames.map(bankName => {
-              const bankCategoryRows = categoryRows.filter(row => row.Bank === bankName);
-              const bankCategoryInvestment = bankCategoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
-              
-              return {
-                bank: bankName,
-                investment: bankCategoryInvestment,
-                percentage: (bankCategoryInvestment / categoryInvestment) * 100
-              };
-            }).filter(share => share.investment > 0)
-              .sort((a, b) => b.investment - a.investment);
-          
-          return {
-              category,
-              totalInvestment: categoryInvestment,
-              marketShare: (categoryInvestment / totalInvestment) * 100,
-              bankShares
+            // Crear el objeto de datos del dashboard
+            const dashboardData = {
+              banks,
+              totalInvestment,
+              monthlyTrends: processedMonthsData,
+              allMonthlyTrends: processedMonthsData,
+              mediaCategories: mediaCategoryData,
+              sortedMonthData: sortedMonths,
+              availableYears: years,
+              availableMonths: months,
+              yoyData: yoyData,  // Añadir los datos YoY precalculados
+              rawData: csvData   // Añadir los datos originales del CSV para los filtros
             };
-          }).sort((a, b) => b.totalInvestment - a.totalInvestment);
-          
-          // Procesar datos de meses con información de categorías de medios
-          const processedMonthsData = processBankMediaMonthlyData(monthsData, banks);
-          
-          // Calcular Year-over-Year (YoY) para cada mes
-          const yoyData = {};
-          
-          // Ordenar los meses cronológicamente para facilitar el cálculo
-          const chronologicalMonths = _.orderBy(processedMonthsData, 
-            [month => {
-              const [year, monthNum] = month.month.split('-');
-              return parseInt(year) * 100 + parseInt(monthNum);
-            }], 
-            ['asc']
-          );
-          
-          // Para cada mes, buscar el dato del mismo mes del año anterior
-          chronologicalMonths.forEach(monthData => {
-            const [year, monthNum] = monthData.month.split('-');
-            const previousYearMonth = `${parseInt(year) - 1}-${monthNum}`;
             
-            // Buscar el mismo mes del año anterior
-            const previousYearData = chronologicalMonths.find(m => m.month === previousYearMonth);
-            
-            let yoyGrowth = 0;
-            let yoyDescription = '';
-            
-            if (previousYearData && previousYearData.total > 0) {
-              // Calcular YoY growth
-              yoyGrowth = ((monthData.total - previousYearData.total) / previousYearData.total) * 100;
-              
-              // Formato para mostrar los meses
-              const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-              const currentMonthFormatted = `${monthNames[parseInt(monthNum) - 1]} ${year}`;
-              const prevMonthFormatted = `${monthNames[parseInt(monthNum) - 1]} ${parseInt(year) - 1}`;
-              
-              yoyDescription = `${prevMonthFormatted} vs ${currentMonthFormatted}`;
-            } else {
-              yoyDescription = `No data available for comparison`;
-            }
-            
-            // Almacenar los datos calculados
-            yoyData[monthData.month] = {
-              growth: yoyGrowth,
-              description: yoyDescription,
-              currentTotal: monthData.total,
-              previousYearTotal: previousYearData ? previousYearData.total : 0
-          };
+            setDashboardData(dashboardData);
+            setLoading(false);
+          },
+          error: (error) => {
+            console.error('Error al parsear CSV:', error);
+            setError('Error al procesar el archivo CSV');
+            setLoading(false);
+          }
         });
-        
-          // Crear el objeto de datos del dashboard
-          const dashboardData = {
-            banks,
-            totalInvestment,
-            monthlyTrends: processedMonthsData,
-            allMonthlyTrends: processedMonthsData,
-            mediaCategories: mediaCategoryData,
-            sortedMonthData: sortedMonths,
-            availableYears: years,
-            availableMonths: months,
-            yoyData: yoyData,  // Añadir los datos YoY precalculados
-            rawData: csvData   // Añadir los datos originales del CSV para los filtros
-          };
-          
-          setDashboardData(dashboardData);
-          setLoading(false);
-        },
-        error: (error) => {
-          console.error('Error al parsear CSV:', error);
-          setError('Error al procesar el archivo CSV');
-          setLoading(false);
-        }
-      });
     } catch (error) {
       console.error("Error al cargar datos:", error);
       setError(error.message);
-      setLoading(false);
-    }
+        setLoading(false);
+      }
   }, []);
-  
+
   useEffect(() => {
     loadData();
   }, [loadData]);
