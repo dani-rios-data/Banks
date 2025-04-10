@@ -5,18 +5,6 @@ import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import ChartInsights from '../common/ChartInsights';
 import CustomTooltip from '../common/CustomTooltip';
 
-// Colores mejorados para categorías de medios
-const enhancedMediaColors = {
-  'Digital': '#3498db',           // Azul digital
-  'Television': '#e74c3c',        // Rojo televisión
-  'Audio': '#2ecc71',             // Verde audio
-  'Print': '#f39c12',             // Naranja impresión
-  'Outdoor': '#9b59b6',           // Púrpura exterior
-  'Streaming': '#1abc9c',         // Verde azulado streaming
-  'Cinema': '#d35400',            // Marrón rojizo cine
-  'All': '#34495e',               // Gris azulado para todos
-};
-
 // Colores mejorados para los bancos
 const enhancedBankColors = {
   'Bank of America': '#22C55E',   // Verde

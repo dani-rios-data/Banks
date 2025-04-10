@@ -32,8 +32,7 @@ const DistributionCharts = ({ filteredData }) => {
   const { 
     dashboardData, 
     loading,
-    selectedMonths, 
-    selectedYears 
+    selectedMonths
   } = useDashboard();
   const [activeTab, setActiveTab] = useState('overview');
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -532,37 +531,8 @@ const DistributionCharts = ({ filteredData }) => {
       overallTotals: distributionTotals,
       exactPercentages
     };
-  }, [filteredData, selectedMonths, forceUpdate]);
+  }, [filteredData, selectedMonths, forceUpdate, dashboardData]);
 
-  // Calculate Digital vs Traditional percentages
-  const digitalTraditionalMetrics = useMemo(() => {
-    // List of digital categories
-    const digitalCategories = ['Digital', 'Social Media', 'Search', 'Display', 'Online Video'];
-    
-    let digitalTotal = 0;
-    let traditionalTotal = 0;
-    
-    // Sum up investments by category
-    distributions.mediaData.forEach(item => {
-      if (digitalCategories.includes(item.name)) {
-        digitalTotal += item.investment;
-      } else {
-        traditionalTotal += item.investment;
-      }
-    });
-    
-    const total = digitalTotal + traditionalTotal;
-    
-    return {
-      digitalTotal,
-      traditionalTotal,
-      total,
-      tradDigitalSplit: digitalTotal > traditionalTotal 
-        ? "Digital channels dominate over Traditional media" 
-        : "Traditional media dominates over Digital channels"
-    };
-  }, [distributions.mediaData]);
-  
   // Get the top bank from bankDistribution
   const topBank = useMemo(() => {
     return distributions.bankData.length > 0 ? distributions.bankData[0] : null;

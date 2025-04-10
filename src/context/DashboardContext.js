@@ -6,14 +6,6 @@ import {
   DEFAULT_ACTIVE_MEDIA_TAB} from '../utils/constants';
 import _ from 'lodash';
 
-// Valores por defecto para el estado inicial
-const DEFAULT_DASHBOARD_DATA = {
-  banks: [],
-  monthlyTrends: [],
-  mediaCategories: [],
-  sortedMonthData: []
-};
-
 // Crear el contexto
 const DashboardContext = createContext();
 
@@ -56,11 +48,6 @@ export const DashboardProvider = ({ children }) => {
     return monthlyData.map(month => {
       // Estructura para almacenar datos de categorías por banco para este mes
       const mediaCategoriesData = [];
-      
-      // Obtener todas las categorías de medios únicas de todos los bancos
-      const allCategories = [...new Set(banks.flatMap(bank => 
-        bank.mediaBreakdown.map(media => media.category)
-      ))];
       
       // Para cada banco, calcular su distribución por categoría en este mes
       month.bankShares.forEach(bankShare => {
@@ -184,9 +171,9 @@ export const DashboardProvider = ({ children }) => {
           // Convertir número de mes a nombre
           const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
                              'july', 'august', 'september', 'october', 'november', 'december'];
-          const monthNum = parseInt(parts[1], 10);
-          if (monthNum >= 1 && monthNum <= 12) {
-            dataMonthName = monthNames[monthNum - 1];
+          const dataMonthNum = parseInt(parts[1], 10);
+          if (dataMonthNum >= 1 && dataMonthNum <= 12) {
+            dataMonthName = monthNames[dataMonthNum - 1];
           }
         }
 

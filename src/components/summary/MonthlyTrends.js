@@ -29,29 +29,11 @@ const formatMonthLabel = (month) => {
 // Formato para el eje Y - mostrar valores en millones sin decimales
 const formatYAxis = (value) => `$${(value/1000000).toFixed(0)}M`;
 
-// Tooltip personalizado para el gráfico de Wells Fargo
-const CustomWellsFargoTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white p-3 border border-gray-200 shadow-md rounded-md">
-        <p className="font-medium text-gray-800 mb-2">{formatMonthLabel(label)}</p>
-        {payload.map((entry, index) => (
-          <p key={`item-${index}`} style={{ color: entry.color }} className="text-sm">
-            <span className="font-medium">{entry.name}: </span>
-            <span>${(entry.value/1000000).toFixed(2)}M</span>
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
-
 /**
  * Component that displays monthly investment trends across all banks
  */
 const MonthlyTrends = ({ filteredData }) => {
-  const { dashboardData, loading, selectedYears, focusedBank } = useDashboard();
+  const { dashboardData, loading, selectedYears } = useDashboard();
   const [wellsFargoData, setWellsFargoData] = useState(null);
   const [isLoadingWfData, setIsLoadingWfData] = useState(true);
   const [marketAverageData, setMarketAverageData] = useState([]);
@@ -108,7 +90,7 @@ const MonthlyTrends = ({ filteredData }) => {
         // Always generate fallback data if there is an error
         generateFallbackData();
       });
-  }, [dataSource]);
+  }, [dataSource, generateFallbackData]);
 
   // Function to generate fallback data when loading fails
   const generateFallbackData = () => {
@@ -192,7 +174,7 @@ const MonthlyTrends = ({ filteredData }) => {
   }, [dataSource]);
 
   // Calculate trends and insights from monthly data
-  const { trendsData, wfTrends, bankComparison, insights, wfMonthlyAvg, marketMonthlyAvg } = useMemo(() => {
+  const { trendsData, wfTrends, bankComparison, insights, marketMonthlyAvg } = useMemo(() => {
     if (!dataSource?.monthlyTrends) {
       return { 
         trendsData: [], 
@@ -205,7 +187,6 @@ const MonthlyTrends = ({ filteredData }) => {
           peakMonth: null,
           competitiveAdv: []
         },
-        wfMonthlyAvg: 0,
         marketMonthlyAvg: 0
       };
     }
@@ -414,7 +395,7 @@ const MonthlyTrends = ({ filteredData }) => {
       competitiveAdv: findCompetitiveAdvantages(bankComparison)
     };
 
-    return { trendsData, wfTrends, bankComparison, insights, wfMonthlyAvg, marketMonthlyAvg };
+    return { trendsData, wfTrends, bankComparison, insights, marketMonthlyAvg };
   }, [dataSource, wellsFargoData, marketAverageData]);
 
   // Helper function to calculate trend
