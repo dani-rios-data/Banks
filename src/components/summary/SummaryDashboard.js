@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ExecutiveSummary from './ExecutiveSummary';
 import { useDashboard } from '../../context/DashboardContext';
-import { formatCurrency } from '../../utils/formatters';
 
 /**
  * Main component for the executive summary dashboard
@@ -12,9 +11,6 @@ const SummaryDashboard = () => {
 
   // Get filtered data
   const filteredData = getFilteredData() || dashboardData;
-
-  // Calculate total investment across all banks
-  const totalInvestment = filteredData?.totalInvestment || 0;
 
   // Get filter period for display
   let filterDisplay = 'All Period';

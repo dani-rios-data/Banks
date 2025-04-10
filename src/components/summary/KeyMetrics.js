@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react';
-import _ from 'lodash';
 import { useDashboard } from '../../context/DashboardContext';
-import Icons from '../common/Icons';
-import { bankColors } from '../../utils/colorSchemes';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
-import { getGradient } from '../../utils/colorSchemes';
 
 /**
  * Component that displays key metrics in cards with month filter support
@@ -12,38 +8,16 @@ import { getGradient } from '../../utils/colorSchemes';
 const KeyMetrics = ({ filteredData }) => {
   const { loading } = useDashboard();
 
-  // Helper function to get media colors
-  const getMediaColor = (category) => {
-    const colors = {
-      'Television': '#4C51BF',
-      'Digital': '#38A169',
-      'Audio': '#D69E2E',
-      'Print': '#C53030',
-      'Outdoor': '#805AD5',
-      'Streaming': '#3182CE',
-      'Cinema': '#DD6B20'
-    };
-    return colors[category] || '#718096';
-  };
-
   // Calculate metrics based on filtered data
   const metrics = useMemo(() => {
     if (!filteredData) {
       return {
         totalInvestment: 0,
-        bankTotals: [],
-        mediaTotals: [],
-        topBank: null,
-        topMedia: null,
-        wellsFargoPosition: { rank: 0, share: 0, value: 0 },
-        yearOverYearGrowth: 0,
-        yearOverYearGrowthDescription: '',
-        mostRecentMonth: '',
-        formattedMostRecentMonth: '',
-        averageMonthlyInvestment: 0,
-        growthOpportunities: [],
-        banksCount: 0,
-        mediaCount: 0
+        wellsFargoInvestment: 0,
+        marketShare: 0,
+        digitalPercentage: 0,
+        topCategory: { name: '', value: 0 },
+        competitorComparison: {}
       };
     }
 

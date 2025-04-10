@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import KeyMetrics from './KeyMetrics';
-import MarketShareComparison from './MarketShareComparison';
 import DistributionCharts from './DistributionCharts';
 import MonthlyTrends from './MonthlyTrends';
 import { useDashboard } from '../../context/DashboardContext';

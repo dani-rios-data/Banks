@@ -1,14 +1,19 @@
-import _ from 'lodash';
 import Papa from 'papaparse';
 import { 
   BANKS, 
   MONTH_ORDER, 
-  MEDIA_CATEGORIES, 
-  PAPA_PARSE_CONFIG,
-  MEDIA_DETAIL_MAPPINGS
+  PAPA_PARSE_CONFIG
 } from './constants';
-import { bankColors, mediaColors } from './colorSchemes';
 import { cleanDollarValue } from './formatters';
+
+// Constantes para categorías y subcategorías de medios
+export const MEDIA_SUBCATEGORIES = {
+  'Digital': ['Social Media', 'Search', 'Display', 'Online Video'],
+  'Television': ['Broadcast', 'Cable', 'Syndicated'],
+  'Audio': ['Broadcast Radio', 'Digital Audio'],
+  'Print': ['Magazine', 'Newspaper'],
+  'Outdoor': ['Billboard', 'Transit', 'Street Furniture'],
+};
 
 /**
  * Procesa todos los datos de los CSV para generar los objetos de datos para el dashboard
