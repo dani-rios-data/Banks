@@ -1,12 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { processData } from '../utils/dataProcessor';
+
 import Papa from 'papaparse';
 import { 
-  DEFAULT_ACTIVE_TAB, 
-  DEFAULT_ACTIVE_MEDIA_TAB, 
-  DEFAULT_FOCUSED_BANK, 
-  DEFAULT_MEDIA_CATEGORY 
-} from '../utils/constants';
+   
+  DEFAULT_ACTIVE_MEDIA_TAB} from '../utils/constants';
 import _ from 'lodash';
 
 // Valores por defecto para el estado inicial

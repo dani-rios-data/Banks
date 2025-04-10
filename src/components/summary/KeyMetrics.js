@@ -62,10 +62,6 @@ const KeyMetrics = ({ filteredData }) => {
     // Leading Media = Categoría de medios con mayor suma
     const topMedia = mediaTotals[0] || { name: '', value: 0, share: 0 };
     
-    // Cálculo de Year-over-Year Growth (simplificado para esta versión)
-    const yearOverYearGrowth = filteredData.yearOverYearGrowth || 0;
-    const yearOverYearGrowthDescription = filteredData.yearOverYearGrowthDescription || 'Year-over-Year growth based on selected data';
-
     // Calculate YoY based on most recent month data
     let calculatedYoYGrowth = 0;
     let yoyDescription = '';
@@ -171,7 +167,6 @@ const KeyMetrics = ({ filteredData }) => {
       formattedMostRecentMonth,
       averageMonthlyInvestment: filteredData.monthlyTrends?.length > 0 ? 
         totalInvestment / filteredData.monthlyTrends.length : 0,
-      growthOpportunities: [],
       banksCount,
       mediaCount
     };

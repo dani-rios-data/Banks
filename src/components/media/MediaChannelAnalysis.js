@@ -1,35 +1,7 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import React from 'react';
 import { useDashboard } from '../../context/DashboardContext';
-import { mediaColors, bankColors } from '../../utils/colorSchemes';
-import CustomTooltip from '../common/CustomTooltip';
-import Icons from '../common/Icons';
+import { mediaColors } from '../../utils/colorSchemes';
 import MediaDetails from './MediaDetails';
-import Papa from 'papaparse';
-
-// Función para formatear valores numéricos
-const formatCurrency = (value) => {
-  // Para Capital One, que sabemos que está en el rango de billones
-  // o cualquier valor superior a 1 billón
-  if (value >= 1000000000) {
-    return `$${(value / 1000000000).toFixed(2)}B`;
-  } 
-  // Para valores mayores a 800 millones, también mostrar en billones
-  else if (value >= 800000000) {
-    return `$${(value / 1000000000).toFixed(2)}B`;
-  }
-  else if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(2)}M`;
-  } else if (value >= 1000) {
-    return `$${(value / 1000).toFixed(2)}K`;
-  }
-  return `$${value.toFixed(2)}`;
-};
-
-// Función para formatear porcentajes
-const formatPercentage = (value) => {
-  return `${value.toFixed(2)}%`;
-};
 
 // Colores mejorados para categorías de medios
 const enhancedMediaColors = {
@@ -62,16 +34,14 @@ const MediaChannelAnalysis = () => {
     selectedMediaCategory, 
     setSelectedMediaCategory, 
     setActiveMediaTab,
-    selectedMonths,
-    filteredData: contextFilteredData, // Obtener datos filtrados del contexto
-    dashboardData // Obtener datos del dashboard
+    selectedMonths
   } = useDashboard();
   
-  const [loading, setLoading] = useState(false);
-  const [processedDataState, setProcessedDataState] = useState({
+  const loading = false;
+  const processedDataState = {
     mediaCategories: [],
     banks: []
-  });
+  };
 
   if (loading || !processedDataState) {
     return (
@@ -141,27 +111,43 @@ const MediaChannelAnalysis = () => {
                 borderBottom: '3px solid transparent',
                 transition: 'all 0.3s ease-in-out'
               }}
-              onMouseOver={(e) => {
-                if (selectedMediaCategory !== category.type) {
-                  e.currentTarget.style.background = `linear-gradient(135deg, ${enhancedMediaColors[category.type] || mediaColors[category.type]}15, ${enhancedMediaColors[category.type] || mediaColors[category.type]}30)`;
-                  e.currentTarget.style.color = enhancedMediaColors[category.type] || mediaColors[category.type];
-                }
-              }}
-              onMouseOut={(e) => {
-                if (selectedMediaCategory !== category.type) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#4b5563';
-                }
-              }}
             >
               <span className="flex items-center justify-center mr-2">
-                {category.type === 'Digital' && Icons.digital}
-                {category.type === 'Television' && Icons.television}
-                {category.type === 'Audio' && Icons.audio}
-                {category.type === 'Print' && Icons.print}
-                {category.type === 'Outdoor' && Icons.outdoor}
-                {category.type === 'Streaming' && Icons.streaming}
-                {category.type === 'Cinema' && Icons.cinema}
+                {category.type === 'Digital' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {category.type === 'Television' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {category.type === 'Audio' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.465a5 5 0 010-7.07m-2.829 9.9a9 9 0 010-12.729" />
+                  </svg>
+                )}
+                {category.type === 'Print' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1M19 20a2 2 0 002-2V8a2 2 0 00-2-2h-5v5a2 2 0 01-2 2H9a2 2 0 01-2-2V6h1m10 13h-5a2 2 0 01-2-2v-5h7a2 2 0 012 2v5z" />
+                  </svg>
+                )}
+                {category.type === 'Outdoor' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  </svg>
+                )}
+                {category.type === 'Streaming' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {category.type === 'Cinema' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h18M3 16h18" />
+                  </svg>
+                )}
               </span>
               {category.type}
             </button>

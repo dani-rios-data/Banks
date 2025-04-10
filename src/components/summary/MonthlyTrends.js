@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import {
-  LineChart,
+  
   Line,
   XAxis,
   YAxis,
@@ -10,18 +10,13 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
+
   ReferenceLine,
-  ComposedChart,
-  Paper,
-  Grid
-} from 'recharts';
+  ComposedChart} from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { chartColors } from '../../utils/bankColors';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
-import CustomTooltip from '../common/CustomTooltip';
-import Icons from '../common/Icons';
+
 import _ from 'lodash';
 
 // Function to format months in "Jan 2024" format
