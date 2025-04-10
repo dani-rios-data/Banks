@@ -13,11 +13,8 @@ const KeyMetrics = ({ filteredData }) => {
     if (!filteredData) {
       return {
         totalInvestment: 0,
-        wellsFargoInvestment: 0,
-        marketShare: 0,
-        digitalPercentage: 0,
-        topCategory: { name: '', value: 0 },
-        competitorComparison: {}
+        banksCount: 0,
+        mediaCount: 0
       };
     }
 
@@ -65,7 +62,6 @@ const KeyMetrics = ({ filteredData }) => {
     // Calculate YoY based on most recent month data
     let calculatedYoYGrowth = 0;
     let yoyDescription = '';
-    let mostRecentMonth = '';
     let formattedMostRecentMonth = '';
     
     if (filteredData.monthlyTrends && filteredData.monthlyTrends.length > 0) {
@@ -87,7 +83,7 @@ const KeyMetrics = ({ filteredData }) => {
       
       // Get the most recent month based on the sorted data
       const latestMonth = sortedMonths[0];
-      mostRecentMonth = latestMonth.month;
+      const mostRecentMonth = latestMonth.month;
       
       // Format month for display
       const [year, monthNum] = latestMonth.month.split('-').map(num => parseInt(num, 10));
@@ -163,10 +159,7 @@ const KeyMetrics = ({ filteredData }) => {
       wellsFargoPosition,
       yearOverYearGrowth: calculatedYoYGrowth, 
       yearOverYearGrowthDescription: yoyDescription,
-      mostRecentMonth,
       formattedMostRecentMonth,
-      averageMonthlyInvestment: filteredData.monthlyTrends?.length > 0 ? 
-        totalInvestment / filteredData.monthlyTrends.length : 0,
       banksCount,
       mediaCount
     };
