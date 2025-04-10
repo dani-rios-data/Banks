@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { LineChart, Line, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors } from '../../utils/colorSchemes';
-import { formatCurrency, formatPercentage, formatCurrencyNoDecimals } from '../../utils/formatters';
+import { formatCurrency } from '../../utils/formatters';
 
 // Función para formatear meses en formato "Jan 2024"
 const formatMonthLabel = (month) => {
