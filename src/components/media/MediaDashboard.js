@@ -187,6 +187,7 @@ const MediaDashboard = ({ dataSource }) => {
   const [csvData, setCsvData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [processedDataState, setProcessedDataState] = useState(null);
+  const [error, setError] = useState(null);
   
   // DEBUG: Inspeccionar el dataSource recibido
   console.log("===== MEDIA DASHBOARD =====");
@@ -218,22 +219,87 @@ const MediaDashboard = ({ dataSource }) => {
     }
     
     setLoading(true);
+    setError(null); // Restablecer error al iniciar una nueva carga
     console.log("Loading CSV data (fallback)...");
     
-    Papa.parse('consolidated_banks_data.csv', {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        console.log("CSV data loaded:", results.data.length, "rows");
-        setCsvData(results.data);
-        setLoading(false);
-      },
-      error: (error) => {
-        console.error("Error loading CSV:", error);
-        setLoading(false);
+    // Usar rutas relativas al origen del sitio para mayor compatibilidad
+    const csvPaths = [
+      `${process.env.PUBLIC_URL}/consolidated_banks_data.csv`, // Ruta principal con PUBLIC_URL
+      '/consolidated_banks_data.csv',                         // Ruta raíz
+      './consolidated_banks_data.csv',                       // Ruta relativa
+      'consolidated_banks_data.csv'                         // Nombre del archivo
+    ];
+    
+    // Función para verificar si el contenido parece ser CSV válido
+    const isValidCSV = (content) => {
+      // Verificar si el contenido comienza con un doctype HTML
+      if (content.trim().toLowerCase().startsWith('<!doctype html>') || 
+          content.trim().toLowerCase().startsWith('<html')) {
+        console.error('El archivo cargado parece ser HTML, no CSV:', content.substring(0, 200));
+        setError('El archivo cargado parece ser HTML, no CSV. Esto podría indicar un error 404 o una redirección.');
+        return false;
       }
-    });
+      
+      // Verificar si tiene formato de CSV (buscar comas y nueva líneas)
+      return content.includes(',') && (content.includes('\n') || content.includes('\r'));
+    };
+    
+    // Función para intentar cargar desde una ruta
+    const tryLoadCSV = (path, index) => {
+      console.log(`Intentando cargar CSV desde ruta [${index}]: ${path}`);
+      
+      Papa.parse(path, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        beforeParse: function(file) {
+          // Verificar si el contenido parece ser CSV válido
+          if (!isValidCSV(file)) {
+            const errorMsg = 'El contenido no parece ser un CSV válido';
+            setError(errorMsg);
+            throw new Error(errorMsg);
+          }
+          return file;
+        },
+        complete: (results) => {
+          if (results.data && results.data.length > 0) {
+            console.log(`CSV cargado exitosamente desde: ${path}`, results.data.length, "filas");
+            setCsvData(results.data);
+            setLoading(false);
+          } else {
+            const errorMsg = `El CSV de ${path} se cargó pero no contiene datos`;
+            console.error(errorMsg, results);
+            setError(errorMsg);
+            
+            // Intentar con la siguiente ruta si hay más disponibles
+            if (index < csvPaths.length - 1) {
+              tryLoadCSV(csvPaths[index + 1], index + 1);
+            } else {
+              console.error("No se pudo cargar el CSV desde ninguna ruta");
+              setError("No se pudo cargar el CSV desde ninguna ruta. Verifique que el archivo exista y sea accesible.");
+              setLoading(false);
+            }
+          }
+        },
+        error: (error) => {
+          console.error(`Error al cargar CSV desde ${path}:`, error);
+          setError(`Error al cargar CSV desde ${path}: ${error.message}`);
+          
+          // Intentar con la siguiente ruta si hay más disponibles
+          if (index < csvPaths.length - 1) {
+            tryLoadCSV(csvPaths[index + 1], index + 1);
+          } else {
+            console.error("No se pudo cargar el CSV desde ninguna ruta");
+            setError("No se pudo cargar el CSV desde ninguna ruta después de intentar múltiples opciones.");
+            setLoading(false);
+          }
+        }
+      });
+    };
+    
+    // Comenzar intentando con la primera ruta
+    tryLoadCSV(csvPaths[0], 0);
+    
   }, [filteredData, dashboardData]);
 
   // Procesar datos para crear un formato compatible
@@ -628,8 +694,36 @@ const MediaDashboard = ({ dataSource }) => {
             </>
           ) : (
             <>
-              <div className="text-xl text-gray-400 mb-2">No data available</div>
-              <p className="text-gray-500">Please ensure the CSV file is loaded correctly.</p>
+              <div className="text-xl text-gray-500 mb-4">No data available</div>
+              <div className="text-center max-w-md">
+                <p className="text-gray-500 mb-2">Check the following:</p>
+                <ul className="text-left text-gray-500 text-sm mb-4">
+                  <li className="mb-1">• Ensure <code className="bg-gray-100 px-1 rounded text-gray-700">consolidated_banks_data.csv</code> is in the <code className="bg-gray-100 px-1 rounded text-gray-700">public/</code> folder</li>
+                  <li className="mb-1">• Check CSV format (headers: Bank, Year, Month, Media Category, dollars)</li>
+                  <li className="mb-1">• Verify CSV content is valid and not empty</li>
+                  <li className="mb-1">• Check browser console for specific errors</li>
+                </ul>
+                
+                <p className="text-gray-500 mb-4">
+                  Error details: <span className="text-red-500">{error || "No error details available"}</span>
+                </p>
+                
+                <p className="text-gray-500 mb-2">Sample data structure:</p>
+                <pre className="bg-gray-100 text-left p-2 rounded-md text-xs text-gray-700 mb-3 overflow-auto">
+                  Bank,Year,Month,Media Category,dollars<br/>
+                  Bank of America,2023,January 2023,Digital,1250000<br/>
+                  Chase,2023,January 2023,Television,3500000<br/>
+                  Wells Fargo,2023,January 2023,Audio,780000
+                </pre>
+                
+                <div className="flex justify-center">
+                  <button 
+                    onClick={() => window.location.reload()} 
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mr-3 transition-colors">
+                    Reload Dashboard
+                  </button>
+                </div>
+              </div>
             </>
           )}
         </div>
