@@ -74,6 +74,7 @@ const MediaInvestmentByBank = ({ activeCategory }) => {
       download: true,
       header: true,
       skipEmptyLines: true,
+      delimiter: ",",
       complete: (results) => {
         console.log("CSV datos cargados:", results.data.length, "filas");
         setCsvData(results.data);

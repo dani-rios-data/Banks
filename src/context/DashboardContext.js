@@ -423,8 +423,19 @@ export const DashboardProvider = ({ children }) => {
               // Obtener lista de años y meses únicos para los filtros
               const years = [...new Set(csvData.map(row => row.Year))].sort();
               const months = [...new Set(csvData.map(row => {
-                const monthPart = row.Month.split(' ')[0]; // Extraer solo el nombre del mes
-                return monthPart;
+                // Verificar que row.Month existe antes de intentar hacer split
+                if (!row.Month) {
+                  console.warn("Fila sin propiedad Month:", row);
+                  return "Unknown";
+                }
+                
+                try {
+                  const monthPart = row.Month.split(' ')[0]; // Extraer solo el nombre del mes
+                  return monthPart;
+                } catch (error) {
+                  console.error("Error al procesar el mes:", error, "Fila:", row);
+                  return "Unknown";
+                }
               }))];
               
               // Procesar datos de bancos
@@ -458,17 +469,50 @@ export const DashboardProvider = ({ children }) => {
               
               // Extraer todos los meses únicos
               const uniqueMonths = csvData.map(row => {
-                const monthStr = row.Month;
-                const [monthName, yearStr] = monthStr.split(' ');
-                const year = parseInt(yearStr);
-                const monthNum = getMonthOrder(monthName);
+                if (!row.Month) {
+                  console.warn("Fila sin propiedad Month en uniqueMonths:", row);
+                  return {
+                    rawMonth: "Unknown",
+                    month: "0000-00",
+                    monthNum: 0,
+                    year: 0
+                  };
+                }
                 
-                return {
-                  rawMonth: monthStr,
-                  month: `${year}-${monthNum.toString().padStart(2, '0')}`,
-                  monthNum,
-                  year
-                };
+                try {
+                  const monthStr = row.Month;
+                  const parts = monthStr.split(' ');
+                  
+                  if (parts.length < 2) {
+                    console.warn("Formato de mes inválido:", monthStr);
+                    return {
+                      rawMonth: monthStr,
+                      month: "0000-00",
+                      monthNum: 0,
+                      year: 0
+                    };
+                  }
+                  
+                  const monthName = parts[0];
+                  const yearStr = parts[1];
+                  const year = parseInt(yearStr) || 0;
+                  const monthNum = getMonthOrder(monthName);
+                  
+                  return {
+                    rawMonth: monthStr,
+                    month: `${year}-${monthNum.toString().padStart(2, '0')}`,
+                    monthNum,
+                    year
+                  };
+                } catch (error) {
+                  console.error("Error al procesar uniqueMonths:", error, "Fila:", row);
+                  return {
+                    rawMonth: "Error",
+                    month: "0000-00",
+                    monthNum: 0,
+                    year: 0
+                  };
+                }
               });
               
               // Filtrar meses únicos
@@ -483,6 +527,11 @@ export const DashboardProvider = ({ children }) => {
               // Para cada mes, calcular inversiones por banco y categoría de medios
               sortedMonths.forEach(monthData => {
                 const monthStr = monthData.rawMonth;
+                if (monthStr === "Unknown" || monthStr === "Error") {
+                  console.warn("Saltando mes inválido:", monthData);
+                  return; // Saltar este mes
+                }
+                
                 const monthRows = csvData.filter(row => row.Month === monthStr);
                 const monthTotal = monthRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
                 
@@ -705,13 +754,16 @@ export const DashboardProvider = ({ children }) => {
       Papa.parse(csvText, {
         header: true,
         skipEmptyLines: true,
-        delimiter: "auto", // Auto-detectar delimitador
+        delimiter: ",", // Forzar coma como delimitador en lugar de "auto"
         transformHeader: header => header.trim(), // Eliminar espacios en blanco de los encabezados
         complete: (results) => {
           console.log("Resultados completos del parseo:", results);
           console.log("Headers detectados:", results.meta.fields);
           console.log("Delimitador detectado:", results.meta.delimiter);
           console.log("Errores durante el parseo:", results.errors);
+          
+          // Diagnóstico adicional del CSV
+          diagnosticarCSV(results, csvText);
           
           // Verificar si hay datos
           if (!results.data || results.data.length === 0) {
@@ -752,8 +804,19 @@ export const DashboardProvider = ({ children }) => {
           // Obtener lista de años y meses únicos para los filtros
           const years = [...new Set(csvData.map(row => row.Year))].sort();
           const months = [...new Set(csvData.map(row => {
-            const monthPart = row.Month.split(' ')[0]; // Extraer solo el nombre del mes
-            return monthPart;
+            // Verificar que row.Month existe antes de intentar hacer split
+            if (!row.Month) {
+              console.warn("Fila sin propiedad Month:", row);
+              return "Unknown";
+            }
+            
+            try {
+              const monthPart = row.Month.split(' ')[0]; // Extraer solo el nombre del mes
+              return monthPart;
+            } catch (error) {
+              console.error("Error al procesar el mes:", error, "Fila:", row);
+              return "Unknown";
+            }
           }))];
           console.log("Años encontrados:", years);
           console.log("Meses encontrados:", months);
@@ -796,17 +859,50 @@ export const DashboardProvider = ({ children }) => {
           
           // Extraer todos los meses únicos
           const uniqueMonths = csvData.map(row => {
-            const monthStr = row.Month;
-            const [monthName, yearStr] = monthStr.split(' ');
-            const year = parseInt(yearStr);
-            const monthNum = getMonthOrder(monthName);
+            if (!row.Month) {
+              console.warn("Fila sin propiedad Month en uniqueMonths:", row);
+              return {
+                rawMonth: "Unknown",
+                month: "0000-00",
+                monthNum: 0,
+                year: 0
+              };
+            }
             
-            return {
-              rawMonth: monthStr,
-              month: `${year}-${monthNum.toString().padStart(2, '0')}`,
-              monthNum,
-              year
-            };
+            try {
+              const monthStr = row.Month;
+              const parts = monthStr.split(' ');
+              
+              if (parts.length < 2) {
+                console.warn("Formato de mes inválido:", monthStr);
+                return {
+                  rawMonth: monthStr,
+                  month: "0000-00",
+                  monthNum: 0,
+                  year: 0
+                };
+              }
+              
+              const monthName = parts[0];
+              const yearStr = parts[1];
+              const year = parseInt(yearStr) || 0;
+              const monthNum = getMonthOrder(monthName);
+              
+              return {
+                rawMonth: monthStr,
+                month: `${year}-${monthNum.toString().padStart(2, '0')}`,
+                monthNum,
+                year
+              };
+            } catch (error) {
+              console.error("Error al procesar uniqueMonths:", error, "Fila:", row);
+              return {
+                rawMonth: "Error",
+                month: "0000-00",
+                monthNum: 0,
+                year: 0
+              };
+            }
           });
           
           // DEBUG: Ver meses procesados
@@ -828,6 +924,11 @@ export const DashboardProvider = ({ children }) => {
           // Para cada mes, calcular inversiones por banco y categoría de medios
           sortedMonths.forEach(monthData => {
             const monthStr = monthData.rawMonth;
+            if (monthStr === "Unknown" || monthStr === "Error") {
+              console.warn("Saltando mes inválido:", monthData);
+              return; // Saltar este mes
+            }
+            
             const monthRows = csvData.filter(row => row.Month === monthStr);
             const monthTotal = monthRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
             
@@ -1042,3 +1143,56 @@ export const DashboardProvider = ({ children }) => {
     </DashboardContext.Provider>
   );
 };
+
+// Función para diagnosticar problemas con el CSV
+function diagnosticarCSV(results, rawText) {
+  console.log("=== DIAGNÓSTICO CSV ===");
+  
+  // Comprobar cantidad de columnas
+  if (results.meta.fields && results.meta.fields.length < 5) {
+    console.error(`Problema detectado: Solo se encontraron ${results.meta.fields.length} columnas en lugar de 5`);
+    console.log("Columnas detectadas:", results.meta.fields);
+    
+    // Mostrar las primeras líneas del CSV para depuración
+    const lines = rawText.split('\n').slice(0, 5);
+    console.log("Primeras 5 líneas del CSV:");
+    lines.forEach((line, index) => {
+      console.log(`Línea ${index + 1}: ${line}`);
+      console.log(`Número de comas: ${(line.match(/,/g) || []).length}`);
+    });
+    
+    // Intentar detectar manualmente
+    const comaSeparado = rawText.indexOf(',') !== -1;
+    const puntoYComaSeparado = rawText.indexOf(';') !== -1;
+    const tabSeparado = rawText.indexOf('\t') !== -1;
+    
+    console.log("Posibles delimitadores detectados:");
+    console.log(`- Coma (,): ${comaSeparado}`);
+    console.log(`- Punto y coma (;): ${puntoYComaSeparado}`);
+    console.log(`- Tab (\\t): ${tabSeparado}`);
+  }
+  
+  // Comprobar primeras filas
+  if (results.data && results.data.length > 0) {
+    console.log("=== MUESTRA DE DATOS PROCESADOS ===");
+    
+    // Mostrar estructuras de las primeras 3 filas
+    for (let i = 0; i < Math.min(3, results.data.length); i++) {
+      console.log(`Fila ${i + 1}:`);
+      console.log(results.data[i]);
+      
+      // Verificar campos esperados
+      const row = results.data[i];
+      const camposEsperados = ['Bank', 'Year', 'Month', 'Media Category', 'dollars'];
+      camposEsperados.forEach(campo => {
+        if (row[campo] === undefined) {
+          console.error(`Campo '${campo}' no encontrado en la fila ${i + 1}`);
+        } else {
+          console.log(`Campo '${campo}' = '${row[campo]}'`);
+        }
+      });
+    }
+  }
+  
+  console.log("=== FIN DIAGNÓSTICO CSV ===");
+}

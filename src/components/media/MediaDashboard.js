@@ -203,7 +203,7 @@ const MediaDashboard = ({ dataSource }) => {
 
   const { 
     selectedMediaCategory, 
-    selectedMonths,
+    selectedMonths, 
     selectedYears,
     selectedPeriod,
     filteredData,
@@ -252,6 +252,7 @@ const MediaDashboard = ({ dataSource }) => {
         download: true,
         header: true,
         skipEmptyLines: true,
+        delimiter: ",",
         beforeParse: function(file) {
           // Verificar si el contenido parece ser CSV válido
           if (!isValidCSV(file)) {
