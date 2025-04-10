@@ -40,6 +40,28 @@ const MonthlyTrends = ({ filteredData }) => {
   const [selectedBanks, setSelectedBanks] = useState([]);
   const [showBankSelector, setShowBankSelector] = useState(false);
 
+  // Mover y envolver la función calculateTrend con useCallback
+  const calculateTrend = useCallback((values) => {
+    if (values.length < 2) return { trend: 'stable', value: 0 };
+    
+    // Simple linear regression
+    const xValues = Array.from({ length: values.length }, (_, i) => i);
+    const xMean = xValues.reduce((a, b) => a + b, 0) / xValues.length;
+    const yMean = values.reduce((a, b) => a + b, 0) / values.length;
+    
+    const numerator = xValues.reduce((sum, x, i) => sum + (x - xMean) * (values[i] - yMean), 0);
+    const denominator = xValues.reduce((sum, x) => sum + Math.pow(x - xMean, 2), 0);
+    
+    const slope = denominator !== 0 ? numerator / denominator : 0;
+    const percentage = values[0] !== 0 ? (slope * values.length) / values[0] * 100 : 0;
+    
+    let trend;
+    if (Math.abs(percentage) < 5) trend = 'stable';
+    else trend = percentage > 0 ? 'increasing' : 'decreasing';
+    
+    return { trend, value: percentage };
+  }, []);
+
   // Determinar qué datos usar basado en si hay filtros aplicados
   const dataSource = useMemo(() => {
     if (filteredData) {
@@ -221,6 +243,54 @@ const MonthlyTrends = ({ filteredData }) => {
     
     return { threats: _.take(_.orderBy(threats, ['advantage'], ['desc']), 2), opportunities: _.take(_.orderBy(opportunities, ['advantage'], ['desc']), 2) };
   }, [calculateTrend]);
+
+  // Helper function to find seasonal patterns
+  const findSeasonalPatterns = useCallback((trendsData) => {
+    if (trendsData.length < 6) return [];
+    
+    // Group by quarter
+    const quarters = {
+      'Q1': [],
+      'Q2': [],
+      'Q3': [],
+      'Q4': []
+    };
+    
+    trendsData.forEach(month => {
+      const [, monthNum] = month.name.split('-');
+      const monthInt = parseInt(monthNum);
+      
+      if (monthInt <= 3) quarters.Q1.push(month.total);
+      else if (monthInt <= 6) quarters.Q2.push(month.total);
+      else if (monthInt <= 9) quarters.Q3.push(month.total);
+      else quarters.Q4.push(month.total);
+    });
+    
+    // Calculate average for each quarter
+    const quarterAverages = Object.entries(quarters).map(([quarter, values]) => ({
+      period: quarter,
+      average: values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0
+    })).filter(q => q.average > 0);
+    
+    // Find peak and low quarters
+    if (quarterAverages.length < 2) return [];
+    
+    const maxQuarter = _.maxBy(quarterAverages, 'average');
+    const minQuarter = _.minBy(quarterAverages, 'average');
+    
+    return [
+      {
+        period: maxQuarter.period,
+        type: 'peak',
+        value: maxQuarter.average
+      },
+      {
+        period: minQuarter.period,
+        type: 'low',
+        value: minQuarter.average
+      }
+    ];
+  }, []);
 
   // Calculate trends and insights from monthly data
   const { trendsData, wfTrends, bankComparison, insights, marketMonthlyAvg } = useMemo(() => {
@@ -442,77 +512,7 @@ const MonthlyTrends = ({ filteredData }) => {
     };
 
     return { trendsData, wfTrends, bankComparison, insights, marketMonthlyAvg };
-  }, [dataSource, wellsFargoData, marketAverageData, findCompetitiveAdvantages]);
-
-  // Helper function to calculate trend
-  function calculateTrend(values) {
-    if (values.length < 2) return { trend: 'stable', value: 0 };
-    
-    // Simple linear regression
-    const xValues = Array.from({ length: values.length }, (_, i) => i);
-    const xMean = xValues.reduce((a, b) => a + b, 0) / xValues.length;
-    const yMean = values.reduce((a, b) => a + b, 0) / values.length;
-    
-    const numerator = xValues.reduce((sum, x, i) => sum + (x - xMean) * (values[i] - yMean), 0);
-    const denominator = xValues.reduce((sum, x) => sum + Math.pow(x - xMean, 2), 0);
-    
-    const slope = denominator !== 0 ? numerator / denominator : 0;
-    const percentage = values[0] !== 0 ? (slope * values.length) / values[0] * 100 : 0;
-    
-    let trend;
-    if (Math.abs(percentage) < 5) trend = 'stable';
-    else trend = percentage > 0 ? 'increasing' : 'decreasing';
-    
-    return { trend, value: percentage };
-  }
-
-  // Helper function to find seasonal patterns
-  function findSeasonalPatterns(trendsData) {
-    if (trendsData.length < 6) return [];
-    
-    // Group by quarter
-    const quarters = {
-      'Q1': [],
-      'Q2': [],
-      'Q3': [],
-      'Q4': []
-    };
-    
-    trendsData.forEach(month => {
-      const [, monthNum] = month.name.split('-');
-      const monthInt = parseInt(monthNum);
-      
-      if (monthInt <= 3) quarters.Q1.push(month.total);
-      else if (monthInt <= 6) quarters.Q2.push(month.total);
-      else if (monthInt <= 9) quarters.Q3.push(month.total);
-      else quarters.Q4.push(month.total);
-    });
-    
-    // Calculate average for each quarter
-    const quarterAverages = Object.entries(quarters).map(([quarter, values]) => ({
-      period: quarter,
-      average: values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0
-    })).filter(q => q.average > 0);
-    
-    // Find peak and low quarters
-    if (quarterAverages.length < 2) return [];
-    
-    const maxQuarter = _.maxBy(quarterAverages, 'average');
-    const minQuarter = _.minBy(quarterAverages, 'average');
-    
-    return [
-      {
-        period: maxQuarter.period,
-        type: 'peak',
-        value: maxQuarter.average
-      },
-      {
-        period: minQuarter.period,
-        type: 'low',
-        value: minQuarter.average
-      }
-    ];
-  }
+  }, [dataSource, wellsFargoData, marketAverageData, findCompetitiveAdvantages, calculateTrend, findSeasonalPatterns]);
 
   // Bank selector component for multi-select dropdown
   const BankSelector = () => {
