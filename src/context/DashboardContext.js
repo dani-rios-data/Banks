@@ -344,11 +344,11 @@ export const DashboardProvider = ({ children }) => {
       
       // Intentar cargar el CSV probando diferentes rutas
       const possiblePaths = [
+        'consolidated_banks_data.csv',
         '/data/consolidated_banks_data.csv',
         'data/consolidated_banks_data.csv',
         './data/consolidated_banks_data.csv',
-        '../data/consolidated_banks_data.csv',
-        'consolidated_banks_data.csv'
+        '../data/consolidated_banks_data.csv'
       ];
       
       let response = null;
