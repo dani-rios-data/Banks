@@ -55,7 +55,3 @@ debug.log*
 
 # Yarn Integrity file
 .yarn-integrity
-
-# Local data files
-/public/data/*.csv
-/public/processed/*.json
