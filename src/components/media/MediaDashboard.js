@@ -621,8 +621,17 @@ const MediaDashboard = ({ dataSource }) => {
     return (
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
         <div className="flex flex-col items-center justify-center h-64">
-          <div className="text-xl text-gray-400 mb-2">No hay datos disponibles</div>
-          <p className="text-gray-500">Asegúrese de que el archivo CSV está cargado correctamente.</p>
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900 mb-4"></div>
+              <div className="text-xl text-gray-400 mb-2">Loading data...</div>
+            </>
+          ) : (
+            <>
+              <div className="text-xl text-gray-400 mb-2">No data available</div>
+              <p className="text-gray-500">Please ensure the CSV file is loaded correctly.</p>
+            </>
+          )}
         </div>
       </div>
     );
