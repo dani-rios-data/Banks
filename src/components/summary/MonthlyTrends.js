@@ -70,8 +70,37 @@ const MonthlyTrends = ({ filteredData }) => {
     });
   }, [selectedYears, filteredData]);
 
+  // Cargar datos de Wells Fargo
   useEffect(() => {
     setIsLoadingWfData(true);
+    
+    // Function to generate fallback data when loading fails
+    const generateFallbackData = () => {
+      if (dataSource?.monthlyTrends) {
+        const fallbackData = {
+          summary: {
+            totalInvestment: 0,
+            averageMarketShare: 0,
+            peakInvestment: { month: '', value: 0 },
+            lowestInvestment: { month: '', value: 0 },
+            investmentTrend: 0,
+            marketShareTrend: 0
+          },
+          monthlyPerformance: dataSource.monthlyTrends.map(month => {
+            const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo') || 
+                          { bank: 'Wells Fargo', investment: month.total * 0.15 }; // 15% if no data available
+            return {
+              month: month.month,
+              investment: wfShare.investment,
+              marketShare: (wfShare.investment / month.total) * 100,
+              monthOverMonthChange: 0
+            };
+          })
+        };
+        setWellsFargoData(fallbackData);
+      }
+    };
+    
     fetch('/processed/wells-fargo-performance.json')
       .then(response => {
         if (!response.ok) {
@@ -90,34 +119,7 @@ const MonthlyTrends = ({ filteredData }) => {
         // Always generate fallback data if there is an error
         generateFallbackData();
       });
-  }, [dataSource, generateFallbackData]);
-
-  // Function to generate fallback data when loading fails
-  const generateFallbackData = () => {
-    if (dataSource?.monthlyTrends) {
-      const fallbackData = {
-        summary: {
-          totalInvestment: 0,
-          averageMarketShare: 0,
-          peakInvestment: { month: '', value: 0 },
-          lowestInvestment: { month: '', value: 0 },
-          investmentTrend: 0,
-          marketShareTrend: 0
-        },
-        monthlyPerformance: dataSource.monthlyTrends.map(month => {
-          const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo') || 
-                         { bank: 'Wells Fargo', investment: month.total * 0.15 }; // 15% if no data available
-          return {
-            month: month.month,
-            investment: wfShare.investment,
-            marketShare: (wfShare.investment / month.total) * 100,
-            monthOverMonthChange: 0
-          };
-        })
-      };
-      setWellsFargoData(fallbackData);
-    }
-  };
+  }, [dataSource]);
 
   // Calculate market average excluding Wells Fargo
   useEffect(() => {
@@ -342,10 +344,7 @@ const MonthlyTrends = ({ filteredData }) => {
 
     // Calculate Wells Fargo monthly average investment
     const validInvestments = wfTrends.filter(item => !isNaN(item.investment) && item.investment > 0);
-    const wfMonthlyAvg = validInvestments.length > 0 
-      ? validInvestments.reduce((sum, item) => sum + item.investment, 0) / validInvestments.length 
-      : 0;
-      
+    
     // Calcular el promedio mensual del mercado basado en los meses seleccionados
     // Usar el mismo filtro de meses que se aplica a trendsData
     const marketMonthlyAvg = trendsData.length > 0
@@ -396,7 +395,7 @@ const MonthlyTrends = ({ filteredData }) => {
     };
 
     return { trendsData, wfTrends, bankComparison, insights, marketMonthlyAvg };
-  }, [dataSource, wellsFargoData, marketAverageData]);
+  }, [dataSource, wellsFargoData, marketAverageData, findCompetitiveAdvantages]);
 
   // Helper function to calculate trend
   function calculateTrend(values) {
@@ -531,7 +530,7 @@ const MonthlyTrends = ({ filteredData }) => {
       });
       
       return ['All', ...Array.from(banksInData)];
-    }, [dataSource, trendsData]);
+    }, []);
     
     const toggleBank = (bankName) => {
       if (selectedBanks.includes(bankName)) {

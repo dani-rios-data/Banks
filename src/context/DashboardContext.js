@@ -201,7 +201,7 @@ export const DashboardProvider = ({ children }) => {
       // Filtrar tendencias mensuales
       const filteredMonthlyTrends = dashboardData.monthlyTrends.filter(monthData => {
         // Extraer año y mes del formato 'YYYY-MM'
-        const [year, monthNum] = monthData.month.split('-');
+        const [year] = monthData.month.split('-');
         
         // Obtener el mes en formato texto (para comparar con selectedMonths)
         const monthText = monthData.rawMonth;
@@ -581,7 +581,7 @@ export const DashboardProvider = ({ children }) => {
       
       setSelectedPeriod(selectedPeriodText);
     }
-  }, [dashboardData, selectedYears, selectedMonths]);
+  }, [dashboardData, selectedYears, selectedMonths, getFilteredData]);
   
   // Objeto de valor que se proporcionará a los consumidores del contexto
   const value = {

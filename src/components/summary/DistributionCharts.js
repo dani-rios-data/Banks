@@ -531,7 +531,7 @@ const DistributionCharts = ({ filteredData }) => {
       overallTotals: distributionTotals,
       exactPercentages
     };
-  }, [filteredData, selectedMonths, forceUpdate, dashboardData]);
+  }, [filteredData, selectedMonths, dashboardData]);
 
   // Get the top bank from bankDistribution
   const topBank = useMemo(() => {
