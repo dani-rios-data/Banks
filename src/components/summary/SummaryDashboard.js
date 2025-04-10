@@ -8,22 +8,33 @@ import { formatCurrency } from '../../utils/formatters';
  * Integrates all components and provides a unified view
  */
 const SummaryDashboard = () => {
-  const { dashboardData, selectedMonths } = useDashboard();
+  const { dashboardData, selectedMonths, selectedYears, getFilteredData } = useDashboard();
+
+  // Get filtered data
+  const filteredData = getFilteredData() || dashboardData;
 
   // Calculate total investment across all banks
-  const totalInvestment = dashboardData?.monthlyTrends
-    .filter(month => selectedMonths.length === 0 || selectedMonths.includes(month.month))
-    .reduce((sum, month) => sum + month.total, 0) || 0;
+  const totalInvestment = filteredData?.totalInvestment || 0;
 
-  // Get months period for display
-  const monthsDisplay = selectedMonths.length > 0 
-    ? `${selectedMonths.sort()[0]} to ${selectedMonths.sort()[selectedMonths.length - 1]}`
-    : 'All Period';
+  // Get filter period for display
+  let filterDisplay = 'All Period';
+  
+  if (selectedYears.length > 0 && selectedMonths.length > 0) {
+    filterDisplay = `${selectedMonths.sort()[0]} ${selectedYears.sort()[0]} to ${selectedMonths.sort()[selectedMonths.length - 1]} ${selectedYears.sort()[selectedYears.length - 1]}`;
+  } else if (selectedYears.length > 0) {
+    filterDisplay = selectedYears.length === 1 ? 
+      `Year ${selectedYears[0]}` : 
+      `Years ${selectedYears.sort()[0]} to ${selectedYears.sort()[selectedYears.length - 1]}`;
+  } else if (selectedMonths.length > 0) {
+    filterDisplay = selectedMonths.length === 1 ? 
+      `Month ${selectedMonths[0]}` : 
+      `Months ${selectedMonths.sort()[0]} to ${selectedMonths.sort()[selectedMonths.length - 1]}`;
+  }
 
   return (
     <div className="space-y-8">
       {/* Executive Summary Components - Integrated View */}
-      <ExecutiveSummary selectedMonths={monthsDisplay} />
+      <ExecutiveSummary selectedPeriod={filterDisplay} filteredData={filteredData} />
     </div>
   );
 };

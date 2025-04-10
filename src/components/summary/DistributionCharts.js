@@ -3,17 +3,11 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Ba
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaCategoryColors } from '../../utils/colorSchemes';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { chartColors } from '../../utils/bankColors';
 import _ from 'lodash';
 
-// Bank colors definition
-const bankColors = {
-  'Capital One': '#004977',
-  'Chase Bank': '#117ACA',
-  'Bank Of America': '#012169',
-  'Wells Fargo Bank': '#D71E2B',
-  'Pnc Bank': '#F58025',
-  'Td Bank': '#2D8B2A'
-};
+// Usar chartColors de bankColors.js en lugar de definir colores aquí
+// Borrar esta definición local de colores
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -55,7 +49,7 @@ const CustomLegend = ({ data, colors }) => {
 /**
  * Component that displays investment distribution charts with month filter support
  */
-const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
+const DistributionCharts = ({ hideWellsFargoComparison = false, filteredData }) => {
   const { dashboardData, loading, selectedMonths, focusedBank } = useDashboard();
   const [activeTab, setActiveTab] = useState('overview');
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -70,7 +64,10 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
   const distributions = useMemo(() => {
     console.log("Recalculating distributions with months:", selectedMonths || []);
     
-    if (!dashboardData?.monthlyTrends) return { 
+    // Usar filteredData si está disponible, de lo contrario usar dashboardData
+    const dataSource = filteredData || dashboardData;
+    
+    if (!dataSource?.monthlyTrends) return { 
       bankData: [], 
       mediaData: [],
       wellsFargoMediaBreakdown: [],
@@ -90,10 +87,70 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
       }
     };
 
-    // Filtrar por meses seleccionados si hay alguno
-    const monthlyData = (selectedMonths && selectedMonths.length > 0 && dashboardData.monthlyTrends)
-      ? dashboardData.monthlyTrends.filter(month => selectedMonths.includes(month.month))
-      : (dashboardData.monthlyTrends || []);
+    // Función de coincidencia flexible entre formatos de meses
+    const matchMonth = (dataMonth, selectedMonth) => {
+      // Comparación directa
+      if (dataMonth === selectedMonth) return true;
+      
+      try {
+        // Intentar extraer mes y año de ambos formatos
+        let dataMonthName, dataYear, selectedMonthName, selectedYear;
+
+        // Formato "Month Year" (e.g., "January 2023")
+        if (dataMonth.includes(' ')) {
+          const parts = dataMonth.split(' ');
+          dataMonthName = parts[0].toLowerCase();
+          dataYear = parts[1];
+        }
+
+        if (selectedMonth.includes(' ')) {
+          const parts = selectedMonth.split(' ');
+          selectedMonthName = parts[0].toLowerCase();
+          selectedYear = parts[1];
+        }
+
+        // Formato "YYYY-MM" (e.g., "2023-01")
+        if (selectedMonth.includes('-')) {
+          const parts = selectedMonth.split('-');
+          selectedYear = parts[0];
+          // Convertir número de mes a nombre
+          const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
+                             'july', 'august', 'september', 'october', 'november', 'december'];
+          const monthNum = parseInt(parts[1], 10);
+          if (monthNum >= 1 && monthNum <= 12) {
+            selectedMonthName = monthNames[monthNum - 1];
+          }
+        }
+
+        if (dataMonth.includes('-')) {
+          const parts = dataMonth.split('-');
+          dataYear = parts[0];
+          // Convertir número de mes a nombre
+          const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
+                             'july', 'august', 'september', 'october', 'november', 'december'];
+          const monthNum = parseInt(parts[1], 10);
+          if (monthNum >= 1 && monthNum <= 12) {
+            dataMonthName = monthNames[monthNum - 1];
+          }
+        }
+
+        // Si tenemos ambos componentes para ambos formatos, comparar
+        if (dataMonthName && dataYear && selectedMonthName && selectedYear) {
+          return dataMonthName === selectedMonthName && dataYear === selectedYear;
+        }
+      } catch (error) {
+        console.error("Error al comparar formatos de meses:", error);
+      }
+      
+      return false;
+    };
+
+    // Filtrar por meses seleccionados si hay alguno usando matchMonth para la comparación flexible
+    const monthlyData = (selectedMonths && selectedMonths.length > 0 && dataSource.monthlyTrends)
+      ? dataSource.monthlyTrends.filter(month => 
+          selectedMonths.some(selectedMonth => 
+            matchMonth(month.rawMonth || month.month, selectedMonth)))
+      : (dataSource.monthlyTrends || []);
     
     console.log("Filtered monthly data:", monthlyData.length, "months");
     
@@ -108,8 +165,8 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     // Calculate bank-specific investments for selected period
     const bankInvestments = {};
     
-    if (dashboardData?.banks) {
-      dashboardData.banks.forEach(bank => {
+    if (dataSource?.banks) {
+      dataSource.banks.forEach(bank => {
         const investment = _.sumBy(monthlyData, month => 
           month.bankShares?.find(share => share.bank === bank.name)?.investment || 0
         );
@@ -120,8 +177,8 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     console.log("Bank investments for selected period:", bankInvestments);
     
     // Calculate Wells Fargo's data
-    const wellsFargo = dashboardData?.banks?.find(bank => bank.name === 'Wells Fargo Bank');
-    const wellsFargoTotal = bankInvestments['Wells Fargo Bank'] || 0;
+    const wellsFargo = dataSource?.banks?.find(bank => bank.name === 'Wells Fargo');
+    const wellsFargoTotal = bankInvestments['Wells Fargo'] || 0;
     
     // Calculate category totals for Wells Fargo using media categories from monthly data
     const wellsFargoCategoryTotals = {};
@@ -133,7 +190,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     
     // Sum up actual spending by category for selected months
     monthlyData.forEach(month => {
-      const wfCategoryData = month.mediaCategories?.find(cat => cat.bank === 'Wells Fargo Bank');
+      const wfCategoryData = month.mediaCategories?.find(cat => cat.bank === 'Wells Fargo');
       
       if (wfCategoryData && wfCategoryData.categories) {
         Object.entries(wfCategoryData.categories).forEach(([category, amount]) => {
@@ -159,9 +216,9 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     );
     
     // Calculate industry data (excluding Wells Fargo)
-    const otherBanks = dashboardData?.banks?.filter(b => b.name !== 'Wells Fargo Bank') || [];
+    const otherBanks = dataSource?.banks?.filter(b => b.name !== 'Wells Fargo') || [];
     const otherBanksTotalInvestment = _.sum(Object.entries(bankInvestments)
-      .filter(([bankName]) => bankName !== 'Wells Fargo Bank')
+      .filter(([bankName]) => bankName !== 'Wells Fargo')
       .map(([, investment]) => investment));
     
     console.log("Industry total (excluding WF):", otherBanksTotalInvestment);
@@ -171,7 +228,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     
     // Initialize all categories to 0
     const allCategories = [...new Set(
-      (dashboardData?.banks || []).flatMap(bank => (bank.mediaBreakdown || []).map(media => media.category))
+      (dataSource?.banks || []).flatMap(bank => (bank.mediaBreakdown || []).map(media => media.category))
     )];
     
     allCategories.forEach(category => {
@@ -182,7 +239,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     monthlyData.forEach(month => {
       if (month.mediaCategories && Array.isArray(month.mediaCategories)) {
         month.mediaCategories.forEach(bankData => {
-          if (bankData.bank !== 'Wells Fargo Bank' && bankData.categories) {
+          if (bankData.bank !== 'Wells Fargo' && bankData.categories) {
             Object.entries(bankData.categories).forEach(([category, amount]) => {
               industryCategoryTotals[category] += amount;
             });
@@ -266,7 +323,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     );
     
     // Calculate bank market share distribution
-    const bankData = dashboardData.banks.map(bank => {
+    const bankData = dataSource.banks.map(bank => {
       const investment = bankInvestments[bank.name] || 0;
       
       return {
@@ -278,7 +335,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     
     // Calculate media category data by summing exact values from each bank's media breakdown
     const uniqueMediaCategories = [...new Set(
-      dashboardData.banks.flatMap(bank => 
+      dataSource.banks.flatMap(bank => 
         bank.mediaBreakdown.map(media => media.category)
       )
     )];
@@ -291,7 +348,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
       console.log("Calculating media data from selected months:", monthlyData.length);
       
       // Inicializar bankCategories y bankTotals
-      dashboardData.banks.forEach(bank => {
+      dataSource.banks.forEach(bank => {
         bankCategories[bank.name] = {};
         bankTotals[bank.name] = 0;
         
@@ -366,7 +423,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
     
     // Create the mediaData array calculating totals for each media category
     const allMediaCategories = new Set();
-    (dashboardData?.banks || []).forEach(bank => {
+    (dataSource?.banks || []).forEach(bank => {
       (bank.mediaBreakdown || []).forEach(media => {
         allMediaCategories.add(media.category);
       });
@@ -409,7 +466,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
         let totalInvestment = 0;
         
         // Sum this category's investment across all banks
-        (dashboardData?.banks || []).forEach(bank => {
+        (dataSource?.banks || []).forEach(bank => {
           const mediaItem = (bank.mediaBreakdown || []).find(media => media.category === category);
           if (mediaItem) {
             totalInvestment += mediaItem.amount;
@@ -419,7 +476,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
         mediaData.push({
           name: category,
           investment: totalInvestment,
-          share: (dashboardData?.totalInvestment || 0) > 0 ? (totalInvestment / dashboardData.totalInvestment) * 100 : 0
+          share: (dataSource?.totalInvestment || 0) > 0 ? (totalInvestment / dataSource.totalInvestment) * 100 : 0
         });
       });
     }
@@ -491,7 +548,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
       overallTotals: distributionTotals,
       exactPercentages
     };
-  }, [dashboardData, selectedMonths, forceUpdate]);
+  }, [filteredData, selectedMonths, forceUpdate]);
 
   // Establecer la pestaña activa cuando cambia el focusedBank
   useEffect(() => {
@@ -545,7 +602,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
   
   // Find Wells Fargo position in the bankDistribution
   const wellsFargoPosition = useMemo(() => {
-    const wellsFargo = distributions.bankData.find(bank => bank.name === "Wells Fargo Bank");
+    const wellsFargo = distributions.bankData.find(bank => bank.name === "Wells Fargo");
     if (!wellsFargo) {
       return {
         position: 'N/A',
@@ -554,7 +611,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
       };
     }
     
-    const position = distributions.bankData.findIndex(bank => bank.name === "Wells Fargo Bank") + 1;
+    const position = distributions.bankData.findIndex(bank => bank.name === "Wells Fargo") + 1;
     return {
       position,
       share: wellsFargo.share,
@@ -602,31 +659,38 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
 
   // Bank-specific tab content
   const renderBankTab = () => {
-    const bankData = distributions.bankData.find(b => b.name === activeTab);
-    if (!bankData) return null;
-
+    // Get media mix for the selected bank
+    const bankMediaMix = distributions.bankData.find(b => b.name === activeTab)?.mediaBreakdown || [];
+    
+    // Get monthly investment data for the selected bank
+    // Create an array with monthly investments for the selected bank
+    const monthlyInvestments = distributions.bankData.map(bank => ({
+      month: bank.month,
+      rawMonth: bank.rawMonth,
+      investment: bank.investment
+    })).sort((a, b) => {
+      // Sort by month (assuming format YYYY-MM)
+      const [yearA, monthA] = a.month.split('-');
+      const [yearB, monthB] = b.month.split('-');
+      const dateA = new Date(`${yearA}-${monthA}-01`);
+      const dateB = new Date(`${yearB}-${monthB}-01`);
+      return dateA - dateB;
+    });
+    
     // Calcular la posición del banco en el ranking
     const bankRank = distributions.bankData.findIndex(b => b.name === activeTab) + 1;
-    
-    // Encontrar el media mix del banco
-    const bankMediaMix = dashboardData.banks.find(b => b.name === activeTab)?.mediaBreakdown || [];
     
     // Calcular el total
     const totalInvestment = distributions.bankData.reduce((sum, bank) => sum + bank.investment, 0);
     
     // Calcular la tendencia
-    const monthlyInvestments = dashboardData.monthlyTrends.map(month => ({
-      month: month.month,
-      investment: month.bankShares.find(share => share.bank === activeTab)?.investment || 0
-    })).sort((a, b) => a.month.localeCompare(b.month));
-    
     const trend = monthlyInvestments.length > 1 
       ? ((monthlyInvestments[monthlyInvestments.length - 1].investment / monthlyInvestments[0].investment) - 1) * 100
       : 0;
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${bankColors[activeTab]}` }}>
+        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${chartColors[activeTab]}` }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="bg-blue-100 rounded-full p-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -635,14 +699,14 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
             </div>
             <h2 className="text-xl font-semibold text-gray-800">{activeTab} Analysis</h2>
           </div>
-          <p className="text-gray-600 mb-6">Total investment: {formatCurrency(bankData.investment)}</p>
+          <p className="text-gray-600 mb-6">Total investment: {formatCurrency(totalInvestment)}</p>
           
           <div className="bg-gray-50 rounded-lg p-5">
             <div className="flex flex-col md:flex-row justify-between mb-6">
               <div className="mb-4 md:mb-0">
                 <div className="text-sm text-gray-500 mb-1">Total Investment</div>
-                <div className="text-3xl font-bold" style={{ color: bankColors[activeTab] }}>
-                  {formatCurrency(bankData.investment)}
+                <div className="text-3xl font-bold" style={{ color: chartColors[activeTab] }}>
+                  {formatCurrency(totalInvestment)}
                 </div>
                 <div className="mt-2 text-sm">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full ${trend >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -657,8 +721,8 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
               
               <div>
                 <div className="text-sm text-gray-500 mb-1">Market Share</div>
-                <div className="text-3xl font-bold" style={{ color: bankColors[activeTab] }}>
-                  {formatPercentage(bankData.share)}
+                <div className="text-3xl font-bold" style={{ color: chartColors[activeTab] }}>
+                  {formatPercentage(distributions.bankData.find(b => b.name === activeTab)?.share || 0)}
                 </div>
                 <div className="mt-2 text-sm text-gray-500">
                   Position #{bankRank} in ranking
@@ -676,10 +740,10 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                       key={index}
                       className="absolute top-0 h-full flex items-center justify-center text-xs text-white font-medium"
                       style={{
-                        backgroundColor: bankColors[bank.name],
+                        backgroundColor: chartColors[bank.name],
                         left: `${startPos}%`,
                         width: `${bank.share}%`,
-                        opacity: bank.name === activeTab ? 1 : (bank.name === 'Wells Fargo Bank' ? 0.9 : 0.7),
+                        opacity: bank.name === activeTab ? 1 : (bank.name === 'Wells Fargo' ? 0.9 : 0.7),
                         zIndex: bank.name === activeTab ? 10 : 1
                       }}
                     >
@@ -721,12 +785,12 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                         backgroundColor: 'white',
                         borderRadius: '0.5rem',
                         padding: '0.75rem',
-                        border: `1px solid ${bankColors[activeTab]}`
+                        border: `1px solid ${chartColors[activeTab]}`
                       }}
                     />
                     <Bar 
                       dataKey="investment" 
-                      fill={bankColors[activeTab]} 
+                      fill={chartColors[activeTab]} 
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
@@ -736,8 +800,8 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
           </div>
         </div>
         
-        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${bankColors[activeTab]}` }}>
-          <h3 className="text-lg font-medium mb-4" style={{ color: bankColors[activeTab] }}>{activeTab} - Media Mix</h3>
+        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${chartColors[activeTab]}` }}>
+          <h3 className="text-lg font-medium mb-4" style={{ color: chartColors[activeTab] }}>{activeTab} - Media Mix</h3>
           
           <div className="bg-gray-50 rounded-lg p-5">
             <div className="h-56 mb-6">
@@ -770,7 +834,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                       backgroundColor: 'white',
                       borderRadius: '0.5rem',
                       padding: '0.75rem',
-                      border: `1px solid ${bankColors[activeTab]}`
+                      border: `1px solid ${chartColors[activeTab]}`
                     }}
               />
             </PieChart>
@@ -826,17 +890,17 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
             </div>
             
             <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
-              <h4 className="text-sm font-medium mb-2" style={{ color: bankColors[activeTab] }}>
+              <h4 className="text-sm font-medium mb-2" style={{ color: chartColors[activeTab] }}>
                 Strategic Insights
               </h4>
               <div className="text-sm text-gray-600 space-y-2">
                 <p className="flex items-start">
-                  <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: bankColors[activeTab] }}>
+                  <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: chartColors[activeTab] }}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </span>
-                  {activeTab === 'Wells Fargo Bank' 
+                  {activeTab === 'Wells Fargo' 
                     ? `Wells Fargo heavily invests in ${bankMediaMix.sort((a, b) => b.percentage - a.percentage)[0]?.category || 'Digital'}, representing a strategic focus to reach key segments.`
                     : `${activeTab} focuses its investment in ${bankMediaMix.sort((a, b) => b.percentage - a.percentage)[0]?.category || 'Digital'}, showing preference for this channel.`
                   }
@@ -847,7 +911,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                     return Math.abs(m.percentage - industryAvg) > 10;
                   }) && (
                     <p className="flex items-start">
-                      <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: bankColors[activeTab] }}>
+                      <span className="inline-block bg-gray-100 rounded-full p-1 mr-2 mt-0.5" style={{ color: chartColors[activeTab] }}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
@@ -982,7 +1046,7 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                         {distributions.bankData.map((entry, index) => (
                           <Cell 
                             key={`cell-${index}`} 
-                            fill={bankColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
+                            fill={chartColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
                             stroke="white"
                             strokeWidth={2}
                           />
@@ -1010,9 +1074,9 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
                             <div className="flex items-center">
                               <div 
                                 className="w-2 h-2 rounded-full mr-2" 
-                                style={{backgroundColor: bankColors[bank.name]}}
+                                style={{backgroundColor: chartColors[bank.name]}}
                               ></div>
-                              <span className={bank.name === 'Wells Fargo Bank' ? 'font-medium' : ''}>
+                              <span className={bank.name === 'Wells Fargo' ? 'font-medium' : ''}>
                                 {bank.name}
                               </span>
                             </div>
@@ -1095,61 +1159,127 @@ const DistributionCharts = ({ hideWellsFargoComparison = false }) => {
             
             {/* Key Findings Column */}
             <div className="col-span-1">
-              <div className="bg-white rounded-lg shadow-md p-6 h-full">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Key Findings</h3>
-                <div className="space-y-5">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
-                    <h4 className="font-medium text-blue-800">Market Leadership</h4>
-                    <p className="mt-2 text-blue-700">
-                      {topBank?.name || 'Capital One'} leads the banking sector with {formatPercentage(topBank?.share || 0)} market share ({formatCurrency(topBank?.investment || 0)}){(selectedMonths && selectedMonths.length > 0) ? ` during the selected ${selectedMonths.length === 1 ? 'month' : 'period'}` : ''}, which is {formatPercentage(Math.abs((topBank?.share || 0) - (wellsFargoPosition.share || 0)))} {(topBank?.share || 0) > (wellsFargoPosition.share || 0) ? 'higher than' : 'lower than'} Wells Fargo's {formatPercentage(wellsFargoPosition.share || 0)} share.
-                    </p>
+              <div className="bg-gradient-to-b from-white to-gray-50 rounded-xl shadow-md p-6 h-full border border-gray-100">
+                <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Key Findings
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    {/* Market Leadership */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-blue-500 transition-all duration-300 hover:shadow-md">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <h4 className="font-medium text-blue-700">Market Leadership</h4>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {topBank?.name || 'Capital One'} leads with {formatPercentage(topBank?.share || 0)} market share ({formatCurrency(topBank?.investment || 0)}), {formatPercentage(Math.abs((topBank?.share || 0) - (wellsFargoPosition.share || 0)))} {(topBank?.share || 0) > (wellsFargoPosition.share || 0) ? 'higher than' : 'lower than'} Wells Fargo's {formatPercentage(wellsFargoPosition.share || 0)} share.
+                      </p>
+                    </div>
+
+                    {/* Wells Fargo Position */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-500 transition-all duration-300 hover:shadow-md">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19l3 3V5l-3 3m0 0l-3-3m3 3l3-3" />
+                          </svg>
+                        </div>
+                        <h4 className="font-medium text-green-700">Wells Fargo Position</h4>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Wells Fargo accounts for {formatPercentage(wellsFargoPosition.share || 0)} of total media investment ({formatCurrency(wellsFargoPosition.investment || 0)}), positioned at #{wellsFargoPosition.position || 4} among all analyzed banks.
+                      </p>
+                    </div>
+
+                    {/* Digital vs Traditional */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-indigo-500 transition-all duration-300 hover:shadow-md">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                        <h4 className="font-medium text-indigo-700">Digital Breakdown</h4>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Digital media represents {formatPercentage(distributions.mediaData.find(m => m.name === 'Digital')?.share || 0)} of total investment ({formatCurrency(distributions.mediaData.find(m => m.name === 'Digital')?.investment || 0)}), making it {distributions.mediaData.find(m => m.name === 'Digital')?.share > distributions.mediaData.find(m => m.name === 'Television')?.share ? 'the dominant' : 'a significant'} channel for banking advertising.
+                      </p>
+                    </div>
                   </div>
-                  
-                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
-                    <h4 className="font-medium text-purple-800">Market Concentration</h4>
-                    <p className="mt-2 text-purple-700">
-                      The top 3 banks control {formatPercentage(
-                        (distributions.bankData[0]?.share || 0) + 
-                        (distributions.bankData[1]?.share || 0) + 
-                        (distributions.bankData[2]?.share || 0)
-                      )} of the total market investment ({formatCurrency(
-                        (distributions.bankData[0]?.investment || 0) + 
-                        (distributions.bankData[1]?.investment || 0) + 
-                        (distributions.bankData[2]?.investment || 0)
-                      )}){selectedMonths.length > 0 ? ` during the selected ${selectedMonths.length === 1 ? 'month' : 'period'}` : ''}, indicating significant market dominance by leading financial institutions.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
-                    <h4 className="font-medium text-green-800">Wells Fargo Position</h4>
-                    <p className="mt-2 text-green-700">
-                      Wells Fargo accounts for {formatPercentage(wellsFargoPosition.share || 0)} of total media investment ({formatCurrency(wellsFargoPosition.investment || 0)}), positioning it at #{wellsFargoPosition.position || 4} among all analyzed banks{selectedMonths.length > 0 ? ` during the selected ${selectedMonths.length === 1 ? 'month' : 'period'}` : ''}.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-lg">
-                    <h4 className="font-medium text-amber-800">Media Channel Distribution</h4>
-                    <p className="mt-2 text-amber-700">
-                      Television and Digital together represent {formatPercentage(
-                        (distributions.mediaData.find(m => m.name === 'Television')?.share || 0) +
-                        (distributions.mediaData.find(m => m.name === 'Digital')?.share || 0)
-                      )} of total media investment{selectedMonths.length > 0 ? ` during the selected ${selectedMonths.length === 1 ? 'month' : 'period'}` : ''}, with Television at {formatPercentage(distributions.mediaData.find(m => m.name === 'Television')?.share || 0)} ({formatCurrency(distributions.mediaData.find(m => m.name === 'Television')?.investment || 0)}) and Digital at {formatPercentage(distributions.mediaData.find(m => m.name === 'Digital')?.share || 0)} ({formatCurrency(distributions.mediaData.find(m => m.name === 'Digital')?.investment || 0)}).
-                    </p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-lg">
-                    <h4 className="font-medium text-indigo-800">Media Category Gap</h4>
-                    <p className="mt-2 text-indigo-700">
-                      {(() => {
-                        // Find the gap between top two media categories
-                        const sortedMedia = [...distributions.mediaData].sort((a, b) => b.share - a.share);
-                        const topCategory = sortedMedia[0] || { name: 'Television', share: 0 };
-                        const secondCategory = sortedMedia[1] || { name: 'Digital', share: 0 };
-                        const gap = topCategory.share - secondCategory.share;
-                        
-                        return `${topCategory.name} leads all media categories with a ${formatPercentage(gap)} share gap over ${secondCategory.name} (${formatPercentage(topCategory.share)} vs ${formatPercentage(secondCategory.share)}), highlighting the ${gap > 15 ? 'significant' : 'moderate'} dominance of ${topCategory.name} in banking advertising${selectedMonths.length > 0 ? ` during the selected ${selectedMonths.length === 1 ? 'month' : 'period'}` : ''}.`;
-                      })()}
-                    </p>
+
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    {/* Market Concentration */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-500 transition-all duration-300 hover:shadow-md">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                        </div>
+                        <h4 className="font-medium text-purple-700">Market Concentration</h4>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        The top 3 banks control {formatPercentage(
+                          (distributions.bankData[0]?.share || 0) + 
+                          (distributions.bankData[1]?.share || 0) + 
+                          (distributions.bankData[2]?.share || 0)
+                        )} of the total market investment ({formatCurrency(
+                          (distributions.bankData[0]?.investment || 0) + 
+                          (distributions.bankData[1]?.investment || 0) + 
+                          (distributions.bankData[2]?.investment || 0)
+                        )}), indicating significant market concentration.
+                      </p>
+                    </div>
+
+                    {/* Media Channel Distribution */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-amber-500 transition-all duration-300 hover:shadow-md">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                          </svg>
+                        </div>
+                        <h4 className="font-medium text-amber-700">Media Distribution</h4>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Television and Digital account for {formatPercentage(
+                          (distributions.mediaData.find(m => m.name === 'Television')?.share || 0) +
+                          (distributions.mediaData.find(m => m.name === 'Digital')?.share || 0)
+                        )} of total investment, with Television at {formatPercentage(distributions.mediaData.find(m => m.name === 'Television')?.share || 0)} and Digital at {formatPercentage(distributions.mediaData.find(m => m.name === 'Digital')?.share || 0)}.
+                      </p>
+                    </div>
+
+                    {/* Media Category Gap */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-red-500 transition-all duration-300 hover:shadow-md">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        </div>
+                        <h4 className="font-medium text-red-700">Media Category Gap</h4>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {(() => {
+                          // Find the gap between top two media categories
+                          const sortedMedia = [...distributions.mediaData].sort((a, b) => b.share - a.share);
+                          const topCategory = sortedMedia[0] || { name: 'Television', share: 0 };
+                          const secondCategory = sortedMedia[1] || { name: 'Digital', share: 0 };
+                          const gap = topCategory.share - secondCategory.share;
+                          
+                          return `${topCategory.name} leads all media categories with a ${formatPercentage(gap)} share gap over ${secondCategory.name} (${formatPercentage(topCategory.share)} vs ${formatPercentage(secondCategory.share)}), highlighting the relative importance of this channel.`;
+                        })()}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

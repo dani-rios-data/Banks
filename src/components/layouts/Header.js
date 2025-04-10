@@ -1,10 +1,74 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { bankColors, bankSecondaryColors } from '../../utils/colorSchemes';
+import Papa from 'papaparse';
 
 /**
  * Header component for the dashboard
  */
 const Header = () => {
+  const [dateRange, setDateRange] = useState('');
+  
+  useEffect(() => {
+    // Función para obtener el rango de fechas del CSV
+    const fetchDateRange = async () => {
+      try {
+        const response = await fetch('/data/consolidated_banks_data.csv');
+        const csvData = await response.text();
+        
+        // Parsear CSV
+        Papa.parse(csvData, {
+          header: true,
+          complete: (results) => {
+            const months = results.data
+              .filter(row => row.Month) // Filtrar filas sin mes
+              .map(row => {
+                // Extraer año y mes para ordenar correctamente
+                const [monthName, year] = row.Month ? row.Month.split(' ') : ['', ''];
+                return { 
+                  fullMonth: row.Month,
+                  year: parseInt(year) || 0,
+                  monthOrder: getMonthOrder(monthName)
+                };
+              });
+            
+            // Ordenar por año y mes
+            months.sort((a, b) => {
+              if (a.year !== b.year) return a.year - b.year;
+              return a.monthOrder - b.monthOrder;
+            });
+            
+            // Encontrar el mes más antiguo y más reciente
+            const firstMonth = months.length > 0 ? months[0].fullMonth : '';
+            const lastMonth = months.length > 0 ? months[months.length - 1].fullMonth : '';
+            
+            if (firstMonth && lastMonth) {
+              setDateRange(`${firstMonth} - ${lastMonth}`);
+            }
+          },
+          error: (error) => {
+            console.error('Error parsing CSV:', error);
+            setDateRange('February 2023 - March 2025'); // Fallback
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching CSV:', error);
+        setDateRange('February 2023 - March 2025'); // Fallback
+      }
+    };
+    
+    fetchDateRange();
+  }, []);
+  
+  // Función auxiliar para obtener el orden numérico del mes
+  const getMonthOrder = (monthName) => {
+    const months = {
+      'January': 1, 'February': 2, 'March': 3, 'April': 4,
+      'May': 5, 'June': 6, 'July': 7, 'August': 8,
+      'September': 9, 'October': 10, 'November': 11, 'December': 12
+    };
+    return months[monthName] || 0;
+  };
+
   return (
     <div className="w-full bg-white">
       <div className="w-full px-8 py-3 border-b border-gray-100">
@@ -37,7 +101,7 @@ const Header = () => {
               />
             </div>
             <p className="text-xs text-gray-600 font-medium">
-              January 2024 - March 2025
+              {dateRange}
             </p>
           </div>
           <div className="flex-1 flex justify-center">

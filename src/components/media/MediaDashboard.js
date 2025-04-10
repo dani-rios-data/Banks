@@ -5,6 +5,25 @@ import MediaInsights from './MediaInsights';
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaColors } from '../../utils/colorSchemes';
 
+// Función para formatear valores numéricos
+const formatCurrency = (value) => {
+  // Para Capital One, que sabemos que está en el rango de billones
+  // o cualquier valor superior a 1 billón
+  if (value >= 1000000000) {
+    return `$${(value / 1000000000).toFixed(2)}B`;
+  } 
+  // Para valores mayores a 800 millones, también mostrar en billones
+  else if (value >= 800000000) {
+    return `$${(value / 1000000000).toFixed(2)}B`;
+  }
+  else if (value >= 1000000) {
+    return `$${(value / 1000000).toFixed(2)}M`;
+  } else if (value >= 1000) {
+    return `$${(value / 1000).toFixed(2)}K`;
+  }
+  return `$${value.toFixed(2)}`;
+};
+
 /**
  * Main component for the media analysis dashboard
  */
@@ -31,11 +50,11 @@ const MediaDashboard = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-blue-900">Television dominates media spending: Capital One leads with $425,027,359 (50.7% of their budget), Wells Fargo dedicates 67.5% ($132,538,410), and Chase allocates 32.1% ($131,743,559)</span>
+                <span className="text-blue-900">Television dominates media spending: Capital One leads with $0.43B (50.70% of their budget), Wells Fargo dedicates 67.50% ($132.54M), and Chase allocates 32.10% ($131.74M)</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Digital']}}></span>
-                <span className="text-blue-900">Digital ranks second: Chase Bank invests $241,834,326 (58.9%), Capital One $350,952,125 (41.9%), Bank of America $115,345,939 (40.3%), and Wells Fargo $49,642,595 (25.3%)</span>
+                <span className="text-blue-900">Digital ranks second: Chase Bank invests $241.83M (58.90%), Capital One $0.35B (41.90%), Bank of America $115.35M (40.30%), and Wells Fargo $49.64M (25.30%)</span>
               </li>
             </ul>
           </div>
@@ -46,11 +65,11 @@ const MediaDashboard = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Television']}}></span>
-                <span className="text-amber-900">Seasonal spending varies significantly: Capital One peaks at $134,416,688 in December 2024 vs. $6,607,770 in March 2025; Chase Bank peaks at $59,114,811 in September 2024 vs. $3,497,546 in March 2025</span>
+                <span className="text-amber-900">Seasonal spending varies significantly: Capital One peaks at $0.13B in December 2024 vs. $6.61M in March 2025; Chase Bank peaks at $59.11M in September 2024 vs. $3.50M in March 2025</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-3 h-3 rounded-full mt-1.5 mr-2.5" style={{backgroundColor: mediaColors['Audio']}}></span>
-                <span className="text-amber-900">Audio investment varies by bank: Chase Bank $35,445,205 (8.6%), Capital One $35,619,272 (4.3%), Bank of America $32,453,957 (11.3%), while TD Bank invests only $41,495 (0.1%)</span>
+                <span className="text-amber-900">Audio investment varies by bank: Chase Bank $35.45M (8.60%), Capital One $35.62M (4.30%), Bank of America $32.45M (11.30%), while TD Bank invests only $41.50K (0.10%)</span>
               </li>
             </ul>
           </div>

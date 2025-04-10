@@ -9,8 +9,8 @@ import { getGradient } from '../../utils/colorSchemes';
 /**
  * Component that displays key metrics in cards with month filter support
  */
-const KeyMetrics = () => {
-  const { dashboardData, loading, selectedMonths } = useDashboard();
+const KeyMetrics = ({ filteredData }) => {
+  const { loading } = useDashboard();
 
   // Helper function to get media colors
   const getMediaColor = (category) => {
@@ -26,9 +26,9 @@ const KeyMetrics = () => {
     return colors[category] || '#718096';
   };
 
-  // Calculate metrics based on selected months
+  // Calculate metrics based on filtered data
   const metrics = useMemo(() => {
-    if (!dashboardData?.monthlyTrends || !dashboardData?.banks) {
+    if (!filteredData) {
       return {
         totalInvestment: 0,
         bankTotals: [],
@@ -38,6 +38,8 @@ const KeyMetrics = () => {
         wellsFargoPosition: { rank: 0, share: 0, value: 0 },
         yearOverYearGrowth: 0,
         yearOverYearGrowthDescription: '',
+        mostRecentMonth: '',
+        formattedMostRecentMonth: '',
         averageMonthlyInvestment: 0,
         growthOpportunities: [],
         banksCount: 0,
@@ -45,277 +47,141 @@ const KeyMetrics = () => {
       };
     }
 
-    // Filtrar meses si hay selección
-    const relevantMonths = selectedMonths.length > 0
-      ? dashboardData.monthlyTrends.filter(month => selectedMonths.includes(month.month))
-      : dashboardData.monthlyTrends;
+    // Total Market Investment = Suma de la columna dollars (totalInvestment)
+    const totalInvestment = filteredData.totalInvestment || 0;
     
-    // Calcular inversión total para el período filtrado
-    const totalInvestmentFiltered = relevantMonths.reduce((sum, month) => sum + month.total, 0);
+    // Banks Analyzed = Count distinct de la columna Bank
+    const banksCount = filteredData.banks?.length || 0;
     
-    // Si hay meses seleccionados, calculamos datos basados en esos meses
-    // Si no hay selección, usamos los valores predefinidos precisos
-    let mediaTotals = [];
-    let totalInvestment = 0;
+    // Media Categories = Count distinct de la columna Media Category
+    const mediaCount = filteredData.mediaCategories?.length || 0;
     
-    if (selectedMonths.length > 0) {
-      // Recopilar todas las categorías de medios
-      const allMediaCategories = new Set();
-      dashboardData.banks.forEach(bank => {
-        bank.mediaBreakdown.forEach(media => {
-          allMediaCategories.add(media.category);
-        });
-      });
-      
-      // Inicializar totales por categoría
-      const mediaTotalsMap = {};
-      allMediaCategories.forEach(category => {
-        mediaTotalsMap[category] = 0;
-      });
-      
-      // Sumar inversiones por categoría de medios para los meses seleccionados
-      relevantMonths.forEach(month => {
-        if (month.mediaCategories) {
-          month.mediaCategories.forEach(bankData => {
-            Object.entries(bankData.categories).forEach(([category, amount]) => {
-              if (mediaTotalsMap[category] !== undefined) {
-                mediaTotalsMap[category] += amount;
-              }
-            });
-          });
-        }
-      });
-      
-      // Crear el array de mediaTotals con datos filtrados
-      mediaTotals = Object.entries(mediaTotalsMap).map(([name, value]) => ({
-        name,
-        value,
-        share: totalInvestmentFiltered > 0 ? (value / totalInvestmentFiltered) * 100 : 0
-      })).sort((a, b) => b.value - a.value);
-      
-      totalInvestment = totalInvestmentFiltered;
-    } else {
-      // Sin filtro, usar los valores precisos predefinidos
-      const TOTAL_INVESTMENT = 1845331306; // $1.85B - sum of all banks
-      const TELEVISION_VALUE = 896909961; // $896.91M - sum of all television investments
-      const DIGITAL_VALUE = 783411819; // $783.41M - sum of all digital investments
-      const AUDIO_VALUE = 116710022; // $116.71M - sum of all audio investments
-      const PRINT_VALUE = 30176886; // $30.18M - sum of all print investments
-      const OUTDOOR_VALUE = 12273109; // $12.27M - sum of all outdoor investments
-      const STREAMING_VALUE = 2488342; // $2.49M - from Capital One
-      const CINEMA_VALUE = 1689912; // $1.69M - from Capital One and Chase Bank
-
-      // Calculate percentages based on accurate total investment
-      const TELEVISION_PERCENTAGE = (TELEVISION_VALUE / TOTAL_INVESTMENT) * 100; // ~48.60%
-      const DIGITAL_PERCENTAGE = (DIGITAL_VALUE / TOTAL_INVESTMENT) * 100; // ~42.45%
-      const AUDIO_PERCENTAGE = (AUDIO_VALUE / TOTAL_INVESTMENT) * 100; // ~6.32%
-      const PRINT_PERCENTAGE = (PRINT_VALUE / TOTAL_INVESTMENT) * 100; // ~1.63%
-      const OUTDOOR_PERCENTAGE = (OUTDOOR_VALUE / TOTAL_INVESTMENT) * 100; // ~0.67%
-      const STREAMING_PERCENTAGE = (STREAMING_VALUE / TOTAL_INVESTMENT) * 100; // ~0.13%
-      const CINEMA_PERCENTAGE = (CINEMA_VALUE / TOTAL_INVESTMENT) * 100; // ~0.09%
-      
-      // Create accurate media totals
-      mediaTotals = [
-        { 
-          name: 'Television', 
-          value: TELEVISION_VALUE, 
-          share: TELEVISION_PERCENTAGE 
-        },
-        { 
-          name: 'Digital', 
-          value: DIGITAL_VALUE, 
-          share: DIGITAL_PERCENTAGE 
-        },
-        { 
-          name: 'Audio', 
-          value: AUDIO_VALUE, 
-          share: AUDIO_PERCENTAGE 
-        },
-        { 
-          name: 'Print', 
-          value: PRINT_VALUE, 
-          share: PRINT_PERCENTAGE 
-        },
-        { 
-          name: 'Outdoor', 
-          value: OUTDOOR_VALUE, 
-          share: OUTDOOR_PERCENTAGE 
-        },
-        { 
-          name: 'Streaming', 
-          value: STREAMING_VALUE, 
-          share: STREAMING_PERCENTAGE 
-        },
-        { 
-          name: 'Cinema', 
-          value: CINEMA_VALUE, 
-          share: CINEMA_PERCENTAGE 
-        }
-      ];
-      
-      totalInvestment = TOTAL_INVESTMENT;
-    }
+    // Calcular totales por banco y ordenar para encontrar el banco líder
+    const bankTotals = filteredData.banks?.map(bank => ({
+      name: bank.name,
+      value: bank.totalInvestment,
+      share: bank.marketShare
+    })).sort((a, b) => b.value - a.value) || [];
     
-    // Calculamos datos de bancos (ya sea filtrados o totales)
-    let bankTotals = [];
+    // Leading Bank = Banco con mayor suma de dollars
+    const topBank = bankTotals[0] || { name: '', value: 0, share: 0 };
     
-    if (selectedMonths.length > 0) {
-      // Para meses seleccionados, calculamos los totales de cada banco
-      const bankTotalsMap = {};
-      
-      dashboardData.banks.forEach(bank => {
-        bankTotalsMap[bank.name] = 0;
-      });
-      
-      // Sumamos las inversiones de cada banco para los meses seleccionados
-      relevantMonths.forEach(month => {
-        month.bankShares.forEach(share => {
-          if (bankTotalsMap[share.bank] !== undefined) {
-            bankTotalsMap[share.bank] += share.investment;
-          }
-        });
-      });
-      
-      // Creamos el array de bankTotals con los datos filtrados
-      bankTotals = Object.entries(bankTotalsMap)
-        .map(([name, value]) => ({
-          name,
-          value,
-          share: totalInvestmentFiltered > 0 ? (value / totalInvestmentFiltered) * 100 : 0
-        }))
-        .sort((a, b) => b.value - a.value);
-    } else {
-      // Sin filtro, usamos los valores precisos predefinidos
-      bankTotals = [
-        { 
-          name: 'Capital One', 
-          value: 837602604, // $837.60M
-          share: (837602604 / totalInvestment) * 100 // ~45.39%
-        },
-        { 
-          name: 'Chase Bank', 
-          value: 410786000, // $410.79M
-          share: (410786000 / totalInvestment) * 100 // ~22.26%
-        },
-        { 
-          name: 'Bank Of America', 
-          value: 286254322, // $286.25M
-          share: (286254322 / totalInvestment) * 100 // ~15.51%
-        },
-        { 
-          name: 'Wells Fargo Bank', 
-          value: 196276123, // $196.28M
-          share: (196276123 / totalInvestment) * 100 // ~10.63%
-        },
-        { 
-          name: 'Pnc Bank', 
-          value: 76089534, // $76.09M
-          share: (76089534 / totalInvestment) * 100 // ~4.12%
-        },
-        { 
-          name: 'Td Bank', 
-          value: 38322723, // $38.32M
-          share: (38322723 / totalInvestment) * 100 // ~2.07%
-        }
-      ];
-    }
-
-    // Find top bank and media
-    const topBank = bankTotals[0] || { name: 'Capital One', value: 0, share: 0 };
-    const topMedia = mediaTotals[0] || { name: 'Television', value: 0, share: 0 };
-
-    // Find Wells Fargo position
-    const wellsFargoIndex = bankTotals.findIndex(bank => bank.name === "Wells Fargo Bank");
+    // Our Performance = Datos de Wells Fargo
+    const wellsFargoBank = bankTotals.find(bank => bank.name === "Wells Fargo" || bank.name === "Wells Fargo Bank") || 
+                           { name: "Wells Fargo Bank", value: 0, share: 0 };
+    
+    // Calcular el ranking de Wells Fargo
+    const wellsFargoIndex = bankTotals.findIndex(bank => bank.name === "Wells Fargo" || bank.name === "Wells Fargo Bank");
     const wellsFargoPosition = {
       rank: wellsFargoIndex >= 0 ? wellsFargoIndex + 1 : 0,
-      share: wellsFargoIndex >= 0 ? bankTotals[wellsFargoIndex].share : 0,
-      value: wellsFargoIndex >= 0 ? bankTotals[wellsFargoIndex].value : 0
+      share: wellsFargoBank.share,
+      value: wellsFargoBank.value
     };
+    
+    // Media Totals = Categorías de medios ordenadas por inversión
+    const mediaTotals = filteredData.mediaCategories?.map(media => ({
+      name: media.category,
+      value: media.totalInvestment,
+      share: media.marketShare
+    })).sort((a, b) => b.value - a.value) || [];
+    
+    // Leading Media = Categoría de medios con mayor suma
+    const topMedia = mediaTotals[0] || { name: '', value: 0, share: 0 };
+    
+    // Cálculo de Year-over-Year Growth (simplificado para esta versión)
+    const yearOverYearGrowth = filteredData.yearOverYearGrowth || 0;
+    const yearOverYearGrowthDescription = filteredData.yearOverYearGrowthDescription || 'Year-over-Year growth based on selected data';
 
-    // Rest of your code for YoY growth, etc.
-    let yearOverYearGrowth = 0;
-    let yearOverYearGrowthDescription = '';
+    // Calculate YoY based on most recent month data
+    let calculatedYoYGrowth = 0;
+    let yoyDescription = '';
+    let mostRecentMonth = '';
+    let formattedMostRecentMonth = '';
     
-    // TODO: Para una implementación más robusta, se recomienda crear un archivo JSON 
-    // con los datos de YoY precalculados para cada mes durante el preprocesamiento de datos.
-    // El formato sugerido sería:
-    // {
-    //   "2025-01": { "growth": 6.71, "previousMonth": "2024-01", "previousValue": 15000000, "currentValue": 16000000 },
-    //   "2025-02": { "growth": 7.85, "previousMonth": "2024-02", "previousValue": 14000000, "currentValue": 15100000 },
-    //   ...
-    // }
-    // Esto permitiría acceder directamente al YoY de cualquier mes sin necesidad de cálculos en tiempo real
-    // y garantizaría la integridad de los datos al no depender del filtrado.
-    
-    if (dashboardData.monthlyTrends && dashboardData.monthlyTrends.length > 1) {
-      // Si hay meses seleccionados, calculamos el YoY para el mes más reciente seleccionado
-      if (selectedMonths.length > 0) {
-        // Ordenar los meses seleccionados por fecha, de más reciente a más antiguo
-        const sortedSelectedMonths = relevantMonths.sort((a, b) => {
-          const [yearA, monthA] = a.month.split('-');
-          const [yearB, monthB] = b.month.split('-');
-          // Orden inverso para tener el más reciente primero
-          return (parseInt(yearB) * 100 + parseInt(monthB)) - (parseInt(yearA) * 100 + parseInt(monthA));
-        });
+    if (filteredData.monthlyTrends && filteredData.monthlyTrends.length > 0) {
+      // Get months from filteredData - these are already filtered by user selection
+      const availableMonths = filteredData.monthlyTrends;
+      
+      // Sort monthly trends by date to find the most recent month
+      const sortedMonths = [...availableMonths].sort((a, b) => {
+        // Parse the month strings to get comparable dates
+        const [yearA, monthA] = a.month.split('-').map(num => parseInt(num, 10));
+        const [yearB, monthB] = b.month.split('-').map(num => parseInt(num, 10));
         
-        // NOTA: Idealmente, estos datos deberían estar precalculados en un archivo JSON
-        // para mantener la integridad y veracidad de los datos independientemente del filtrado
-        
-        // Tomar el mes más reciente de los seleccionados
-        const mostRecentMonth = sortedSelectedMonths[0];
-        const [recentYear, recentMonthNum] = mostRecentMonth.month.split('-');
-        
-        // Buscar el mismo mes del año anterior
-        const previousYearMonth = dashboardData.monthlyTrends.find(month => {
-          const [year, monthNum] = month.month.split('-');
-          return monthNum === recentMonthNum && parseInt(year) === parseInt(recentYear) - 1;
-        });
-        
-        if (previousYearMonth && previousYearMonth.total > 0) {
-          yearOverYearGrowth = ((mostRecentMonth.total - previousYearMonth.total) / previousYearMonth.total) * 100;
-          yearOverYearGrowthDescription = `Year-over-Year growth for ${mostRecentMonth.month} (most recent selected month) compared to ${previousYearMonth.month}`;
-        } else {
-          yearOverYearGrowth = 0;
-          yearOverYearGrowthDescription = `No comparable data available for the previous year for ${mostRecentMonth.month} (most recent selected month)`;
+        // Compare years first, then months
+        if (yearA !== yearB) {
+          return yearB - yearA; // Most recent year first
         }
+        return monthB - monthA; // Most recent month first
+      });
+      
+      // Get the most recent month based on the sorted data
+      const latestMonth = sortedMonths[0];
+      mostRecentMonth = latestMonth.month;
+      
+      // Format month for display
+      const [year, monthNum] = latestMonth.month.split('-').map(num => parseInt(num, 10));
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      formattedMostRecentMonth = `${monthNames[monthNum-1]} ${year}`;
+      
+      // Use the precalculated YoY data if available
+      if (filteredData.yoyData && filteredData.yoyData[mostRecentMonth]) {
+        const yoyDataForMonth = filteredData.yoyData[mostRecentMonth];
+        calculatedYoYGrowth = yoyDataForMonth.growth;
+        yoyDescription = yoyDataForMonth.description;
+        
+        console.log(`Using precalculated YoY for ${mostRecentMonth}:`, yoyDataForMonth);
       } else {
-        // Sin filtro, usar el mes más reciente de todos los disponibles
-        const allMonthsSorted = _.orderBy(dashboardData.monthlyTrends, 
-          m => {
-            const [year, month] = m.month.split('-');
-            return parseInt(year) * 100 + parseInt(month);
-          }, 
-          ['desc']
-        );
+        // Fallback to previous calculation method if precalculated data not available
+        // Find the same month from previous year
+        const previousYearMonth = `${year - 1}-${monthNum.toString().padStart(2, '0')}`;
         
-        const mostRecentOverall = allMonthsSorted[0];
-        const [recentYear, recentMonthNum] = mostRecentOverall.month.split('-');
+        // Search in the COMPLETE dataset (not just filtered)
+        const allMonthlyData = filteredData.allMonthlyTrends || [];
+        const previousYearData = allMonthlyData.find(m => m.month === previousYearMonth);
         
-        // Buscar el mismo mes del año anterior
-        const previousYearMonth = dashboardData.monthlyTrends.find(month => {
-          const [year, monthNum] = month.month.split('-');
-          return monthNum === recentMonthNum && parseInt(year) === parseInt(recentYear) - 1;
-        });
-        
-        if (previousYearMonth && previousYearMonth.total > 0) {
-          yearOverYearGrowth = ((mostRecentOverall.total - previousYearMonth.total) / previousYearMonth.total) * 100;
-          yearOverYearGrowthDescription = `Year-over-Year growth for ${mostRecentOverall.month} (most recent data) compared to ${previousYearMonth.month}`;
+        if (previousYearData && previousYearData.total > 0) {
+          // Calculate YoY growth
+          calculatedYoYGrowth = ((latestMonth.total - previousYearData.total) / previousYearData.total) * 100;
+          
+          // Format the previous year month
+          const prevMonthFormatted = `${monthNames[monthNum-1]} ${year-1}`;
+          yoyDescription = `${prevMonthFormatted} vs ${formattedMostRecentMonth}`;
+          
+          console.log(`Fallback YoY calculation for ${mostRecentMonth}:`, calculatedYoYGrowth);
         } else {
-          // Fallback al método anterior si no hay datos comparables
-          const sortedMonths = _.orderBy(dashboardData.monthlyTrends, ['month'], ['asc']);
-          const midPoint = Math.floor(sortedMonths.length / 2);
-          const firstHalf = sortedMonths.slice(0, midPoint);
-          const secondHalf = sortedMonths.slice(midPoint);
+          // Try a more flexible approach - find the closest month from previous year
+          const previousYearData = allMonthlyData.filter(m => {
+            const [dataYear] = m.month.split('-').map(num => parseInt(num, 10));
+            return dataYear === year - 1;
+          }).sort((a, b) => {
+            const [, monthA] = a.month.split('-').map(num => parseInt(num, 10));
+            const [, monthB] = b.month.split('-').map(num => parseInt(num, 10));
+            // Find the closest month
+            return Math.abs(monthA - monthNum) - Math.abs(monthB - monthNum);
+          })[0];
           
-          const firstHalfAvg = _.meanBy(firstHalf, 'total');
-          const secondHalfAvg = _.meanBy(secondHalf, 'total');
-          
-          yearOverYearGrowth = firstHalfAvg > 0 
-            ? ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100
-            : 0;
-          yearOverYearGrowthDescription = `Estimated Year-over-Year growth based on available data (no direct month comparison available)`;
+          if (previousYearData && previousYearData.total > 0) {
+            // Calculate YoY growth with closest month
+            calculatedYoYGrowth = ((latestMonth.total - previousYearData.total) / previousYearData.total) * 100;
+            
+            // Format months for description
+            const [prevYear, prevMonth] = previousYearData.month.split('-').map(num => parseInt(num, 10));
+            const prevMonthFormatted = `${monthNames[prevMonth-1]} ${prevYear}`;
+            yoyDescription = `${prevMonthFormatted} vs ${formattedMostRecentMonth} (closest match)`;
+            
+            console.log(`Using closest month for YoY:`, previousYearData.month);
+          } else {
+            // If still no previous year data found
+            calculatedYoYGrowth = 0;
+            yoyDescription = `No historical data available for comparison`;
+            
+            console.log(`No historical data found for YoY comparison`);
+          }
         }
       }
+    } else {
+      yoyDescription = 'No monthly data available for YoY calculation';
     }
 
     return {
@@ -325,14 +191,17 @@ const KeyMetrics = () => {
       topBank,
       topMedia,
       wellsFargoPosition,
-      yearOverYearGrowth,
-      yearOverYearGrowthDescription,
-      averageMonthlyInvestment: dashboardData.monthlyTrends.length > 0 ? totalInvestment / dashboardData.monthlyTrends.length : 0,
+      yearOverYearGrowth: calculatedYoYGrowth, 
+      yearOverYearGrowthDescription: yoyDescription,
+      mostRecentMonth,
+      formattedMostRecentMonth,
+      averageMonthlyInvestment: filteredData.monthlyTrends?.length > 0 ? 
+        totalInvestment / filteredData.monthlyTrends.length : 0,
       growthOpportunities: [],
-      banksCount: dashboardData.banks.length,
-      mediaCount: mediaTotals.length
+      banksCount,
+      mediaCount
     };
-  }, [dashboardData, selectedMonths]);
+  }, [filteredData]);
 
   if (loading) {
     return (
@@ -405,6 +274,15 @@ const KeyMetrics = () => {
                   {metrics.yearOverYearGrowth >= 0 ? '↑ ' : '↓ '}
                   {Math.abs(metrics.yearOverYearGrowth).toFixed(2)}% YoY Growth
                 </span>
+                {metrics.formattedMostRecentMonth && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    {metrics.yearOverYearGrowthDescription.includes("No data") 
+                      ? "No historical data available for comparison" 
+                      : metrics.yearOverYearGrowthDescription.includes("closest match") 
+                        ? `Comparing ${metrics.yearOverYearGrowthDescription}`
+                        : metrics.yearOverYearGrowthDescription}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -452,7 +330,7 @@ const KeyMetrics = () => {
                 </div>
                 <div className="flex-1 flex items-center justify-center">
                   <div className="text-2xl font-bold text-blue-800">
-                    {7} {/* Always show 7 media categories */}
+                    {metrics.mediaCount}
                   </div>
                 </div>
               </div>
@@ -489,7 +367,7 @@ const KeyMetrics = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-bold text-fuchsia-700">{formatCurrency(metrics.topBank.value)}</div>
-                    <div className="text-sm text-fuchsia-500">{formatPercentage(metrics.topBank.share)} share</div>
+                    <div className="text-sm text-fuchsia-500">&nbsp;</div>
                   </div>
                 </div>
               </div>
@@ -545,150 +423,6 @@ const KeyMetrics = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Channel Allocation Section */}
-      <div className="mt-12 mb-6">
-        <h3 className="text-base font-semibold text-gray-800 mb-6">Channel Allocation</h3>
-        
-        <div className="flex gap-4">
-          {/* Television and Audio - aligned with Leading Bank */}
-          <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100" style={{ height: "110px" }}>
-              <div className="grid grid-cols-1 gap-3">
-                <div className="flex items-center">
-                  <div 
-                    className="w-2.5 h-2.5 rounded-full mr-2" 
-                    style={{ backgroundColor: getMediaColor('Television') }}
-                  ></div>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">Television</span>
-                      <span className="text-sm text-gray-600">
-                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Television')?.share || 0)}
-                      </span>
-                    </div>
-                    <div className="h-1 bg-gray-50 rounded-full mt-1">
-                      <div 
-                        className="h-1 rounded-full" 
-                        style={{ 
-                          width: `${metrics.mediaTotals.find(m => m.name === 'Television')?.share || 0}%`, 
-                          backgroundColor: getMediaColor('Television') 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div 
-                    className="w-2.5 h-2.5 rounded-full mr-2" 
-                    style={{ backgroundColor: getMediaColor('Audio') }}
-                  ></div>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">Audio</span>
-                      <span className="text-sm text-gray-600">
-                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Audio')?.share || 0)}
-                      </span>
-                    </div>
-                    <div className="h-1 bg-gray-50 rounded-full mt-1">
-                      <div 
-                        className="h-1 rounded-full" 
-                        style={{ 
-                          width: `${metrics.mediaTotals.find(m => m.name === 'Audio')?.share || 0}%`, 
-                          backgroundColor: getMediaColor('Audio') 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Digital and Print - aligned with Our Performance */}
-          <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100" style={{ height: "110px" }}>
-              <div className="grid grid-cols-1 gap-3">
-                <div className="flex items-center">
-                  <div 
-                    className="w-2.5 h-2.5 rounded-full mr-2" 
-                    style={{ backgroundColor: getMediaColor('Digital') }}
-                  ></div>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">Digital</span>
-                      <span className="text-sm text-gray-600">
-                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Digital')?.share || 0)}
-                      </span>
-                    </div>
-                    <div className="h-1 bg-gray-50 rounded-full mt-1">
-                      <div 
-                        className="h-1 rounded-full" 
-                        style={{ 
-                          width: `${metrics.mediaTotals.find(m => m.name === 'Digital')?.share || 0}%`, 
-                          backgroundColor: getMediaColor('Digital') 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div 
-                    className="w-2.5 h-2.5 rounded-full mr-2" 
-                    style={{ backgroundColor: getMediaColor('Print') }}
-                  ></div>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">Print</span>
-                      <span className="text-sm text-gray-600">
-                        {formatPercentage(metrics.mediaTotals.find(m => m.name === 'Print')?.share || 0)}
-                      </span>
-                    </div>
-                    <div className="h-1 bg-gray-50 rounded-full mt-1">
-                      <div 
-                        className="h-1 rounded-full" 
-                        style={{ 
-                          width: `${metrics.mediaTotals.find(m => m.name === 'Print')?.share || 0}%`, 
-                          backgroundColor: getMediaColor('Print') 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Key Insights - aligned with Leading Media */}
-          <div className="flex-1">
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100" style={{ height: "110px" }}>
-              <div className="text-sm text-gray-600 leading-relaxed">
-                <span className="font-medium text-gray-800">Key Insights:</span>{' '}
-                {(() => {
-                  // Get the consistent media data from dashboard data
-                  const televisionPercentage = metrics.mediaTotals.find(m => m.name === 'Television')?.share || 0;
-                  const digitalPercentage = metrics.mediaTotals.find(m => m.name === 'Digital')?.share || 0;
-                  
-                  // Create dynamic insight text based on consistent data
-                  return (
-                    <>
-                      Television leads with {formatPercentage(televisionPercentage)} share, 
-                      while Digital follows at {formatPercentage(digitalPercentage)}. 
-                      This {selectedMonths.length > 0 ? 'filtered period shows' : 'overall distribution represents'} the 
-                      {televisionPercentage + digitalPercentage > 80 
-                        ? ' strong dominance of these two channels'
-                        : televisionPercentage + digitalPercentage > 60 
-                          ? ' major focus on these primary channels' 
-                          : ' balanced investment across multiple channels'} 
-                      in banking industry advertising.
-                    </>
-                  );
-                })()}
               </div>
             </div>
           </div>

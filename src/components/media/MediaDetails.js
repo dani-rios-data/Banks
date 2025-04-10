@@ -3,18 +3,18 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelL
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import CustomTooltip from '../common/CustomTooltip';
-import Icons from '../common_copy/Icons';
+import Icons from '../common/Icons';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
-import { getFilteredDataByMonths } from '../../utils/excelData/excelDataLoader';
 
 // Colores exactos para los bancos según el diseño
 const bankColorScheme = {
-  'Capital One': '#3B82F6',       // Azul
-  'Bank Of America': '#6B7280',   // Gris
-  'Wells Fargo Bank': '#EF4444',  // Rojo
-  'Chase Bank': '#117ACA',        // Azul Chase
-  'Td Bank': '#8B5CF6',          // Morado
-  'Pnc Bank': '#10B981'          // Verde
+  'Capital One Bank': '#3B82F6',   // Azul
+  'Bank of America': '#6B7280',    // Gris
+  'Wells Fargo': '#EF4444',        // Rojo
+  'Chase Bank': '#117ACA',         // Azul Chase
+  'TD Bank': '#8B5CF6',            // Morado
+  'PNC Bank': '#10B981',           // Verde
+  'US Bank': '#0046AD'             // Azul US Bank
 };
 
 // Colores mejorados para categorías de medios
@@ -31,29 +31,27 @@ const enhancedMediaColors = {
 
 // Función para formatear valores en millones con un decimal
 const formatValue = (value) => {
-  if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(1)}M`;
-  } else if (value >= 1000) {
-    return `$${(value / 1000).toFixed(1)}K`;
-  }
-  return `$${value}`;
+  // Usar la función importada de formatters.js para mantener consistencia
+  return formatCurrency(value);
 };
 
 /**
  * Component that displays details for a specific media channel with filtered data
  */
-const MediaDetails = ({ filteredData }) => {
+const MediaDetails = ({ filteredData, enhancedBankColors }) => {
   const { 
     selectedMediaCategory,
     selectedMonths,
     loading
   } = useDashboard();
 
-  // Process data based on selected months usando los datos del Excel
+  // Usamos directamente los datos filtrados que nos llegan del componente padre
   const processedData = useMemo(() => {
-    // Utilizar los datos del Excel en lugar de los datos originales
-    return getFilteredDataByMonths(selectedMonths);
-  }, [selectedMonths]);
+    // Verificamos si los datos filtrados existen
+    if (!filteredData) return null;
+    console.log("MediaDetails usando datos filtrados del componente padre:", filteredData);
+    return filteredData;
+  }, [filteredData]);
 
   if (loading || !processedData) {
     return (
@@ -76,7 +74,8 @@ const MediaDetails = ({ filteredData }) => {
         name: bank,
         value: value,
         formattedValue: formatCurrency(value),
-        color: bankColorScheme[bank]
+        // Usar enhancedBankColors si está disponible o fallback a bankColorScheme
+        color: enhancedBankColors?.[bank] || bankColorScheme[bank]
       }))
       .sort((a, b) => b.value - a.value);
 
@@ -87,7 +86,7 @@ const MediaDetails = ({ filteredData }) => {
     });
 
     return (
-      <div className="h-full min-h-[20rem] mb-2">
+      <div className="h-full min-h-[25rem] mb-4">
         <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center justify-between">
           <div>Media Investment Distribution Overview</div>
           {selectedMonths.length > 0 && (
@@ -96,13 +95,13 @@ const MediaDetails = ({ filteredData }) => {
             </span>
           )}
         </h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[85%]">
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[90%]">
+          <ResponsiveContainer width="100%" height={400}>
             <BarChart
               data={overviewData}
               layout="vertical"
               margin={{ top: 15, right: 30, left: 20, bottom: 15 }}
-              barSize={22}
+              barSize={28}
             >
               <defs>
                 {overviewData.map((entry) => (
@@ -201,7 +200,7 @@ const MediaDetails = ({ filteredData }) => {
   const formattedTotalInvestment = formatValue(totalInvestment);
 
   return (
-    <div className="h-full min-h-[20rem] mb-2">
+    <div className="h-full min-h-[25rem] mb-4">
       <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center justify-between">
         <div className="flex items-center">
           <span 
@@ -219,13 +218,13 @@ const MediaDetails = ({ filteredData }) => {
           </span>
         )}
       </h3>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 h-[85%]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 h-[90%]">
         <div className="lg:col-span-2">
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={400}>
             <BarChart
               data={bankData}
               margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
-              barSize={30}
+              barSize={40}
             >
               <XAxis dataKey="name" />
               <YAxis tickFormatter={(value) => formatValue(value).replace('$', '')} />
@@ -244,7 +243,7 @@ const MediaDetails = ({ filteredData }) => {
                 {bankData.map((entry) => (
                   <Cell 
                     key={`cell-${entry.name}`}
-                    fill={bankColorScheme[entry.name]}
+                    fill={enhancedBankColors?.[entry.name] || bankColorScheme[entry.name]}
                   />
                 ))}
                 <LabelList 
@@ -271,7 +270,7 @@ const MediaDetails = ({ filteredData }) => {
                 <div className="flex items-center">
                   <div 
                     className="w-3 h-3 rounded-full mr-2"
-                    style={{ backgroundColor: bankColorScheme[bank.name] }}
+                    style={{ backgroundColor: enhancedBankColors?.[bank.name] || bankColorScheme[bank.name] }}
                   ></div>
                   <span className="text-sm text-gray-600">{bank.name}</span>
                 </div>

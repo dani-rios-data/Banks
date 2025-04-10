@@ -12,7 +12,10 @@ import {
   Area,
   BarChart,
   Bar,
-  ReferenceLine
+  ReferenceLine,
+  ComposedChart,
+  Paper,
+  Grid
 } from 'recharts';
 import { useDashboard } from '../../context/DashboardContext';
 import { chartColors } from '../../utils/bankColors';
@@ -28,26 +31,67 @@ const formatMonthLabel = (month) => {
   return `${monthNames[parseInt(monthNum, 10) - 1]} ${year}`;
 };
 
-// Function to format values in millions (without decimals)
-const formatYAxis = (value) => {
-  if (value >= 1000000) {
-    return `${Math.round(value / 1000000)}M`;
-  } else if (value >= 1000) {
-    return `${Math.round(value / 1000)}K`;
+// Formato para el eje Y - mostrar valores en millones sin decimales
+const formatYAxis = (value) => `$${(value/1000000).toFixed(0)}M`;
+
+// Tooltip personalizado para el gráfico de Wells Fargo
+const CustomWellsFargoTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 border border-gray-200 shadow-md rounded-md">
+        <p className="font-medium text-gray-800 mb-2">{formatMonthLabel(label)}</p>
+        {payload.map((entry, index) => (
+          <p key={`item-${index}`} style={{ color: entry.color }} className="text-sm">
+            <span className="font-medium">{entry.name}: </span>
+            <span>${(entry.value/1000000).toFixed(2)}M</span>
+          </p>
+        ))}
+      </div>
+    );
   }
-  return Math.round(value);
+  return null;
 };
 
 /**
  * Component that displays monthly investment trends across all banks
  */
-const MonthlyTrends = () => {
-  const { dashboardData, loading, selectedMonths, focusedBank } = useDashboard();
+const MonthlyTrends = ({ filteredData }) => {
+  const { dashboardData, loading, selectedYears, focusedBank } = useDashboard();
   const [wellsFargoData, setWellsFargoData] = useState(null);
   const [isLoadingWfData, setIsLoadingWfData] = useState(true);
   const [marketAverageData, setMarketAverageData] = useState([]);
   const [selectedBanks, setSelectedBanks] = useState([]);
   const [showBankSelector, setShowBankSelector] = useState(false);
+
+  // Determinar qué datos usar basado en si hay filtros aplicados
+  const dataSource = useMemo(() => {
+    if (filteredData) {
+      console.log("MonthlyTrends - Usando datos filtrados:", {
+        meses: filteredData.monthlyTrends?.length,
+        banks: filteredData.banks?.length,
+        total: formatCurrency(filteredData.totalInvestment)
+      });
+      return filteredData;
+    }
+    console.log("MonthlyTrends - Usando datos originales");
+    return dashboardData;
+  }, [dashboardData, filteredData]);
+  
+  // Registrar los meses que están disponibles en los datos filtrados para depuración
+  useEffect(() => {
+    if (dataSource?.monthlyTrends) {
+      console.log("MonthlyTrends - Meses disponibles:", 
+        dataSource.monthlyTrends.map(m => m.month).join(", "));
+    }
+  }, [dataSource]);
+  
+  // Asegurar que los filtros se están aplicando correctamente
+  useEffect(() => {
+    console.log("MonthlyTrends - Filtros actuales:", { 
+      añosSeleccionados: selectedYears, 
+      hayCambios: !!filteredData
+    });
+  }, [selectedYears, filteredData]);
 
   useEffect(() => {
     setIsLoadingWfData(true);
@@ -69,11 +113,11 @@ const MonthlyTrends = () => {
         // Always generate fallback data if there is an error
         generateFallbackData();
       });
-  }, [dashboardData]);
+  }, [dataSource]);
 
   // Function to generate fallback data when loading fails
   const generateFallbackData = () => {
-    if (dashboardData?.monthlyTrends) {
+    if (dataSource?.monthlyTrends) {
       const fallbackData = {
         summary: {
           totalInvestment: 0,
@@ -83,9 +127,9 @@ const MonthlyTrends = () => {
           investmentTrend: 0,
           marketShareTrend: 0
         },
-        monthlyPerformance: dashboardData.monthlyTrends.map(month => {
-          const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo Bank') || 
-                         { bank: 'Wells Fargo Bank', investment: month.total * 0.15 }; // 15% if no data available
+        monthlyPerformance: dataSource.monthlyTrends.map(month => {
+          const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo') || 
+                         { bank: 'Wells Fargo', investment: month.total * 0.15 }; // 15% if no data available
           return {
             month: month.month,
             investment: wfShare.investment,
@@ -100,9 +144,11 @@ const MonthlyTrends = () => {
 
   // Calculate market average excluding Wells Fargo
   useEffect(() => {
-    if (dashboardData?.monthlyTrends && dashboardData?.banks) {
+    if (dataSource?.monthlyTrends && dataSource?.banks) {
+      console.log("MonthlyTrends - Calculando promedios de mercado con", dataSource.monthlyTrends.length, "meses");
+      
       // Sort data by month
-      const sortedMonthlyData = _.orderBy(dashboardData.monthlyTrends, 
+      const sortedMonthlyData = _.orderBy(dataSource.monthlyTrends, 
         [month => {
           const [year, monthNum] = month.month.split('-');
           return parseInt(year) * 100 + parseInt(monthNum);
@@ -110,14 +156,12 @@ const MonthlyTrends = () => {
         ['asc']
       );
       
-      // Filter by selected months if any
-      const filteredMonthlyData = selectedMonths.length > 0
-        ? sortedMonthlyData.filter(month => selectedMonths.includes(month.month))
-        : sortedMonthlyData;
+      // Usar directamente los datos filtrados - no aplicar filtros adicionales
+      const filteredMonthlyData = sortedMonthlyData;
       
       // Calculate market average for each month excluding Wells Fargo
       const marketAverageByMonth = filteredMonthlyData.map(month => {
-        const otherBanks = month.bankShares.filter(share => share.bank !== 'Wells Fargo Bank');
+        const otherBanks = month.bankShares.filter(share => share.bank !== 'Wells Fargo');
         const totalOtherInvestment = otherBanks.reduce((sum, bank) => sum + bank.investment, 0);
         const avgInvestment = otherBanks.length > 0 ? totalOtherInvestment / otherBanks.length : 0;
         const avgMarketShare = otherBanks.length > 0 
@@ -150,11 +194,11 @@ const MonthlyTrends = () => {
       
       setMarketAverageData(marketAverageByMonth);
     }
-  }, [dashboardData, selectedMonths]);
+  }, [dataSource]);
 
   // Calculate trends and insights from monthly data
   const { trendsData, wfTrends, bankComparison, insights, wfMonthlyAvg, marketMonthlyAvg } = useMemo(() => {
-    if (!dashboardData?.monthlyTrends) {
+    if (!dataSource?.monthlyTrends) {
       return { 
         trendsData: [], 
         wfTrends: [], 
@@ -171,8 +215,10 @@ const MonthlyTrends = () => {
       };
     }
 
+    console.log("MonthlyTrends - Calculando tendencias con", dataSource.monthlyTrends.length, "meses");
+
     // Sort monthly data chronologically
-    const sortedMonthlyData = _.orderBy(dashboardData.monthlyTrends, 
+    const sortedMonthlyData = _.orderBy(dataSource.monthlyTrends, 
       [month => {
         const [year, monthNum] = month.month.split('-');
         return parseInt(year) * 100 + parseInt(monthNum);
@@ -180,10 +226,8 @@ const MonthlyTrends = () => {
       ['asc']
     );
 
-    // Filter by selected months if any
-    const filteredMonthlyData = selectedMonths.length > 0
-      ? sortedMonthlyData.filter(month => selectedMonths.includes(month.month))
-      : sortedMonthlyData;
+    // Ya no necesitamos filtrar por selectedMonths porque dataSource ya contiene los datos filtrados
+    const filteredMonthlyData = sortedMonthlyData;
 
     // Prepare data for the charts
     const trendsData = filteredMonthlyData.map(month => {
@@ -198,7 +242,7 @@ const MonthlyTrends = () => {
       };
     });
 
-    // Filter Wells Fargo data based on selected months
+    // Get Wells Fargo data for the same months as in filteredMonthlyData
     let wfTrends = [];
     
     if (wellsFargoData?.monthlyPerformance && wellsFargoData.monthlyPerformance.length > 0) {
@@ -211,17 +255,60 @@ const MonthlyTrends = () => {
         ['asc']
       );
       
-      // Apply selected months filter
-      const filteredWfData = selectedMonths.length > 0
-        ? sortedWfData.filter(item => selectedMonths.includes(item.month))
-        : sortedWfData;
+      // Filtrar para que coincida con los meses en filteredMonthlyData
+      const monthsToInclude = new Set(filteredMonthlyData.map(m => m.month));
+      const filteredWfData = sortedWfData.filter(item => monthsToInclude.has(item.month));
+      
+      // Si no hay datos coincidentes, podemos generar datos manualmente desde filteredMonthlyData
+      if (filteredWfData.length === 0 && filteredMonthlyData.length > 0) {
+        console.log(`MonthlyTrends - No hay datos coincidentes de Wells Fargo, generando datos desde los filtrados`);
         
-      // Calculate month-over-month change if it doesn't exist
+        // Generar datos de Wells Fargo basados en los datos mensuales filtrados
+        const generatedWfData = filteredMonthlyData.map(month => {
+          const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo');
+          const investment = wfShare ? wfShare.investment : month.total * 0.15; // 15% si no hay datos
+          const marketShare = wfShare ? wfShare.percentage : 15; // 15% si no hay datos
+          
+          return {
+            month: month.month,
+            investment,
+            marketShare,
+            monthOverMonthChange: 0
+          };
+        });
+        
+        // Ordenar cronológicamente
+        const sortedGeneratedData = _.orderBy(generatedWfData, 
+          [item => {
+            const [year, monthNum] = item.month.split('-');
+            return parseInt(year) * 100 + parseInt(monthNum);
+          }],
+          ['asc']
+        );
+        
+        // Calcular cambios mes a mes
+        for (let i = 1; i < sortedGeneratedData.length; i++) {
+          const current = sortedGeneratedData[i];
+          const previous = sortedGeneratedData[i-1];
+          
+          if (previous.investment > 0) {
+            current.monthOverMonthChange = ((current.investment - previous.investment) / previous.investment) * 100;
+          }
+        }
+        
+        console.log(`MonthlyTrends - Generados ${sortedGeneratedData.length} meses de datos para Wells Fargo`);
+        filteredWfData.push(...sortedGeneratedData);
+      } else {
+        console.log(`MonthlyTrends - Datos Wells Fargo: ${filteredWfData.length} meses coincidentes de ${sortedWfData.length} totales`);
+        console.log(`MonthlyTrends - Primer mes con datos Wells Fargo: ${filteredWfData.length > 0 ? filteredWfData[0].month : 'ninguno'}`);
+      }
+
+      // Ahora procesamos los datos filtrados para añadir información de market average
       for (let i = 0; i < filteredWfData.length; i++) {
         const current = filteredWfData[i];
         let monthOverMonthChange = current.monthOverMonthChange;
         
-        // If there's no change data and previous month data exists, calculate it
+        // Si no hay datos de cambio mes a mes y hay datos del mes anterior, calcularlo
         if (monthOverMonthChange === undefined && i > 0) {
           const previous = filteredWfData[i-1];
           monthOverMonthChange = previous.investment > 0
@@ -229,13 +316,13 @@ const MonthlyTrends = () => {
             : 0;
         }
         
-        // Find market average for this month
+        // Buscar datos del promedio de mercado para este mes
         const marketAvg = marketAverageData.find(m => m.month === current.month);
         
         wfTrends.push({
           ...current,
           monthOverMonthChange: monthOverMonthChange || 0,
-          // Add market average data
+          // Añadir datos del promedio de mercado
           marketAvgInvestment: marketAvg?.avgInvestment || 0,
           marketAvgShare: marketAvg?.avgMarketShare || 0,
           marketAvgMoMChange: marketAvg?.avgMonthOverMonthChange || 0
@@ -248,14 +335,14 @@ const MonthlyTrends = () => {
     if (wfTrends.length === 0 && filteredMonthlyData.length > 0) {
       for (let i = 0; i < filteredMonthlyData.length; i++) {
         const month = filteredMonthlyData[i];
-        const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo Bank') || 
-                       { bank: 'Wells Fargo Bank', investment: month.total * 0.15 }; // 15% if no data
+        const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo') || 
+                       { bank: 'Wells Fargo', investment: month.total * 0.15 }; // 15% if no data
         
         let monthOverMonthChange = 0;
         if (i > 0 && wfShare) {
           const prevMonth = filteredMonthlyData[i-1];
-          const prevWfShare = prevMonth.bankShares.find(share => share.bank === 'Wells Fargo Bank') || 
-                             { bank: 'Wells Fargo Bank', investment: prevMonth.total * 0.15 };
+          const prevWfShare = prevMonth.bankShares.find(share => share.bank === 'Wells Fargo') || 
+                             { bank: 'Wells Fargo', investment: prevMonth.total * 0.15 };
           if (prevWfShare && prevWfShare.investment > 0) {
             monthOverMonthChange = ((wfShare.investment - prevWfShare.investment) / prevWfShare.investment) * 100;
           }
@@ -286,7 +373,7 @@ const MonthlyTrends = () => {
     // Calcular el promedio mensual del mercado basado en los meses seleccionados
     // Usar el mismo filtro de meses que se aplica a trendsData
     const marketMonthlyAvg = trendsData.length > 0
-      ? trendsData.reduce((sum, month) => sum + month.total, 0) / trendsData.length / dashboardData.banks.length
+      ? trendsData.reduce((sum, month) => sum + month.total, 0) / trendsData.length / dataSource.banks.length
       : 0;
 
     // Compare all banks over time for market share
@@ -298,7 +385,7 @@ const MonthlyTrends = () => {
       
       // Calcular porcentajes para todos los bancos excepto Wells Fargo
       month.bankShares.forEach(share => {
-        if (share.bank !== 'Wells Fargo Bank') {
+        if (share.bank !== 'Wells Fargo') {
           result[share.bank] = (share.investment / total) * 100;
         }
       });
@@ -307,15 +394,15 @@ const MonthlyTrends = () => {
       const wfDataForMonth = wfTrends.find(item => item.month === month.month);
       if (wfDataForMonth) {
         // Usar el marketShare del archivo JSON
-        result['Wells Fargo Bank'] = wfDataForMonth.marketShare;
+        result['Wells Fargo'] = wfDataForMonth.marketShare;
       } else {
         // Si no se encuentra en el JSON, usar el cálculo estándar como respaldo
-        const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo Bank');
+        const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo');
         if (wfShare) {
-          result['Wells Fargo Bank'] = (wfShare.investment / total) * 100;
+          result['Wells Fargo'] = (wfShare.investment / total) * 100;
         } else {
           // Valor predeterminado si no hay datos
-          result['Wells Fargo Bank'] = 0;
+          result['Wells Fargo'] = 0;
         }
       }
       
@@ -333,7 +420,7 @@ const MonthlyTrends = () => {
     };
 
     return { trendsData, wfTrends, bankComparison, insights, wfMonthlyAvg, marketMonthlyAvg };
-  }, [dashboardData, selectedMonths, wellsFargoData, marketAverageData]);
+  }, [dataSource, wellsFargoData, marketAverageData]);
 
   // Helper function to calculate trend
   function calculateTrend(values) {
@@ -454,7 +541,21 @@ const MonthlyTrends = () => {
 
   // Bank selector component for multi-select dropdown
   const BankSelector = () => {
-    const availableBanks = dashboardData?.banks?.slice(0, 6) || [];
+    const availableBanks = useMemo(() => {
+      if (!dataSource?.banks) return [];
+      
+      // Solo incluir bancos que aparecen en los datos filtrados
+      const banksInData = new Set();
+      trendsData.forEach(month => {
+        Object.keys(month).forEach(key => {
+          if (key !== 'name' && key !== 'total') {
+            banksInData.add(key);
+          }
+        });
+      });
+      
+      return ['All', ...Array.from(banksInData)];
+    }, [dataSource, trendsData]);
     
     const toggleBank = (bankName) => {
       if (selectedBanks.includes(bankName)) {
@@ -465,7 +566,7 @@ const MonthlyTrends = () => {
     };
     
     const selectAllBanks = () => {
-      setSelectedBanks(availableBanks.map(bank => bank.name));
+      setSelectedBanks(availableBanks.filter(b => b !== 'All'));
     };
     
     const clearSelection = () => {
@@ -495,24 +596,24 @@ const MonthlyTrends = () => {
           </div>
         </div>
         <div className="max-h-60 overflow-y-auto p-2">
-          {availableBanks.map(bank => (
-            <div key={bank.name} className="flex items-center px-2 py-1 hover:bg-gray-50 rounded cursor-pointer">
+          {availableBanks.filter(bank => bank !== 'All').map(bank => (
+            <div key={bank} className="flex items-center px-2 py-1 hover:bg-gray-50 rounded cursor-pointer">
               <input 
                 type="checkbox" 
-                id={`bank-${bank.name}`}
-                checked={selectedBanks.includes(bank.name)}
-                onChange={() => toggleBank(bank.name)}
+                id={`bank-${bank}`}
+                checked={selectedBanks.includes(bank)}
+                onChange={() => toggleBank(bank)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label 
-                htmlFor={`bank-${bank.name}`}
+                htmlFor={`bank-${bank}`}
                 className="ml-2 text-sm text-gray-700 cursor-pointer flex-grow flex items-center"
               >
                 <span 
                   className="w-3 h-3 rounded-full inline-block mr-2" 
-                  style={{ backgroundColor: chartColors[bank.name] }}
+                  style={{ backgroundColor: chartColors[bank] }}
                 ></span>
-                {bank.name}
+                {bank}
               </label>
             </div>
           ))}
@@ -608,27 +709,37 @@ const MonthlyTrends = () => {
             insights.overall.trend === 'decreasing' ? 'bg-red-100 text-red-800' :
             'bg-blue-100 text-blue-800'
           }`}>
-            Market: {
-              insights.overall.trend === 'increasing' 
-                ? `Growing ${Math.abs(Math.round(insights.overall.value))}%` 
-                : insights.overall.trend === 'decreasing'
-                ? `Declining ${Math.abs(Math.round(insights.overall.value))}%`
-                : 'Stable'
-            }
+            <div className="group relative">
+              Market: {
+                insights.overall.trend === 'increasing' 
+                  ? `Growing ${Math.abs(Math.round(insights.overall.value))}%` 
+                  : insights.overall.trend === 'decreasing'
+                  ? `Declining ${Math.abs(Math.round(insights.overall.value))}%`
+                  : 'Stable'
+              }
+              <div className="absolute left-0 -bottom-1 transform translate-y-full invisible group-hover:visible bg-gray-800 text-white text-xs rounded p-2 w-52 z-10 shadow-lg">
+                <p>Calculated using linear regression analysis of monthly investment values over the selected period. Measures the percentage change from the first month to the last month based on the trend line slope.</p>
+              </div>
+            </div>
           </div>
           
           <div className={`px-3 py-1 rounded-full text-sm ${
             insights.wf.trend === 'increasing' ? 'bg-green-100 text-green-800' :
             insights.wf.trend === 'decreasing' ? 'bg-red-100 text-red-800' :
             'bg-blue-100 text-blue-800'
-          }`} style={{ borderLeft: `3px solid ${chartColors['Wells Fargo Bank']}` }}>
-            Wells Fargo: {
-              insights.wf.trend === 'increasing' 
-                ? `Growing ${Math.abs(Math.round(insights.wf.value))}%` 
-                : insights.wf.trend === 'decreasing'
-                ? `Declining ${Math.abs(Math.round(insights.wf.value))}%`
-                : 'Stable'
-            }
+          }`} style={{ borderLeft: `3px solid ${chartColors['Wells Fargo']}` }}>
+            <div className="group relative">
+              Wells Fargo: {
+                insights.wf.trend === 'increasing' 
+                  ? `Growing ${Math.abs(Math.round(insights.wf.value))}%` 
+                  : insights.wf.trend === 'decreasing'
+                  ? `Declining ${Math.abs(Math.round(insights.wf.value))}%`
+                  : 'Stable'
+              }
+              <div className="absolute left-0 -bottom-1 transform translate-y-full invisible group-hover:visible bg-gray-800 text-white text-xs rounded p-2 w-52 z-10 shadow-lg">
+                <p>Based on the percentage change in Wells Fargo's monthly investment from the beginning to the end of the selected period. A trend is considered stable if the change is less than 5%.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -702,7 +813,7 @@ const MonthlyTrends = () => {
                 />
                 <Tooltip content={renderTooltip} />
                 {/* Render lines for each bank */}
-                {dashboardData?.banks && dashboardData.banks.map((bank) => {
+                {dataSource?.banks && dataSource.banks.map((bank) => {
                   // Si hay bancos seleccionados, solo mostrar esos bancos
                   if (selectedBanks.length > 0 && !selectedBanks.includes(bank.name)) {
                     return null;
@@ -733,7 +844,7 @@ const MonthlyTrends = () => {
         </div>
         
         {/* Wells Fargo Monthly Performance */}
-        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${chartColors['Wells Fargo Bank']}` }}>
+        <div className="border border-gray-100 rounded-lg p-4" style={{ borderLeft: `4px solid ${chartColors['Wells Fargo']}` }}>
           <h3 className="text-lg font-medium text-gray-700 mb-2">
             Wells Fargo Performance Trends
           </h3>
@@ -747,101 +858,112 @@ const MonthlyTrends = () => {
                 No data available for the selected period
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={wfTrends}
-                  margin={{ top: 10, right: 30, left: 10, bottom: 30 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis 
-                    dataKey="month" 
-                    angle={-45} 
-                    textAnchor="end" 
-                    tick={{ fontSize: 12 }}
-                    height={60}
-                    tickFormatter={formatMonthLabel}
-                  />
-                  <YAxis 
-                    yAxisId="left" 
-                    tickFormatter={(value) => formatCurrency(value)}
-                    orientation="left"
-                    domain={[0, 'dataMax + 500000']}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis 
-                    yAxisId="right" 
-                    tickFormatter={(v) => `${Math.round(v)}%`} 
-                    orientation="right"
-                    domain={[0, 'dataMax + 1']}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <Tooltip 
-                    content={({active, payload, label}) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-200">
-                            <p className="font-semibold text-gray-800">{formatMonthLabel(label)}</p>
-                            {payload.map((p, i) => (
-                              <p key={i} className="text-sm flex justify-between" style={{ color: p.name === "Wells Fargo Investment" ? chartColors['Wells Fargo Bank'] : p.name === "Market Avg Investment" ? "#666666" : p.color }}>
-                                <span className="mr-4">
-                                  {p.name === "investment" ? "Wells Fargo Investment" : 
-                                   p.name === "marketAvgInvestment" ? "Market Avg Investment" : p.name}
-                                </span> 
-                                <span>{formatCurrency(p.value)}</span>
-                              </p>
-                            ))}
-                            {/* Add Monthly Average to tooltip */}
-                            <div className="mt-2 pt-2 border-t border-gray-200">
-                              <p className="text-sm flex justify-between" style={{ color: "#FFB300" }}>
-                                <span className="mr-4">Market Avg:</span>
-                                <span>{formatCurrency(marketMonthlyAvg)}</span>
+              <div className="rounded-lg bg-white p-4 shadow-sm h-[600px]">
+                <ResponsiveContainer width="100%" height={450}>
+                  <ComposedChart data={wfTrends} margin={{ top: 20, right: 150, left: 0, bottom: 30 }}>
+                    <defs>
+                      <linearGradient id="wellsFargoFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#d82f31" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#d82f31" stopOpacity={0.05}/>
+                      </linearGradient>
+                      <filter id="shadow" height="200%">
+                        <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#000" floodOpacity="0.1"/>
+                      </filter>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis 
+                      dataKey="month" 
+                      tickLine={false}
+                      axisLine={{ stroke: '#e0e0e0' }}
+                      tick={{ fill: '#666', fontSize: 12 }}
+                      tickFormatter={formatMonthLabel}
+                      angle={-45} 
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      tickFormatter={formatYAxis} 
+                      tick={{ fill: '#666', fontSize: 12 }}
+                      axisLine={{ stroke: '#e0e0e0' }}
+                      tickLine={false}
+                      domain={['auto', 'auto']}
+                    />
+                    <Tooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const wellsFargoData = payload.find(p => p.name === "Wells Fargo Investment");
+                          const marketAvgData = payload.find(p => p.name === "Monthly Avg Market");
+                          
+                          return (
+                            <div className="bg-white p-3 border border-gray-200 shadow-md rounded-md">
+                              <p className="font-medium text-gray-800 mb-2">{formatMonthLabel(label)}</p>
+                              {wellsFargoData && (
+                                <p className="text-sm mb-1">
+                                  <span className="font-medium text-red-600">Wells Fargo Investment:</span>{" "}
+                                  <span className="text-gray-700">${(wellsFargoData.value/1000000).toFixed(2)}M</span>
+                                </p>
+                              )}
+                              {marketAvgData && (
+                                <p className="text-sm mb-1">
+                                  <span className="font-medium text-gray-600">Monthly Avg Market:</span>{" "}
+                                  <span className="text-gray-700">${(marketAvgData.value/1000000).toFixed(2)}M</span>
+                                </p>
+                              )}
+                              <p className="text-sm border-t pt-1 mt-1 border-gray-100">
+                                <span className="font-medium text-yellow-600">Monthly Avg Market:</span>{" "}
+                                <span className="text-gray-700">${(marketMonthlyAvg/1000000).toFixed(2)}M</span>
                               </p>
                             </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Legend />
-                  {/* Wells Fargo Investment */}
-                  <Line 
-                    yAxisId="left"
-                    type="monotone" 
-                    dataKey="investment" 
-                    name="Wells Fargo Investment"
-                    stroke={chartColors['Wells Fargo Bank']}
-                    strokeWidth={2}
-                    dot={{ fill: chartColors['Wells Fargo Bank'], stroke: 'white', strokeWidth: 2 }}
-                    activeDot={{ r: 6, fill: chartColors['Wells Fargo Bank'], stroke: 'white', strokeWidth: 2 }}
-                  />
-                  {/* Market Average Investment */}
-                  <Line 
-                    yAxisId="left"
-                    type="monotone" 
-                    dataKey="marketAvgInvestment" 
-                    name="Market Avg Investment"
-                    stroke="#666666"
-                    strokeWidth={2}
-                    dot={{ fill: "#666666", stroke: 'white', strokeWidth: 2 }}
-                    activeDot={{ r: 6, fill: "#666666", stroke: 'white', strokeWidth: 2 }}
-                  />
-                  {/* Constant line for monthly average */}
-                  <ReferenceLine 
-                    y={marketMonthlyAvg}
-                    yAxisId="left"
-                    stroke="#FFB300"
-                strokeDasharray="3 3" 
-                    ifOverflow="extendDomain"
-                    label={{
-                      position: 'right',
-                      value: `Avg: ${formatCurrency(marketMonthlyAvg)}`,
-                      fill: '#FFB300',
-                      fontSize: 12
-                    }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend 
+                      verticalAlign="bottom"
+                      height={36}
+                      wrapperStyle={{ paddingTop: '10px' }}
+                      payload={[
+                        { value: 'Wells Fargo Investment', type: 'line', color: '#d82f31' },
+                        { value: 'Monthly Avg Market', type: 'line', color: '#666' }
+                      ]}
+                    />
+                    <ReferenceLine
+                      y={marketMonthlyAvg}
+                      stroke="#ffc107"
+                      strokeDasharray="3 3"
+                      label={{ 
+                        value: `Monthly Avg\nMarket`,
+                        fill: '#ffc107',
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                        position: 'right',
+                        offset: 30
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="investment" 
+                      name="Wells Fargo Investment" 
+                      stroke="#d82f31" 
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={true}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="marketAvgInvestment" 
+                      name="Monthly Avg Market" 
+                      stroke="#666" 
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={true}
+                      activeDot={{ r: 6 }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
         </div>
@@ -888,7 +1010,7 @@ const MonthlyTrends = () => {
                   paddingTop: '10px'
                 }}
               />
-              {dashboardData?.banks && dashboardData.banks.map((bank) => (
+              {dataSource?.banks && dataSource.banks.map((bank) => (
                 <Area 
                   key={bank.name}
                   type="monotone" 
@@ -903,74 +1025,137 @@ const MonthlyTrends = () => {
         </div>
       </div>
       
-      {/* Insights Panel - Versión mejorada y simplificada */}
-      <div className="mt-10 bg-blue-50 p-4 rounded-lg">
-        <h3 className="font-medium text-blue-700 mb-3">Monthly Trend Insights</h3>
+      {/* Insights Panel - Improved and factual */}
+      <div className="mt-10 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-blue-100">
+        <h3 className="font-semibold text-blue-800 text-lg mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          Monthly Trend Insights
+        </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Market Insights */}
-          <div>
-            <h4 className="font-medium text-gray-700 mb-2">Market Investment Insights</h4>
-            <ul className="space-y-3 text-sm text-gray-700">
+          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100">
+            <h4 className="font-medium text-gray-800 mb-3 pb-2 border-b border-gray-100 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              Market Investment Insights
+            </h4>
+            <ul className="space-y-4 text-sm text-gray-700">
               {trendsData.length > 0 && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-blue-500"></span>
-                  <span>
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
                     <strong>Total Investment:</strong> {formatCurrency(trendsData.reduce((sum, m) => sum + m.total, 0))} 
                     {trendsData.length > 1 ? ` across ${trendsData.length} months` : ''}
-                  </span>
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Sum of all media investments across all banks for the selected period.
+                  </div>
                 </li>
               )}
               
               {trendsData.length > 0 && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-green-500"></span>
-                  <span>
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
                     <strong>Monthly Average:</strong> {formatCurrency(trendsData.reduce((sum, m) => sum + m.total, 0) / Math.max(trendsData.length, 1))} 
-                    <span className="text-gray-500 text-xs ml-1">(total market investment ÷ {trendsData.length} months - all banks combined)</span>
-                  </span>
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Total market investment divided by {trendsData.length} months, representing average monthly spend across all banks combined.
+                  </div>
                 </li>
               )}
               
               {insights.peakMonth && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-yellow-500"></span>
-                  <span>
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
                     <strong>Peak Month:</strong> {formatMonthLabel(insights.peakMonth.name)} <span className="ml-1">with</span> {formatCurrency(insights.peakMonth.total)} 
-                    ({formatPercentage(insights.peakMonth.total / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} of total)
-                    <span className="text-gray-500 text-xs ml-1">(highest investment month in selected period - represents {formatPercentage(100/trendsData.length)}% of months with {formatPercentage(insights.peakMonth.total / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} of spending)</span>
+                      <span className="ml-1 text-xs px-2 py-0.5 bg-yellow-50 text-yellow-700 rounded-full">
+                        {formatPercentage(insights.peakMonth.total / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} of total
                   </span>
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Month with highest total investment in the selected period. Represents {formatPercentage(insights.peakMonth.total / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} of total period spending.
+                  </div>
                 </li>
               )}
 
               {trendsData.length > 1 && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-purple-500"></span>
-                  <span>
-                    <strong>Month-to-Month Trend:</strong> {
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
+                      <strong>Period Change:</strong> 
+                      <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
                       Math.abs(insights.overall.value) < 5 
-                        ? 'Investment remains stable across selected months' 
+                          ? 'bg-blue-50 text-blue-700' 
                         : insights.overall.value > 0
-                          ? `Investment increasing by ${Math.abs(Math.round(insights.overall.value))}% across selected months (comparing first month to last month)`
-                          : `Investment decreasing by ${Math.abs(Math.round(insights.overall.value))}% across selected months (comparing ${formatMonthLabel(trendsData[0].name)}: ${formatCurrency(trendsData[0].total)} to ${formatMonthLabel(trendsData[trendsData.length-1].name)}: ${formatCurrency(trendsData[trendsData.length-1].total)})`
+                            ? 'bg-green-50 text-green-700'
+                            : 'bg-red-50 text-red-700'
+                      }`}>
+                        {Math.abs(insights.overall.value) < 5 
+                          ? 'Investment levels consistent across period' 
+                          : insights.overall.value > 0
+                            ? `Increased by ${Math.abs(Math.round(insights.overall.value))}%`
+                            : `Decreased by ${Math.abs(Math.round(insights.overall.value))}%`
                     }
                   </span>
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Comparison between first month ({formatMonthLabel(trendsData[0].name)}: {formatCurrency(trendsData[0].total)}) and last month ({formatMonthLabel(trendsData[trendsData.length-1].name)}: {formatCurrency(trendsData[trendsData.length-1].total)}) in selected period.
+                  </div>
                 </li>
               )}
             </ul>
           </div>
           
           {/* Bank Insights */}
-          <div>
-            <h4 className="font-medium text-gray-700 mb-2">Bank Performance Insights</h4>
-            <ul className="space-y-3 text-sm text-gray-700">
+          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100">
+            <h4 className="font-medium text-gray-800 mb-3 pb-2 border-b border-gray-100 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+              </svg>
+              Bank Performance Insights
+            </h4>
+            <ul className="space-y-4 text-sm text-gray-700">
               {trendsData.length > 0 && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" 
-                        style={{ backgroundColor: chartColors[Object.entries(chartColors)[0][0]] }}></span>
-                  <span>
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3"
+                       style={{ backgroundColor: `${chartColors[Object.entries(chartColors)[0][0]]}20` }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" style={{ color: chartColors[Object.entries(chartColors)[0][0]] }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
                     <strong>Leading Bank:</strong> {(() => {
-                      // Calcular inversión total por banco
                       const bankTotals = {};
                       trendsData.forEach(month => {
                         Object.entries(month).forEach(([key, value]) => {
@@ -980,7 +1165,6 @@ const MonthlyTrends = () => {
                         });
                       });
                       
-                      // Encontrar el banco líder
                       const sortedBanks = Object.entries(bankTotals)
                         .sort((a, b) => b[1] - a[1]);
                       
@@ -989,66 +1173,111 @@ const MonthlyTrends = () => {
                         const totalInvestment = trendsData.reduce((sum, m) => sum + m.total, 0);
                         const marketShare = (leadingAmount / totalInvestment) * 100;
                         
-                        return `${leadingBank} with ${formatCurrency(leadingAmount)} (${formatPercentage(marketShare)} market share)`;
+                          return (
+                            <>
+                              <span className="font-medium">{leadingBank}</span> with {formatCurrency(leadingAmount)}
+                              <span className="ml-1 text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full">
+                                {formatPercentage(marketShare)} market share
+                              </span>
+                            </>
+                          );
                       }
                       
                       return 'No data available';
                     })()}
-                  </span>
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Bank with highest total media investment in the selected period. Market share calculated as percentage of total industry investment.
+                  </div>
                 </li>
               )}
               
               {wfTrends.length > 0 && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" 
-                        style={{ backgroundColor: chartColors['Wells Fargo Bank'] }}></span>
-                  <span>
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3"
+                       style={{ backgroundColor: `${chartColors['Wells Fargo']}20` }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" style={{ color: chartColors['Wells Fargo'] }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
                     <strong>Wells Fargo:</strong> {formatCurrency(wfTrends.reduce((sum, m) => sum + m.investment, 0))}
-                    {trendsData.length > 0 ? ` (${formatPercentage(wfTrends.reduce((sum, m) => sum + m.investment, 0) / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} market share)` : ''}
+                      {trendsData.length > 0 && (
+                        <span className="ml-1 text-xs px-2 py-0.5 bg-red-50 text-red-700 rounded-full">
+                          {formatPercentage(wfTrends.reduce((sum, m) => sum + m.investment, 0) / trendsData.reduce((sum, m) => sum + m.total, 0) * 100)} market share
                   </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Total Wells Fargo investment across selected period. Market share calculated as percentage of total industry investment.
+                  </div>
                 </li>
               )}
               
               {wfTrends.length > 1 && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full" 
-                        style={{ backgroundColor: chartColors['Wells Fargo Bank'] }}></span>
-                  <span>
-                    <strong>Wells Fargo Trend:</strong> {(() => {
-                      // Calcular tendencia manualmente en lugar de usar insights.wf.value
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3"
+                       style={{ backgroundColor: `${chartColors['Wells Fargo']}20` }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" style={{ color: chartColors['Wells Fargo'] }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
+                      <strong>Wells Fargo Change:</strong>
+                      <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${(() => {
+                        if (wfTrends.length < 2) return 'bg-gray-100 text-gray-600';
+                        
+                        const firstMonth = wfTrends[0];
+                        const lastMonth = wfTrends[wfTrends.length - 1];
+                        if (firstMonth.investment <= 0) return 'bg-gray-100 text-gray-600';
+                        
+                        const percentChange = ((lastMonth.investment - firstMonth.investment) / firstMonth.investment) * 100;
+                        
+                        if (Math.abs(percentChange) < 5) return 'bg-blue-50 text-blue-700';
+                        return percentChange > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700';
+                      })()}`}>
+                        {(() => {
                       if (wfTrends.length < 2) return 'Insufficient data';
                       
-                      // Si tenemos más de dos meses, comparar el primer y último mes
                       const firstMonth = wfTrends[0];
                       const lastMonth = wfTrends[wfTrends.length - 1];
-                      if (firstMonth.investment > 0) {
+                          if (firstMonth.investment <= 0) return 'Insufficient data for calculation';
+                          
                         const percentChange = ((lastMonth.investment - firstMonth.investment) / firstMonth.investment) * 100;
-                        if (Math.abs(percentChange) < 5) {
-                          return 'Investment remains stable';
-                        }
-                        return percentChange > 0 
-                          ? `Investment increasing by ${Math.abs(Math.round(percentChange))}%`
-                          : `Investment decreasing by ${Math.abs(Math.round(percentChange))}%`;
-                      }
-                      
-                      return 'Cannot calculate trend';
+                          
+                          if (Math.abs(percentChange) < 5) return 'Investment levels consistent';
+                          return percentChange > 0 
+                            ? `Increased by ${Math.abs(Math.round(percentChange))}%`
+                            : `Decreased by ${Math.abs(Math.round(percentChange))}%`;
                     })()}
-                    <span className="text-gray-500 text-xs ml-1">
-                      (from {formatCurrency(wfTrends[0].investment)} in {formatMonthLabel(wfTrends[0].month)} to {formatCurrency(wfTrends[wfTrends.length - 1].investment)} in {formatMonthLabel(wfTrends[wfTrends.length - 1].month)})
                     </span>
-                  </span>
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Comparison between first month ({formatMonthLabel(wfTrends[0].month)}: {formatCurrency(wfTrends[0].investment)}) and last month ({formatMonthLabel(wfTrends[wfTrends.length - 1].month)}: {formatCurrency(wfTrends[wfTrends.length - 1].investment)}) in selected period.
+                  </div>
                 </li>
               )}
               
               {wfTrends.length > 0 && (
-                <li className="flex items-start">
-                  <span className="inline-block mr-2 mt-0.5 h-2 w-2 rounded-full bg-indigo-500"></span>
-                  <span>
+                <li className="flex items-start group relative transition-all duration-150 hover:bg-blue-50 p-2 rounded-md">
+                  <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">
                     <strong>Wells Fargo Monthly Avg:</strong> {formatCurrency(wfTrends.reduce((sum, m) => sum + m.investment, 0) / Math.max(wfTrends.length, 1))}
-                    <span className="text-gray-500 text-xs ml-1">
-                      (vs per-bank market avg: {formatCurrency(trendsData.reduce((sum, m) => sum + m.total, 0) / Math.max(trendsData.length, 1) / dashboardData.banks.length)} - calculated as [total market ÷ {trendsData.length} months] ÷ {dashboardData.banks.length} banks)
-                    </span>
-                  </span>
+                    </p>
+                  </div>
+                  <div className="hidden group-hover:block absolute left-8 top-full mt-1 z-10 bg-gray-800 text-white p-3 rounded text-xs w-64 shadow-lg">
+                    Average monthly investment by Wells Fargo. Industry per-bank average: {formatCurrency(trendsData.reduce((sum, m) => sum + m.total, 0) / Math.max(trendsData.length, 1) / dataSource.banks.length)}, calculated as total market investment divided by number of months, then divided by number of banks.
+                  </div>
                 </li>
               )}
             </ul>

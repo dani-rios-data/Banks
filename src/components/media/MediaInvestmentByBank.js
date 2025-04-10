@@ -3,16 +3,17 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveCo
 import { useDashboard } from '../../context/DashboardContext';
 import { bankColors, mediaColors } from '../../utils/colorSchemes';
 import { formatCurrency } from '../../utils/formatters';
-import Icons from '../common_copy/Icons';
+import Icons from '../common/Icons';
 
 // Nuevos colores más vibrantes para los bancos
 const enhancedBankColors = {
-  'Wells Fargo Bank': '#ff6b6b',  // Vibrant red
-  'Capital One': '#4d80e4',       // Royal blue
-  'Bank Of America': '#2c3e50',   // Elegant dark blue
-  'Pnc Bank': '#46c2cb',          // Bright turquoise
-  'Td Bank': '#8e44ad',           // Vibrant purple
-  'Chase Bank': '#117ACA',        // Chase blue
+  'Wells Fargo': '#ff6b6b',        // Vibrant red
+  'Capital One Bank': '#4d80e4',   // Royal blue
+  'Bank of America': '#2c3e50',    // Elegant dark blue
+  'PNC Bank': '#46c2cb',           // Bright turquoise
+  'TD Bank': '#8e44ad',            // Vibrant purple
+  'Chase Bank': '#117ACA',         // Chase blue
+  'US Bank': '#0046AD',            // US Bank blue
 };
 
 // Colores mejorados para categorías de medios
@@ -29,12 +30,7 @@ const enhancedMediaColors = {
 
 // Función para formatear valores en millones
 const formatValue = (value) => {
-  if (value >= 1000000) {
-    return `${Math.round(value / 1000000)}M`;
-  } else if (value >= 1000) {
-    return `${Math.round(value / 1000)}K`;
-  }
-  return value;
+  return formatCurrency(value);
 };
 
 // Componente de leyenda personalizada para el gráfico de donut
@@ -85,15 +81,15 @@ const renderBarInsight = (props) => {
   if (value < 100000000) return null;
   
   let insight = "";
-  if (name === "Capital One") {
+  if (name === "Capital One Bank") {
     insight = "Market leader with 58.5% share";
-  } else if (name === "Bank Of America") {
+  } else if (name === "Bank of America") {
     insight = "20% of total market";
-  } else if (name === "Wells Fargo Bank") {
+  } else if (name === "Wells Fargo") {
     insight = "Growing digital presence";
-  } else if (name === "Pnc Bank") {
+  } else if (name === "PNC Bank") {
     insight = "Focused on outdoor media";
-  } else if (name === "Td Bank") {
+  } else if (name === "TD Bank") {
     insight = "2.7% share of total market";
   }
   
@@ -170,10 +166,37 @@ const CustomTooltip = ({ active, payload }) => {
  * Component that displays media investment by bank with filtered data
  */
 const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
-  const { dashboardData, focusedBank, loading, selectedMonths } = useDashboard();
+  const { 
+    dashboardData, 
+    filteredData: contextFilteredData, 
+    focusedBank, 
+    loading, 
+    selectedMonths,
+    selectedYears,
+    selectedPeriod 
+  } = useDashboard();
+  
   const [selectedBanks, setSelectedBanks] = React.useState(['All']);
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = React.useRef(null);
+
+  // Log para depuración de filtros globales
+  React.useEffect(() => {
+    console.log("MediaInvestmentByBank - Filtros globales actualizados:", {
+      selectedMonths,
+      selectedYears,
+      selectedPeriod,
+      hayDatosFiltrados: !!contextFilteredData
+    });
+  }, [selectedMonths, selectedYears, selectedPeriod, contextFilteredData]);
+
+  // Obtener lista de bancos disponibles
+  const availableBanks = useMemo(() => {
+    // Usar filteredData si está disponible, de lo contrario usar dashboardData
+    const data = contextFilteredData || dashboardData;
+    if (!data?.banks) return [];
+    return ['All', ...data.banks.map(bank => bank.name)];
+  }, [dashboardData, contextFilteredData]);
 
   // Cerrar el dropdown cuando se hace click fuera
   React.useEffect(() => {
@@ -185,12 +208,6 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Obtener lista de bancos disponibles
-  const availableBanks = useMemo(() => {
-    if (!dashboardData?.banks) return [];
-    return ['All', ...dashboardData.banks.map(bank => bank.name)];
-  }, [dashboardData]);
 
   // Función para manejar cambios en la selección de bancos
   const handleBankSelection = (bank) => {
@@ -208,65 +225,139 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
   };
 
   // Calculate filtered data based on selected months
-  const filteredData = useMemo(() => {
-    if (!dashboardData) return null;
-    if (!selectedMonths.length) {
-      // Si no hay meses seleccionados, usar todos los datos
-      return {
-        banks: dashboardData.banks.map(bank => ({
+  const processedData = useMemo(() => {
+    // Usar el filteredData del contexto si está disponible
+    const sourceData = contextFilteredData || dashboardData;
+    if (!sourceData) return null;
+    
+    console.log("MediaInvestmentByBank - Usando datos:", 
+      contextFilteredData ? "filteredData del contexto" : "dashboardData original", 
+      "Filtros activos:", { selectedMonths, selectedYears }
+    );
+    
+    // Si estamos usando contextFilteredData, ya tiene los filtros aplicados
+    // Solo necesitamos normalizar la estructura
+    if (contextFilteredData) {
+      // Normalizar la estructura de los datos
+      const normalizedData = {
+        banks: sourceData.banks ? sourceData.banks.map(bank => ({
           name: bank.name,
           totalInvestment: bank.totalInvestment,
           mediaBreakdown: bank.mediaBreakdown
-        })),
-        mediaCategories: dashboardData.mediaCategories.map(category => ({
-          type: category.name || category.type,
-          total: category.total,
-          bankShares: category.bankShares.map(share => ({
+        })) : [],
+        mediaCategories: sourceData.mediaCategories ? sourceData.mediaCategories.map(category => {
+          // Determinar qué propiedades están disponibles en el objeto original
+          const categoryName = category.name || category.type || category.category;
+          const categoryTotal = category.total || category.totalInvestment;
+          const categoryShares = category.bankShares || category.shares || [];
+          
+          // Normalizar las shares para asegurar que tengan una estructura consistente
+          const normalizedShares = categoryShares.map(share => ({
             bank: share.bank,
             investment: share.amount || share.investment,
             share: share.percentage || share.share
-          }))
-        }))
+          }));
+          
+          return {
+            type: categoryName,
+            category: categoryName, // Mantener ambas propiedades para compatibilidad
+            total: categoryTotal,
+            bankShares: normalizedShares
+          };
+        }) : []
       };
+      
+      console.log("MediaInvestmentByBank - Datos normalizados con filtros globales aplicados");
+      return normalizedData;
+    }
+    
+    // Si no hay datos filtrados del contexto, continuar con el procesamiento original
+    if (!selectedMonths || selectedMonths.length === 0) {
+      // Si no hay meses seleccionados, usar todos los datos
+      console.log("No hay meses seleccionados, usando todos los datos");
+      
+      // Normalizar la estructura de los datos
+      const normalizedData = {
+        banks: sourceData.banks ? sourceData.banks.map(bank => ({
+          name: bank.name,
+          totalInvestment: bank.totalInvestment,
+          mediaBreakdown: bank.mediaBreakdown
+        })) : [],
+        mediaCategories: sourceData.mediaCategories ? sourceData.mediaCategories.map(category => {
+          // Determinar qué propiedades están disponibles en el objeto original
+          const categoryName = category.name || category.type || category.category;
+          const categoryTotal = category.total || category.totalInvestment;
+          const categoryShares = category.bankShares || category.shares || [];
+          
+          // Normalizar las shares para asegurar que tengan una estructura consistente
+          const normalizedShares = categoryShares.map(share => ({
+            bank: share.bank,
+            investment: share.amount || share.investment,
+            share: share.percentage || share.share
+          }));
+          
+          console.log(`Normalizando categoría: ${categoryName}, Total: ${categoryTotal}, Shares: ${normalizedShares.length}`);
+          
+          return {
+            type: categoryName,
+            category: categoryName, // Mantener ambas propiedades para compatibilidad
+            total: categoryTotal,
+            bankShares: normalizedShares
+          };
+        }) : []
+      };
+      
+      console.log("Datos normalizados:", normalizedData);
+      return normalizedData;
     }
 
-    const filteredMonths = dashboardData.monthlyTrends.filter(trend => 
+    console.log("Filtrando por meses seleccionados:", selectedMonths);
+    const filteredMonths = sourceData.monthlyTrends ? sourceData.monthlyTrends.filter(trend => 
       selectedMonths.includes(trend.month)
-    );
+    ) : [];
+    
+    console.log("Meses filtrados:", filteredMonths.length);
 
     // Calculate bank totals
     const bankTotals = {};
     filteredMonths.forEach(month => {
-      month.bankShares.forEach(share => {
-        bankTotals[share.bank] = (bankTotals[share.bank] || 0) + share.investment;
-      });
+      if (month.bankShares) {
+        month.bankShares.forEach(share => {
+          bankTotals[share.bank] = (bankTotals[share.bank] || 0) + share.investment;
+        });
+      }
     });
+    
+    console.log("Totales por banco:", bankTotals);
 
     // Calculate media totals
     const mediaTotals = {};
     Object.entries(bankTotals).forEach(([bankName, total]) => {
-      const bank = dashboardData.banks.find(b => b.name === bankName);
-      if (bank) {
+      const bank = sourceData.banks ? sourceData.banks.find(b => b.name === bankName) : null;
+      if (bank && bank.mediaBreakdown) {
         bank.mediaBreakdown.forEach(media => {
           const mediaShare = (total * media.percentage) / 100;
           mediaTotals[media.category] = (mediaTotals[media.category] || 0) + mediaShare;
         });
       }
     });
+    
+    console.log("Totales por categoría de medios:", mediaTotals);
 
-    return {
+    const result = {
       banks: Object.entries(bankTotals).map(([name, totalInvestment]) => ({
         name,
         totalInvestment,
-        mediaBreakdown: dashboardData.banks
-          .find(b => b.name === name)?.mediaBreakdown || []
+        mediaBreakdown: sourceData.banks
+          ? (sourceData.banks.find(b => b.name === name)?.mediaBreakdown || [])
+          : []
       })),
       mediaCategories: Object.entries(mediaTotals).map(([type, total]) => ({
         type,
         total,
         bankShares: Object.entries(bankTotals).map(([bankName, bankTotal]) => {
-          const bank = dashboardData.banks.find(b => b.name === bankName);
-          const mediaBreakdown = bank?.mediaBreakdown.find(m => m.category === type);
+          const bank = sourceData.banks ? sourceData.banks.find(b => b.name === bankName) : null;
+          const mediaBreakdown = bank?.mediaBreakdown ? bank.mediaBreakdown.find(m => m.category === type) : null;
           const investment = bankTotal * (mediaBreakdown?.percentage || 0) / 100;
           return {
             bank: bankName,
@@ -276,45 +367,76 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
         }).filter(share => share.investment > 0)
       })).filter(category => category.total > 0)
     };
-  }, [dashboardData, selectedMonths]);
+    
+    console.log("Datos procesados:", result);
+    return result;
+  }, [dashboardData, contextFilteredData, selectedMonths, selectedYears]);
 
   // Función para filtrar los datos basados en la categoría de medios activa
   const categoryFilteredData = useMemo(() => {
-    if (!filteredData) return null;
-    if (activeCategory === 'All') return filteredData;
+    if (!processedData) return null;
+    
+    console.log("Procesando filtro por categoría:", activeCategory);
+    console.log("Estructura de processedData:", processedData);
+    
+    if (activeCategory === 'All') return processedData;
 
     // Filtrar las categorías de medios para mostrar solo la categoría activa
-    return {
-      ...filteredData,
-      mediaCategories: filteredData.mediaCategories.filter(
-        category => category.type === activeCategory
-      )
+    // Verificar si las categorías usan 'type' o 'category' como nombre de la propiedad
+    const hasTypeProperty = processedData.mediaCategories && 
+                            processedData.mediaCategories.length > 0 && 
+                            'type' in processedData.mediaCategories[0];
+    
+    const categoryProperty = hasTypeProperty ? 'type' : 'category';
+    console.log(`Usando propiedad "${categoryProperty}" para filtrar categorías`);
+    
+    const filteredMedia = {
+      ...processedData,
+      mediaCategories: processedData.mediaCategories ? processedData.mediaCategories.filter(
+        category => category[categoryProperty] === activeCategory
+      ) : []
     };
-  }, [filteredData, activeCategory]);
+
+    console.log("Datos filtrados por categoría:", activeCategory, filteredMedia);
+    return filteredMedia;
+  }, [processedData, activeCategory]);
 
   // Filtrar datos basados en los bancos seleccionados
   const filteredBankData = useMemo(() => {
-    if (!categoryFilteredData) return [];
+    if (!categoryFilteredData) return null;
     if (selectedBanks.includes('All')) return categoryFilteredData;
+
+    // Log para depuración
+    console.log("Filtrando por bancos seleccionados:", selectedBanks);
 
     return {
       ...categoryFilteredData,
-      banks: categoryFilteredData.banks.filter(bank => selectedBanks.includes(bank.name)),
-      mediaCategories: categoryFilteredData.mediaCategories.map(category => ({
+      banks: categoryFilteredData.banks ? categoryFilteredData.banks.filter(bank => selectedBanks.includes(bank.name)) : [],
+      mediaCategories: categoryFilteredData.mediaCategories ? categoryFilteredData.mediaCategories.map(category => ({
         ...category,
         total: category.bankShares
-          .filter(share => selectedBanks.includes(share.bank))
-          .reduce((sum, share) => sum + share.investment, 0),
-        bankShares: category.bankShares.filter(share => selectedBanks.includes(share.bank))
-      })).filter(category => category.total > 0)
+          ? category.bankShares
+              .filter(share => selectedBanks.includes(share.bank))
+              .reduce((sum, share) => sum + share.investment, 0)
+          : 0,
+        bankShares: category.bankShares 
+          ? category.bankShares.filter(share => selectedBanks.includes(share.bank))
+          : []
+      })).filter(category => category.total > 0) : []
     };
   }, [categoryFilteredData, selectedBanks]);
 
   // Prepare data for the bar chart - filter by active category if needed
   const bankData = useMemo(() => {
-    if (!filteredBankData) return [];
+    if (!filteredBankData || !filteredBankData.banks) return [];
+    
+    console.log("Preparando datos para gráfico de barras 'Total Investment by Media Category'");
+    console.log("Categoría activa:", activeCategory);
+    console.log("Bancos disponibles:", filteredBankData.banks.map(b => b.name));
+    console.log("Categorías disponibles:", filteredBankData.mediaCategories.map(cat => cat.type || cat.category));
 
     if (activeCategory === 'All') {
+      // Para 'All', mostrar inversión total por banco
       return filteredBankData.banks
         .map(bank => ({
           name: bank.name,
@@ -322,30 +444,46 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
         }))
         .sort((a, b) => b.investment - a.investment);
     } else {
-      // Calcular inversión por banco solo para la categoría seleccionada usando datos filtrados directamente
-      return filteredBankData.banks
+      // Para categoría específica, calcular inversión por banco solo para esa categoría
+      // Determinar qué propiedades usar para identificar la categoría
+      const categoryData = filteredBankData.mediaCategories.find(cat => 
+        (cat.type === activeCategory) || (cat.category === activeCategory)
+      );
+      
+      if (!categoryData) {
+        console.log(`No se encontró la categoría ${activeCategory} en los datos filtrados`);
+        return [];
+      }
+      
+      console.log("Datos de la categoría encontrada:", categoryData);
+      
+      // Determinar qué propiedad usar para bankShares
+      const bankShares = categoryData.bankShares || [];
+      
+      // Crear datos para el gráfico con la inversión de cada banco en esta categoría
+      const result = filteredBankData.banks
         .map(bank => {
-          // Encontrar la categoría específica en datos filtrados
-          const categoryData = filteredBankData.mediaCategories.find(cat => cat.type === activeCategory);
+          const bankShare = bankShares.find(share => share.bank === bank.name);
+          const investment = bankShare ? (bankShare.investment || bankShare.amount || 0) : 0;
           
-          if (!categoryData) return { name: bank.name, investment: 0 };
-          
-          // Encontrar la participación de este banco en la categoría
-          const bankShare = categoryData.bankShares.find(share => share.bank === bank.name);
+          console.log(`Banco: ${bank.name}, Inversión en ${activeCategory}: ${investment}`);
           
           return {
             name: bank.name,
-            investment: bankShare ? bankShare.investment : 0
+            investment: investment
           };
         })
         .filter(item => item.investment > 0)
         .sort((a, b) => b.investment - a.investment);
+      
+      console.log("Resultado final para gráfico:", result);
+      return result;
     }
   }, [filteredBankData, activeCategory]);
 
   // Función para obtener datos para el gráfico de pastel
   const getMediaData = useMemo(() => {
-    if (!filteredBankData) return [];
+    if (!filteredBankData || !filteredBankData.mediaCategories) return [];
 
     if (focusedBank === 'All') {
       if (activeCategory === 'All') {
@@ -361,13 +499,18 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
       }
     }
 
-    const bank = filteredBankData.banks.find(b => b.name === focusedBank);
+    const bank = filteredBankData.banks ? 
+      filteredBankData.banks.find(b => b.name === focusedBank) : 
+      null;
+      
     if (!bank) return [];
 
     if (activeCategory === 'All') {
       // Mostrar distribución de todas las categorías para el banco seleccionado
       return filteredBankData.mediaCategories.map(category => {
-        const bankShare = category.bankShares.find(share => share.bank === focusedBank);
+        const bankShare = category.bankShares ? 
+          category.bankShares.find(share => share.bank === focusedBank) : 
+          null;
         return {
           name: category.type,
           value: bankShare ? bankShare.investment : 0
@@ -376,7 +519,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     } else {
       // Solo mostrar la categoría seleccionada para el banco seleccionado
       const category = filteredBankData.mediaCategories.find(cat => cat.type === activeCategory);
-      if (!category) return [];
+      if (!category || !category.bankShares) return [];
       
       const bankShare = category.bankShares.find(share => share.bank === focusedBank);
       return bankShare ? [{ name: category.type, value: bankShare.investment }] : [];
@@ -385,45 +528,64 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
 
   // Generate the "Selected vs Others" comparison data for pie chart
   const selectedVsOthersData = useMemo(() => {
-    if (!filteredBankData) return null;
+    if (!filteredBankData || !filteredBankData.mediaCategories) return [];
     
-    // Si activeCategory es All, no necesitamos datos de comparación
-    if (activeCategory === 'All') return null;
+    console.log("Generando datos para gráfico de comparación de categorías");
+    console.log("Categoría activa:", activeCategory);
+    console.log("Categorías disponibles:", filteredBankData.mediaCategories.map(cat => cat.type || cat.category));
     
-    // Forzar Cinema como categoría seleccionada si está presente en los datos
-    const forcedCategory = activeCategory === 'Cinema' ? 'Cinema' : activeCategory;
-    
-    // Calculate total media investment (usando filteredBankData en lugar de filteredData)
-    const totalInvestment = filteredBankData.mediaCategories.reduce(
-      (sum, category) => sum + category.total, 0
-    );
-    
-    // Find selected category total (Cinema o la que esté activa)
-    const selectedCategory = filteredBankData.mediaCategories.find(
-      cat => cat.type === forcedCategory
-    );
-    
-    if (!selectedCategory) return null;
-    
-    const selectedTotal = selectedCategory.total;
-    const othersTotal = totalInvestment - selectedTotal;
-    
-    // Usar el nombre forzado para el primer elemento
-    return [
-      { 
-        name: forcedCategory, 
-        value: selectedTotal, 
-        color: enhancedMediaColors[forcedCategory], 
-        percentage: (selectedTotal / totalInvestment) * 100 
-      },
-      { 
-        name: "Other Media", 
-        value: othersTotal, 
-        color: "#A0AEC0", // Color gris neutro para "Other Media"
-        percentage: (othersTotal / totalInvestment) * 100 
+    // Si la categoría activa no es 'All', mostrar la comparación de la categoría seleccionada vs. todas las demás
+    if (activeCategory !== 'All') {
+      // Calcular el total de inversión en medios
+      const totalInvestment = filteredBankData.mediaCategories.reduce(
+        (sum, category) => sum + category.total, 0
+      );
+      
+      console.log("Total de inversión en todos los medios:", totalInvestment);
+      
+      // Buscar la categoría seleccionada
+      const selectedCategory = filteredBankData.mediaCategories.find(
+        cat => (cat.type === activeCategory) || (cat.category === activeCategory)
+      );
+      
+      if (!selectedCategory) {
+        console.log("¡Advertencia! No se encontró la categoría:", activeCategory);
+        return [];
       }
-    ];
-  }, [filteredBankData, activeCategory]);
+      
+      const selectedTotal = selectedCategory.total;
+      const othersTotal = totalInvestment - selectedTotal;
+      
+      console.log("Total de la categoría seleccionada:", selectedTotal);
+      console.log("Total de otras categorías:", othersTotal);
+      
+      return [
+        { 
+          name: activeCategory, 
+          value: selectedTotal, 
+          color: enhancedMediaColors[activeCategory], 
+          percentage: (selectedTotal / totalInvestment) * 100 
+        },
+        { 
+          name: "Other Media", 
+          value: othersTotal, 
+          color: "#A0AEC0", // Color gris neutro para "Other Media"
+          percentage: (othersTotal / totalInvestment) * 100 
+        }
+      ];
+    } else {
+      // Para 'All', mostrar un desglose completo de todas las categorías
+      return filteredBankData.mediaCategories.map(category => {
+        const categoryName = category.type || category.category;
+        return {
+          name: categoryName,
+          value: category.total,
+          color: enhancedMediaColors[categoryName] || mediaColors[categoryName],
+          percentage: (category.total / filteredBankData.mediaCategories.reduce((sum, cat) => sum + cat.total, 0)) * 100
+        };
+      }).sort((a, b) => b.value - a.value);
+    }
+  }, [filteredBankData, activeCategory, enhancedMediaColors, mediaColors]);
 
   // Filtrar y ordenar los datos de medios y agregar porcentajes recalculados
   const mediaData = useMemo(() => {
@@ -454,11 +616,23 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
     <div className="bg-white rounded-xl shadow-md p-6 transition duration-300 hover:shadow-lg border border-gray-100">
       <h2 className="text-lg font-medium text-gray-700 mb-6 flex items-center justify-between">
         <div>Investment By Media Category</div>
-        {selectedMonths.length > 0 && (
-          <span className="ml-2 px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full">
-            Filtered by {selectedMonths.length} {selectedMonths.length === 1 ? 'month' : 'months'}
-          </span>
-        )}
+        <div className="flex gap-2">
+          {selectedMonths && selectedMonths.length > 0 && (
+            <span className="px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full">
+              {selectedMonths.length} {selectedMonths.length === 1 ? 'Month' : 'Months'}
+            </span>
+          )}
+          {selectedYears && selectedYears.length > 0 && (
+            <span className="px-2 py-0.5 text-xs bg-green-50 text-green-700 rounded-full">
+              {selectedYears.length} {selectedYears.length === 1 ? 'Year' : 'Years'}
+            </span>
+          )}
+          {selectedPeriod && selectedPeriod !== 'All Period' && (
+            <span className="px-2 py-0.5 text-xs bg-purple-50 text-purple-700 rounded-full">
+              {selectedPeriod}
+            </span>
+          )}
+        </div>
       </h2>
       
       {/* Bank Selector */}
@@ -557,20 +731,23 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
               Total Investment by Media Category
             </span>
             <div className="ml-2 flex items-center">
-              {filteredBankData.mediaCategories.slice(0, 3).map(category => (
-                <div
-                  key={category.type}
-                  className="w-3 h-3 rounded-full ml-1"
-                  style={{backgroundColor: enhancedMediaColors[category.type] || mediaColors[category.type]}}
-                  title={category.type}
-                ></div>
-              ))}
+              {filteredBankData.mediaCategories && filteredBankData.mediaCategories.slice(0, 3).map(category => {
+                const categoryName = category.type || category.category;
+                return (
+                  <div
+                    key={categoryName}
+                    className="w-3 h-3 rounded-full ml-1"
+                    style={{backgroundColor: enhancedMediaColors[categoryName] || mediaColors[categoryName]}}
+                    title={categoryName}
+                  ></div>
+                );
+              })}
             </div>
           </h3>
           
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
-              data={filteredBankData.mediaCategories}
+              data={filteredBankData.mediaCategories || []}
               layout="vertical"
               margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
               barSize={30}
@@ -578,7 +755,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
               <XAxis type="number" tickFormatter={formatValue} />
               <YAxis 
                 type="category" 
-                dataKey="type"
+                dataKey={(data) => data.type || data.category}
                 tick={{ fill: '#4b5563', fontSize: 12 }}
               />
               <Tooltip content={<CustomTooltip />} />
@@ -586,16 +763,19 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                 dataKey="total" 
                 radius={[0, 4, 4, 0]}
               >
-                {filteredBankData.mediaCategories.map((entry) => (
-                  <Cell 
-                    key={`cell-${entry.type}`} 
-                    fill={enhancedMediaColors[entry.type] || mediaColors[entry.type]}
-                  />
-                ))}
+                {(filteredBankData.mediaCategories || []).map((entry) => {
+                  const categoryName = entry.type || entry.category;
+                  return (
+                    <Cell 
+                      key={`cell-${categoryName}`} 
+                      fill={enhancedMediaColors[categoryName] || mediaColors[categoryName]}
+                    />
+                  );
+                })}
                 <LabelList 
                   dataKey="total" 
                   position="right" 
-                  formatter={formatValue}
+                  formatter={(value) => formatCurrency(value)}
                   style={{ fill: '#666', fontSize: '12px' }}
                 />
               </Bar>
@@ -614,7 +794,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
             }}>
               {activeCategory === 'All' 
                 ? 'Investment by Media Category' 
-                : `Cinema vs Other Media`}
+                : `${activeCategory} vs Other Media`}
             </span>
             {focusedBank !== 'All' && (
               <span className="ml-2 text-sm font-normal" style={{color: enhancedBankColors[focusedBank]}}>
@@ -626,7 +806,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
             {activeCategory === 'All' ? (
               <PieChart>
                 <Pie
-                  data={mediaData}
+                  data={mediaData || []}
                   cx="50%"
                   cy="50%"
                   innerRadius={70}
@@ -638,7 +818,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                   strokeWidth={1}
                   labelLine={false}
                 >
-                  {mediaData.map((entry) => (
+                  {(mediaData || []).map((entry) => (
                     <Cell 
                       key={`cell-${entry.name}`}
                       fill={enhancedMediaColors[entry.name] || mediaColors[entry.name]}
@@ -661,7 +841,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
             ) : (
               <PieChart>
                 <Pie
-                  data={selectedVsOthersData}
+                  data={selectedVsOthersData || []}
                   cx="50%"
                   cy="50%"
                   innerRadius={70}
@@ -673,7 +853,7 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                   strokeWidth={1}
                   labelLine={false}
                 >
-                  {selectedVsOthersData.map((entry, index) => (
+                  {(selectedVsOthersData || []).map((entry, index) => (
                     <Cell 
                       key={`cell-${entry.name}`}
                       fill={entry.color}
@@ -750,64 +930,66 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredBankData.mediaCategories
-                .filter(category => activeCategory === 'All' || category.type === activeCategory)
+                .filter(category => activeCategory === 'All' || (category.type === activeCategory || category.category === activeCategory))
                 .sort((a, b) => b.total - a.total)
-                .map((category, index) => (
-                  <tr key={category.type} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div 
-                            className="w-3 h-3 rounded-full mr-2" 
-                          style={{backgroundColor: enhancedMediaColors[category.type] || mediaColors[category.type]}}
-                          ></div>
-                        <div className="text-sm font-medium text-gray-900">{category.type}</div>
-                      </div>
-                    </td>
-                    {filteredBankData.banks
-                      .filter(bank => focusedBank === 'All' || bank.name === focusedBank)
-                      .map(bank => {
-                        const bankShare = category.bankShares.find(
-                          share => share.bank === bank.name
-                        );
-                        return (
-                          <td key={`${category.type}-${bank.name}`} className="px-6 py-4 whitespace-nowrap">
-                            {bankShare ? (
-                              <>
-                                <div className="text-sm font-medium" style={{color: enhancedBankColors[bank.name] || bankColors[bank.name]}}>
-                                  {formatCurrency(bankShare.investment)}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                  {bankShare.share.toFixed(1)}%
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-sm text-gray-400">—</div>
-                            )}
-                          </td>
-                        );
-                      })
-                    }
-                    {focusedBank === 'All' && (
-                      <td className="px-6 py-4 whitespace-nowrap bg-gray-50">
-                        <div className="text-sm font-medium text-gray-900">
-                          {formatCurrency(category.total)}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          100%
+                .map((category, index) => {
+                  const categoryName = category.type || category.category;
+                  return (
+                    <tr key={categoryName} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div 
+                              className="w-3 h-3 rounded-full mr-2" 
+                            style={{backgroundColor: enhancedMediaColors[categoryName] || mediaColors[categoryName]}}
+                            ></div>
+                          <div className="text-sm font-medium text-gray-900">{categoryName}</div>
                         </div>
                       </td>
-                    )}
-                  </tr>
-                ))
-              }
+                      {filteredBankData.banks
+                        .filter(bank => focusedBank === 'All' || bank.name === focusedBank)
+                        .map(bank => {
+                          const bankShare = category.bankShares.find(
+                            share => share.bank === bank.name
+                          );
+                          return (
+                            <td key={`${categoryName}-${bank.name}`} className="px-6 py-4 whitespace-nowrap">
+                              {bankShare ? (
+                                <>
+                                  <div className="text-sm font-medium" style={{color: enhancedBankColors[bank.name] || bankColors[bank.name]}}>
+                                    {formatCurrency(bankShare.investment)}
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {bankShare.share.toFixed(1)}%
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="text-sm text-gray-400">—</div>
+                              )}
+                            </td>
+                          );
+                        })
+                      }
+                      {focusedBank === 'All' && (
+                        <td className="px-6 py-4 whitespace-nowrap bg-gray-50">
+                          <div className="text-sm font-medium text-gray-900">
+                            {formatCurrency(category.total)}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            100%
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
               {/* Fila de Total general si se muestran todos los bancos */}
-                          {focusedBank === 'All' && (
+              {focusedBank === 'All' && (
                 <tr className="bg-gray-100 font-medium">
                   <td className="px-6 py-4 whitespace-nowrap border-t border-gray-300">
                     <div className="text-sm font-medium text-gray-900">
                       {activeCategory === 'All' ? 'Total All Media' : `Total ${activeCategory}`}
-                            </div>
-                        </td>
+                    </div>
+                  </td>
                   {filteredBankData.banks.map(bank => {
                     // Calcular total según la categoría activa
                     let investment = 0;
@@ -816,14 +998,16 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                     } else {
                       // Para categoría específica, obtener directamente de los datos filtrados
                       const categoryData = filteredBankData.mediaCategories
-                        .find(cat => cat.type === activeCategory);
+                        .find(cat => cat.type === activeCategory || cat.category === activeCategory);
                       
                       if (categoryData) {
-                        const bankShare = categoryData.bankShares
-                          .find(share => share.bank === bank.name);
+                        const bankSharesProperty = categoryData.bankShares ? 'bankShares' : 'shares';
+                        const bankShares = categoryData[bankSharesProperty] || [];
+                        
+                        const bankShare = bankShares.find(share => share.bank === bank.name);
                         
                         if (bankShare) {
-                          investment = bankShare.investment;
+                          investment = bankShare.investment || bankShare.amount || 0;
                         }
                       }
                     }
@@ -842,12 +1026,12 @@ const MediaInvestmentByBank = ({ activeCategory = 'All' }) => {
                         activeCategory === 'All'
                           ? filteredBankData.banks.reduce((sum, bank) => sum + bank.totalInvestment, 0)
                           : filteredBankData.mediaCategories
-                              .filter(cat => cat.type === activeCategory)
+                              .filter(cat => cat.type === activeCategory || cat.category === activeCategory)
                               .reduce((sum, cat) => sum + cat.total, 0)
                       )}
                     </div>
                   </td>
-                    </tr>
+                </tr>
               )}
             </tbody>
           </table>
