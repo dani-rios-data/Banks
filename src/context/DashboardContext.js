@@ -384,7 +384,7 @@ export const DashboardProvider = ({ children }) => {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
-                delimiter: "auto", // Auto-detectar delimitador
+                delimiter: ",", // Usar explícitamente coma como delimitador
                 transformHeader: header => header.trim(), // Eliminar espacios en blanco de los encabezados
                 complete: (results) => {
                   console.log("PapaParse directo - Resultados:", {

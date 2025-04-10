@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import MediaInvestmentByBank from './MediaInvestmentByBank';
 import MediaChannelAnalysis from './MediaChannelAnalysis';
 import MediaInsights from './MediaInsights';
 import { useDashboard } from '../../context/DashboardContext';
 import { mediaColors } from '../../utils/colorSchemes';
+import Papa from 'papaparse';
 
 // Function to format currency values with exactly 2 decimals without rounding
 const formatCurrency = (value) => {
@@ -62,28 +63,71 @@ const formatExactPercentage = (value) => {
  */
 const findMediaCategory = (mediaCategories, categoryName) => {
   if (!mediaCategories || !Array.isArray(mediaCategories) || mediaCategories.length === 0) {
-    console.log("Categoría encontrada: undefined (mediaCategories vacío o no es un array)");
-    console.log("Valor de mediaCategories:", mediaCategories);
+    console.log("Category found: undefined (mediaCategories empty or not an array)");
+    console.log("Value of mediaCategories:", mediaCategories);
     
     if (!mediaCategories) {
-      console.log("mediaCategories es null o undefined");
+      console.log("mediaCategories is null or undefined");
     } else if (!Array.isArray(mediaCategories)) {
-      console.log("mediaCategories no es un array, es:", typeof mediaCategories);
+      console.log("mediaCategories is not an array, it is:", typeof mediaCategories);
     } else {
-      console.log("mediaCategories es un array vacío");
+      console.log("mediaCategories is an empty array");
     }
     
     return null;
   }
   
-  console.log("Looking for category:", categoryName, "in", mediaCategories.map(c => c.category || c.type || c.name));
+  // Normalize category name for case-insensitive comparison
+  const normalizedCategoryName = categoryName.toLowerCase();
   
-  // Intentar encontrar la categoría usando múltiples propiedades posibles
-  const category = mediaCategories.find(cat => 
-    (cat.category === categoryName) || 
-    (cat.type === categoryName) || 
-    (cat.name === categoryName)
-  );
+  console.log("Looking for category:", categoryName, "in", mediaCategories.map(c => {
+    const catName = c.category || c.type || c.name;
+    return catName ? catName.toLowerCase() : 'unknown';
+  }));
+  
+  // Try to find the category using multiple possible property names and case-insensitive comparison
+  const category = mediaCategories.find(cat => {
+    // Try different property names that might contain the category name
+    const categoryNames = [
+      cat.category, 
+      cat.type, 
+      cat.name,
+      // Additional variations to try
+      cat.mediaCategory,
+      cat.mediaType,
+      cat.categoryName
+    ].filter(Boolean); // Remove null/undefined values
+    
+    // Check if any of the possible category names match (case-insensitive)
+    return categoryNames.some(name => 
+      name && name.toLowerCase() === normalizedCategoryName
+    );
+  });
+  
+  // If we couldn't find an exact match, try partial matching (contains)
+  if (!category) {
+    console.log(`No exact match for ${categoryName}, trying partial matches...`);
+    
+    const partialMatch = mediaCategories.find(cat => {
+      const categoryNames = [
+        cat.category, 
+        cat.type, 
+        cat.name,
+        cat.mediaCategory,
+        cat.mediaType,
+        cat.categoryName
+      ].filter(Boolean);
+      
+      return categoryNames.some(name => 
+        name && name.toLowerCase().includes(normalizedCategoryName)
+      );
+    });
+    
+    if (partialMatch) {
+      console.log(`Found partial match for ${categoryName}:`, partialMatch);
+      return partialMatch;
+    }
+  }
   
   console.log("Found category:", category);
   return category;
@@ -139,6 +183,11 @@ const getPercentageValue = (bankShare) => {
  */
 // eslint-disable-next-line react/prop-types
 const MediaDashboard = ({ dataSource }) => {
+  // Estado local para datos CSV
+  const [csvData, setCsvData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [processedDataState, setProcessedDataState] = useState(null);
+  
   // DEBUG: Inspeccionar el dataSource recibido
   console.log("===== MEDIA DASHBOARD =====");
   console.log("dataSource recibido:", dataSource);
@@ -160,10 +209,236 @@ const MediaDashboard = ({ dataSource }) => {
     dashboardData
   } = useDashboard();
 
-  // Use filteredData if available, otherwise use dashboardData
-  const dataSourceMemo = useMemo(() => {
-    return filteredData || dashboardData || {};
+  // Cargar datos del CSV como fallback si no hay datos en el contexto
+  useEffect(() => {
+    if (filteredData || dashboardData) {
+      console.log("Using context data instead of loading CSV");
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
+    console.log("Loading CSV data (fallback)...");
+    
+    Papa.parse('consolidated_banks_data.csv', {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        console.log("CSV data loaded:", results.data.length, "rows");
+        setCsvData(results.data);
+        setLoading(false);
+      },
+      error: (error) => {
+        console.error("Error loading CSV:", error);
+        setLoading(false);
+      }
+    });
   }, [filteredData, dashboardData]);
+
+  // Procesar datos para crear un formato compatible
+  useEffect(() => {
+    // Si tenemos datos del contexto, usamos esos
+    if (filteredData || dashboardData) {
+      console.log("Processing context data");
+      return;
+    }
+    
+    // Código fallback: procesar datos del CSV directamente
+    if (!csvData) return;
+    
+    console.log("Processing CSV data as fallback:", selectedMonths);
+    
+    // Convertir valores de dollars a números
+    const dataWithNumbers = csvData.map(row => ({
+      ...row,
+      dollars: parseFloat(row.dollars) || 0
+    }));
+    
+    // Filtrar por meses seleccionados si hay alguno
+    let filteredCsvData;
+    if (selectedMonths && selectedMonths.length > 0) {
+      console.log("Filtering CSV data by months:", selectedMonths);
+      
+      const matchMonth = (csvMonth, selectedMonth) => {
+        // Direct comparison
+        if (csvMonth === selectedMonth) return true;
+        
+        try {
+          // Extract month and year from both formats
+          let csvMonthName, csvYear, selectedMonthName, selectedYear;
+
+          // Format "Month Year" (e.g., "January 2023")
+          if (csvMonth.includes(' ')) {
+            const parts = csvMonth.split(' ');
+            csvMonthName = parts[0].toLowerCase();
+            csvYear = parts[1];
+          }
+
+          if (selectedMonth.includes(' ')) {
+            const parts = selectedMonth.split(' ');
+            selectedMonthName = parts[0].toLowerCase();
+            selectedYear = parts[1];
+          }
+
+          // Format "YYYY-MM" (e.g., "2023-01")
+          if (selectedMonth.includes('-')) {
+            const parts = selectedMonth.split('-');
+            selectedYear = parts[0];
+            const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
+                            'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthNum = parseInt(parts[1], 10);
+            if (monthNum >= 1 && monthNum <= 12) {
+              selectedMonthName = monthNames[monthNum - 1];
+            }
+          }
+
+          if (csvMonth.includes('-')) {
+            const parts = csvMonth.split('-');
+            csvYear = parts[0];
+            const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
+                            'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthNum = parseInt(parts[1], 10);
+            if (monthNum >= 1 && monthNum <= 12) {
+              csvMonthName = monthNames[monthNum - 1];
+            }
+          }
+
+          // If we have both components for both formats, compare
+          if (csvMonthName && csvYear && selectedMonthName && selectedYear) {
+            return csvMonthName === selectedMonthName && csvYear === selectedYear;
+          }
+        } catch (error) {
+          console.error("Error comparing month formats:", error);
+        }
+        
+        return false;
+      };
+      
+      filteredCsvData = dataWithNumbers.filter(row => {
+        return selectedMonths.some(m => matchMonth(row.Month, m));
+      });
+      
+      if (filteredCsvData.length === 0) {
+        console.warn("No data after filtering by months!");
+        filteredCsvData = dataWithNumbers;
+      }
+    } else {
+      filteredCsvData = dataWithNumbers;
+    }
+    
+    console.log(`Filtered data: ${filteredCsvData.length} of ${dataWithNumbers.length} rows`);
+
+    // Get unique list of banks
+    const uniqueBanks = [...new Set(filteredCsvData.map(row => row.Bank))];
+    
+    // Get unique list of media categories
+    const uniqueMediaCategories = [...new Set(filteredCsvData.map(row => row['Media Category']))];
+
+    // Calculate total investment by bank
+    const bankTotals = uniqueBanks.reduce((acc, bank) => {
+      acc[bank] = filteredCsvData
+        .filter(row => row.Bank === bank)
+        .reduce((sum, row) => sum + row.dollars, 0);
+      return acc;
+    }, {});
+
+    // Calculate total investment by media category
+    const mediaTotals = uniqueMediaCategories.reduce((acc, category) => {
+      acc[category] = filteredCsvData
+        .filter(row => row['Media Category'] === category)
+        .reduce((sum, row) => sum + row.dollars, 0);
+      return acc;
+    }, {});
+
+    // Calculate total investment
+    const totalInvestment = Object.values(bankTotals).reduce((a, b) => a + b, 0);
+
+    // Create data structure compatible with existing components
+    const banks = uniqueBanks.map(bank => {
+      // Calculate media distribution for this bank
+      const bankData = filteredCsvData.filter(row => row.Bank === bank);
+      const bankTotal = bankTotals[bank];
+      
+      const mediaBreakdown = uniqueMediaCategories.map(category => {
+        const categoryTotal = bankData
+          .filter(row => row['Media Category'] === category)
+          .reduce((sum, row) => sum + row.dollars, 0);
+          
+        return {
+          category,
+          percentage: bankTotal > 0 ? (categoryTotal / bankTotal) * 100 : 0,
+          amount: categoryTotal,
+          formattedAmount: formatCurrency(categoryTotal),
+          formattedPercentage: formatExactPercentage(bankTotal > 0 ? (categoryTotal / bankTotal) * 100 : 0)
+        };
+      });
+      
+      return {
+        name: bank,
+        totalInvestment: bankTotal,
+        formattedTotalInvestment: formatCurrency(bankTotal),
+        marketShare: totalInvestment > 0 ? (bankTotal / totalInvestment) * 100 : 0,
+        formattedMarketShare: formatExactPercentage(totalInvestment > 0 ? (bankTotal / totalInvestment) * 100 : 0),
+        mediaBreakdown
+      };
+    });
+
+    // Create structure for media categories
+    const mediaCategories = uniqueMediaCategories.map(category => {
+      const categoryData = filteredCsvData.filter(row => row['Media Category'] === category);
+      const categoryTotal = mediaTotals[category];
+      
+      // Calculate bank distribution for this category
+      const bankShares = uniqueBanks.map(bank => {
+        const bankCategoryTotal = categoryData
+          .filter(row => row.Bank === bank)
+          .reduce((sum, row) => sum + row.dollars, 0);
+          
+        return {
+          bank,
+          investment: bankCategoryTotal,
+          amount: bankCategoryTotal,
+          formattedAmount: formatCurrency(bankCategoryTotal),
+          percentage: categoryTotal > 0 ? (bankCategoryTotal / categoryTotal) * 100 : 0,
+          share: categoryTotal > 0 ? (bankCategoryTotal / categoryTotal) * 100 : 0,
+          formattedPercentage: formatExactPercentage(categoryTotal > 0 ? (bankCategoryTotal / categoryTotal) * 100 : 0)
+        };
+      }).filter(share => share.investment > 0);
+      
+      return {
+        name: category,
+        type: category,
+        category, // Add category property to ensure consistency
+        total: categoryTotal,
+        formattedTotal: formatCurrency(categoryTotal),
+        bankShares,
+        marketShare: totalInvestment > 0 ? (categoryTotal / totalInvestment) * 100 : 0,
+        formattedMarketShare: formatExactPercentage(totalInvestment > 0 ? (categoryTotal / totalInvestment) * 100 : 0)
+      };
+    });
+
+    // Create processed data object
+    const processedData = {
+      banks,
+      mediaCategories,
+      totalInvestment,
+      formattedTotalInvestment: formatCurrency(totalInvestment)
+    };
+    
+    console.log("Processed CSV data:", {
+      banks: processedData.banks.length,
+      categories: processedData.mediaCategories.length,
+      totalInvestment: processedData.totalInvestment
+    });
+    
+    setProcessedDataState(processedData);
+  }, [csvData, selectedMonths, filteredData, dashboardData]);
+
+  // Use filteredData if available, otherwise use dashboardData or processedDataState (CSV)
+  const dataSourceMemo = useMemo(() => {
+    return filteredData || dashboardData || processedDataState || {};
+  }, [filteredData, dashboardData, processedDataState]);
 
   // Generate dynamic insights based on filtered data
   const dynamicInsights = useMemo(() => {
@@ -184,9 +459,21 @@ const MediaDashboard = ({ dataSource }) => {
     const mediaCategories = dataSourceMemo.mediaCategories || [];
     
     // Get main category data (TV, Digital)
-    const televisionData = findMediaCategory(mediaCategories, 'Television');
-    const digitalData = findMediaCategory(mediaCategories, 'Digital');
-    const audioData = findMediaCategory(mediaCategories, 'Audio');
+    // Try multiple variations of category names
+    const televisionData = findMediaCategory(mediaCategories, 'Television') || 
+                          findMediaCategory(mediaCategories, 'TV') ||
+                          findMediaCategory(mediaCategories, 'Video') ||
+                          findMediaCategory(mediaCategories, 'Televisión');
+    
+    const digitalData = findMediaCategory(mediaCategories, 'Digital') || 
+                       findMediaCategory(mediaCategories, 'Online') ||
+                       findMediaCategory(mediaCategories, 'Internet') ||
+                       findMediaCategory(mediaCategories, 'Digital Media');
+    
+    const audioData = findMediaCategory(mediaCategories, 'Audio') || 
+                     findMediaCategory(mediaCategories, 'Radio') ||
+                     findMediaCategory(mediaCategories, 'Sound') ||
+                     findMediaCategory(mediaCategories, 'Music');
 
     // Calculate total investment from all banks
     // Use dataSourceMemo.totalInvestment if available for better precision
@@ -316,14 +603,12 @@ const MediaDashboard = ({ dataSource }) => {
     
     // Verify the selected category exists in the data
     if (dataSourceMemo && dataSourceMemo.mediaCategories) {
-      const categoryExists = dataSourceMemo.mediaCategories.some(cat => 
-        (cat.category === selectedMediaCategory) || 
-        (cat.type === selectedMediaCategory) || 
-        (cat.name === selectedMediaCategory)
-      );
+      // Instead of just checking if the category exists, try to find it with our robust function
+      const foundCategory = findMediaCategory(dataSourceMemo.mediaCategories, selectedMediaCategory);
       
-      if (categoryExists) {
-        return selectedMediaCategory;
+      if (foundCategory) {
+        // Return the actual category name from the data for consistency
+        return foundCategory.category || foundCategory.type || foundCategory.name || selectedMediaCategory;
       }
     }
     
