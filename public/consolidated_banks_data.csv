@@ -1,846 +1,817 @@
 Bank,Year,Month,Media Category,dollars
-Bank of America,2023,April 2023,Audio,5660848
-Bank of America,2023,April 2023,Digital,7967285
-Bank of America,2023,April 2023,Outdoor,100709
-Bank of America,2023,April 2023,Print,3847428
-Bank of America,2023,April 2023,Television,125845
-Bank of America,2023,August 2023,Audio,758698
-Bank of America,2023,August 2023,Digital,5832221
+Bank of America,2023,April 2023,Audio,4834904
+Bank of America,2023,April 2023,Digital,207207
+Bank of America,2023,April 2023,Outdoor,7053
+Bank of America,2023,April 2023,Television,111625
+Bank of America,2023,August 2023,Audio,1584780
+Bank of America,2023,August 2023,Digital,30602
 Bank of America,2023,August 2023,Outdoor,189363
-Bank of America,2023,August 2023,Print,1470251
-Bank of America,2023,August 2023,Television,2552097
-Bank of America,2023,December 2023,Audio,2432176
-Bank of America,2023,December 2023,Digital,8266450
+Bank of America,2023,August 2023,Television,711
+Bank of America,2023,December 2023,Audio,1024746
+Bank of America,2023,December 2023,Digital,133205
 Bank of America,2023,December 2023,Outdoor,49719
-Bank of America,2023,December 2023,Print,838447
-Bank of America,2023,December 2023,Television,11962138
-Bank of America,2023,February 2023,Audio,4257109
-Bank of America,2023,February 2023,Digital,5300698
-Bank of America,2023,February 2023,Print,1457934
-Bank of America,2023,February 2023,Television,11239501
-Bank of America,2023,July 2023,Audio,2036085
-Bank of America,2023,July 2023,Digital,8824967
+Bank of America,2023,December 2023,Television,5917566
+Bank of America,2023,July 2023,Audio,1233902
+Bank of America,2023,July 2023,Digital,51202
 Bank of America,2023,July 2023,Outdoor,66493
-Bank of America,2023,July 2023,Print,1967749
-Bank of America,2023,July 2023,Television,925028
-Bank of America,2023,June 2023,Audio,2429600
-Bank of America,2023,June 2023,Digital,4106911
-Bank of America,2023,June 2023,Print,945792
+Bank of America,2023,July 2023,Television,523
+Bank of America,2023,June 2023,Audio,2480476
+Bank of America,2023,June 2023,Digital,57575
 Bank of America,2023,June 2023,Television,1236
-Bank of America,2023,March 2023,Audio,4468228
-Bank of America,2023,March 2023,Digital,3418673
-Bank of America,2023,March 2023,Outdoor,335647
-Bank of America,2023,March 2023,Print,1593384
-Bank of America,2023,March 2023,Television,19608506
-Bank of America,2023,May 2023,Audio,4852097
-Bank of America,2023,May 2023,Digital,3617867
-Bank of America,2023,May 2023,Print,2361868
+Bank of America,2023,March 2023,Audio,3699835
+Bank of America,2023,March 2023,Digital,19678
+Bank of America,2023,March 2023,Outdoor,13053
+Bank of America,2023,March 2023,Television,14202749
+Bank of America,2023,May 2023,Audio,5646814
+Bank of America,2023,May 2023,Digital,30989
+Bank of America,2023,May 2023,Print,37594
 Bank of America,2023,May 2023,Television,6281
-Bank of America,2023,November 2023,Audio,5859473
-Bank of America,2023,November 2023,Digital,5082311
+Bank of America,2023,November 2023,Audio,5506678
+Bank of America,2023,November 2023,Digital,117892
 Bank of America,2023,November 2023,Outdoor,203405
-Bank of America,2023,November 2023,Print,482818
-Bank of America,2023,November 2023,Television,11830691
-Bank of America,2023,October 2023,Audio,10601754
-Bank of America,2023,October 2023,Digital,7512990
+Bank of America,2023,November 2023,Television,9209461
+Bank of America,2023,October 2023,Audio,9371172
+Bank of America,2023,October 2023,Digital,74385
 Bank of America,2023,October 2023,Outdoor,428453
-Bank of America,2023,October 2023,Print,6311201
-Bank of America,2023,October 2023,Television,19072898
-Bank of America,2023,September 2023,Audio,9001826
-Bank of America,2023,September 2023,Digital,5887377
+Bank of America,2023,October 2023,Television,8979950
+Bank of America,2023,September 2023,Audio,10650489
+Bank of America,2023,September 2023,Digital,151158
 Bank of America,2023,September 2023,Outdoor,351386
-Bank of America,2023,September 2023,Print,16238374
-Bank of America,2023,September 2023,Television,8463375
-Bank of America,2025,March 2025,Audio,0
-Bank of America,2025,March 2025,Digital,13276366
-Bank of America,2025,March 2025,Outdoor,8310
-Bank of America,2025,March 2025,Television,1546703
-Capital One Bank,2023,April 2023,Audio,2278564
-Capital One Bank,2023,April 2023,Digital,17471477
-Capital One Bank,2023,April 2023,Outdoor,1442039
-Capital One Bank,2023,April 2023,Print,508028
-Capital One Bank,2023,April 2023,Television,25068698
-Capital One Bank,2023,August 2023,Audio,1731837
-Capital One Bank,2023,August 2023,Digital,16104443
-Capital One Bank,2023,August 2023,Outdoor,1425448
-Capital One Bank,2023,August 2023,Print,621384
-Capital One Bank,2023,August 2023,Television,6698867
-Capital One Bank,2023,December 2023,Audio,1953165
-Capital One Bank,2023,December 2023,Cinema,400850
-Capital One Bank,2023,December 2023,Digital,23300020
-Capital One Bank,2023,December 2023,Outdoor,503609
-Capital One Bank,2023,December 2023,Print,1043511
-Capital One Bank,2023,December 2023,Streaming,972948
-Capital One Bank,2023,December 2023,Television,60331894
-Capital One Bank,2023,February 2023,Audio,1963569
-Capital One Bank,2023,February 2023,Digital,13126051
-Capital One Bank,2023,February 2023,Television,11091334
-Capital One Bank,2023,July 2023,Audio,2594904
-Capital One Bank,2023,July 2023,Digital,18665338
-Capital One Bank,2023,July 2023,Outdoor,1270201
-Capital One Bank,2023,July 2023,Print,1397696
-Capital One Bank,2023,July 2023,Television,11271270
-Capital One Bank,2023,June 2023,Audio,1738704
-Capital One Bank,2023,June 2023,Digital,14480567
-Capital One Bank,2023,June 2023,Outdoor,801950
-Capital One Bank,2023,June 2023,Print,734980
-Capital One Bank,2023,June 2023,Television,11162788
-Capital One Bank,2023,March 2023,Audio,1888552
-Capital One Bank,2023,March 2023,Digital,9884513
-Capital One Bank,2023,March 2023,Outdoor,1391524
-Capital One Bank,2023,March 2023,Print,822023
-Capital One Bank,2023,March 2023,Television,75014585
-Capital One Bank,2023,May 2023,Audio,2312668
-Capital One Bank,2023,May 2023,Digital,13348955
-Capital One Bank,2023,May 2023,Outdoor,1449372
-Capital One Bank,2023,May 2023,Print,1985119
-Capital One Bank,2023,May 2023,Television,15480593
-Capital One Bank,2023,November 2023,Audio,1698000
-Capital One Bank,2023,November 2023,Cinema,880786
-Capital One Bank,2023,November 2023,Digital,17684506
-Capital One Bank,2023,November 2023,Outdoor,521746
-Capital One Bank,2023,November 2023,Print,847287
-Capital One Bank,2023,November 2023,Streaming,629650
-Capital One Bank,2023,November 2023,Television,42669996
-Capital One Bank,2023,October 2023,Audio,2493743
-Capital One Bank,2023,October 2023,Cinema,513353
-Capital One Bank,2023,October 2023,Digital,20600294
-Capital One Bank,2023,October 2023,Outdoor,1887132
-Capital One Bank,2023,October 2023,Print,1567068
-Capital One Bank,2023,October 2023,Streaming,214507
-Capital One Bank,2023,October 2023,Television,45367145
-Capital One Bank,2023,September 2023,Audio,1874949
-Capital One Bank,2023,September 2023,Digital,14891869
-Capital One Bank,2023,September 2023,Outdoor,1810754
-Capital One Bank,2023,September 2023,Print,1604314
-Capital One Bank,2023,September 2023,Television,23847152
-Capital One Bank,2025,March 2025,Audio,0
-Capital One Bank,2025,March 2025,Digital,34873622
-Capital One Bank,2025,March 2025,Outdoor,154883
-Capital One Bank,2025,March 2025,Television,51219478
-Chase Bank,2023,April 2023,Audio,615079
-Chase Bank,2023,April 2023,Digital,13731471
-Chase Bank,2023,April 2023,Outdoor,761394
-Chase Bank,2023,April 2023,Television,3591611
-Chase Bank,2023,August 2023,Audio,1891131
-Chase Bank,2023,August 2023,Cinema,99516
-Chase Bank,2023,August 2023,Digital,10806213
-Chase Bank,2023,August 2023,Outdoor,545525
-Chase Bank,2023,August 2023,Television,5869593
-Chase Bank,2023,December 2023,Audio,2105482
-Chase Bank,2023,December 2023,Cinema,4320
-Chase Bank,2023,December 2023,Digital,16509490
-Chase Bank,2023,December 2023,Outdoor,654508
-Chase Bank,2023,December 2023,Television,7743027
-Chase Bank,2023,February 2023,Audio,1860100
-Chase Bank,2023,February 2023,Digital,8905100
-Chase Bank,2023,February 2023,Print,2085
-Chase Bank,2023,February 2023,Television,9939130
-Chase Bank,2023,July 2023,Audio,1625407
-Chase Bank,2023,July 2023,Cinema,356601
-Chase Bank,2023,July 2023,Digital,11798229
-Chase Bank,2023,July 2023,Outdoor,545807
-Chase Bank,2023,July 2023,Print,13670
-Chase Bank,2023,July 2023,Television,4239894
-Chase Bank,2023,June 2023,Audio,1444656
-Chase Bank,2023,June 2023,Digital,16030212
-Chase Bank,2023,June 2023,Outdoor,519061
-Chase Bank,2023,June 2023,Television,6935557
-Chase Bank,2023,March 2023,Audio,1448400
-Chase Bank,2023,March 2023,Digital,7288244
-Chase Bank,2023,March 2023,Outdoor,1076113
-Chase Bank,2023,March 2023,Television,6731323
-Chase Bank,2023,May 2023,Audio,1637900
-Chase Bank,2023,May 2023,Digital,13916418
-Chase Bank,2023,May 2023,Outdoor,705477
-Chase Bank,2023,May 2023,Television,7147009
-Chase Bank,2023,November 2023,Audio,3590850
-Chase Bank,2023,November 2023,Digital,14465234
-Chase Bank,2023,November 2023,Outdoor,634830
-Chase Bank,2023,November 2023,Television,7075714
-Chase Bank,2023,October 2023,Audio,3295117
-Chase Bank,2023,October 2023,Digital,25825735
-Chase Bank,2023,October 2023,Outdoor,654938
-Chase Bank,2023,October 2023,Print,13670
-Chase Bank,2023,October 2023,Television,10688323
-Chase Bank,2023,September 2023,Audio,2565560
-Chase Bank,2023,September 2023,Digital,34574865
-Chase Bank,2023,September 2023,Outdoor,611450
-Chase Bank,2023,September 2023,Print,342
-Chase Bank,2023,September 2023,Television,7905084
-Chase Bank,2025,March 2025,Audio,0
-Chase Bank,2025,March 2025,Digital,9167313
-Chase Bank,2025,March 2025,Television,14420322
-PNC Bank,2023,April 2023,Audio,70266
-PNC Bank,2023,April 2023,Digital,744858
-PNC Bank,2023,April 2023,Outdoor,148813
-PNC Bank,2023,April 2023,Print,68243
-PNC Bank,2023,April 2023,Television,3794790
-PNC Bank,2023,August 2023,Audio,443717
-PNC Bank,2023,August 2023,Digital,1209682
-PNC Bank,2023,August 2023,Outdoor,1124682
-PNC Bank,2023,August 2023,Print,17875
-PNC Bank,2023,August 2023,Television,6463981
-PNC Bank,2023,December 2023,Audio,123180
-PNC Bank,2023,December 2023,Digital,670893
-PNC Bank,2023,December 2023,Outdoor,5625
-PNC Bank,2023,December 2023,Print,83105
-PNC Bank,2023,December 2023,Television,1571844
-PNC Bank,2023,February 2023,Audio,56356
-PNC Bank,2023,February 2023,Digital,156865
-PNC Bank,2023,February 2023,Print,13060
-PNC Bank,2023,February 2023,Television,50359
-PNC Bank,2023,July 2023,Audio,52857
-PNC Bank,2023,July 2023,Digital,2049366
-PNC Bank,2023,July 2023,Outdoor,1399403
-PNC Bank,2023,July 2023,Print,5250
-PNC Bank,2023,July 2023,Television,5128114
-PNC Bank,2023,June 2023,Audio,48652
-PNC Bank,2023,June 2023,Digital,1033931
-PNC Bank,2023,June 2023,Outdoor,1290646
-PNC Bank,2023,June 2023,Print,5250
-PNC Bank,2023,June 2023,Television,3659683
-PNC Bank,2023,March 2023,Audio,44746
-PNC Bank,2023,March 2023,Digital,184363
-PNC Bank,2023,March 2023,Outdoor,5304
-PNC Bank,2023,March 2023,Print,8199
-PNC Bank,2023,March 2023,Television,1856
-PNC Bank,2023,May 2023,Audio,65791
-PNC Bank,2023,May 2023,Digital,1295755
-PNC Bank,2023,May 2023,Outdoor,852485
-PNC Bank,2023,May 2023,Print,7174
-PNC Bank,2023,May 2023,Television,6788003
-PNC Bank,2023,November 2023,Audio,94576
-PNC Bank,2023,November 2023,Digital,482476
-PNC Bank,2023,November 2023,Outdoor,5625
-PNC Bank,2023,November 2023,Print,12171
-PNC Bank,2023,November 2023,Television,1234825
-PNC Bank,2023,October 2023,Audio,247452
-PNC Bank,2023,October 2023,Digital,372565
-PNC Bank,2023,October 2023,Outdoor,144891
-PNC Bank,2023,October 2023,Print,12291
-PNC Bank,2023,October 2023,Television,353839
-PNC Bank,2023,September 2023,Audio,392793
-PNC Bank,2023,September 2023,Digital,812520
-PNC Bank,2023,September 2023,Outdoor,380383
-PNC Bank,2023,September 2023,Print,22950
-PNC Bank,2023,September 2023,Television,6188418
-PNC Bank,2025,March 2025,Audio,0
-PNC Bank,2025,March 2025,Digital,251538
-PNC Bank,2025,March 2025,Television,3822105
-TD Bank,2023,April 2023,Audio,195
-TD Bank,2023,April 2023,Digital,928515
-TD Bank,2023,April 2023,Outdoor,365311
-TD Bank,2023,April 2023,Print,6483
-TD Bank,2023,April 2023,Television,2158634
-TD Bank,2023,August 2023,Digital,779204
-TD Bank,2023,August 2023,Outdoor,81434
-TD Bank,2023,August 2023,Television,172542
-TD Bank,2023,December 2023,Audio,1207
-TD Bank,2023,December 2023,Digital,1839620
-TD Bank,2023,December 2023,Outdoor,5093
-TD Bank,2023,December 2023,Television,201433
-TD Bank,2023,February 2023,Audio,1030
-TD Bank,2023,February 2023,Digital,752784
-TD Bank,2023,February 2023,Print,1379
-TD Bank,2023,February 2023,Television,151708
-TD Bank,2023,July 2023,Digital,1285699
-TD Bank,2023,July 2023,Outdoor,183691
-TD Bank,2023,July 2023,Television,665544
-TD Bank,2023,June 2023,Digital,846445
-TD Bank,2023,June 2023,Outdoor,50039
-TD Bank,2023,June 2023,Print,5429
-TD Bank,2023,June 2023,Television,1359591
-TD Bank,2023,March 2023,Audio,351
-TD Bank,2023,March 2023,Digital,499830
-TD Bank,2023,March 2023,Outdoor,623121
-TD Bank,2023,March 2023,Television,303793
-TD Bank,2023,May 2023,Digital,1040097
-TD Bank,2023,May 2023,Outdoor,187508
-TD Bank,2023,May 2023,Print,13060
-TD Bank,2023,May 2023,Television,1242441
-TD Bank,2023,November 2023,Digital,1140090
-TD Bank,2023,November 2023,Outdoor,49510
-TD Bank,2023,November 2023,Television,285866
-TD Bank,2023,October 2023,Audio,30
-TD Bank,2023,October 2023,Digital,815477
-TD Bank,2023,October 2023,Outdoor,262297
-TD Bank,2023,October 2023,Television,200237
-TD Bank,2023,September 2023,Digital,846707
-TD Bank,2023,September 2023,Outdoor,332700
-TD Bank,2023,September 2023,Television,202242
-TD Bank,2025,March 2025,Audio,0
-TD Bank,2025,March 2025,Digital,2652738
-TD Bank,2025,March 2025,Outdoor,22778
-TD Bank,2025,March 2025,Television,479808
-US Bank,2023,April 2023,Audio,65131
-US Bank,2023,April 2023,Digital,744858
-US Bank,2023,April 2023,Outdoor,148813
-US Bank,2023,April 2023,Print,65555
-US Bank,2023,April 2023,Television,3793743
-US Bank,2023,August 2023,Audio,431665
-US Bank,2023,August 2023,Digital,1209541
-US Bank,2023,August 2023,Outdoor,944055
-US Bank,2023,August 2023,Print,8375
-US Bank,2023,August 2023,Television,6459019
-US Bank,2023,December 2023,Audio,112011
-US Bank,2023,December 2023,Digital,670894
-US Bank,2023,December 2023,Outdoor,5625
-US Bank,2023,December 2023,Print,83105
-US Bank,2023,December 2023,Television,1566000
-US Bank,2023,February 2023,Audio,53316
-US Bank,2023,February 2023,Digital,156865
-US Bank,2023,February 2023,Print,13060
-US Bank,2023,February 2023,Television,50241
-US Bank,2023,July 2023,Audio,44175
-US Bank,2023,July 2023,Digital,2048930
-US Bank,2023,July 2023,Outdoor,1399403
-US Bank,2023,July 2023,Print,5250
-US Bank,2023,July 2023,Television,5127242
-US Bank,2023,June 2023,Audio,38331
-US Bank,2023,June 2023,Digital,1033881
-US Bank,2023,June 2023,Outdoor,1290646
-US Bank,2023,June 2023,Print,5250
-US Bank,2023,June 2023,Television,3659666
-US Bank,2023,March 2023,Audio,38614
-US Bank,2023,March 2023,Digital,184363
-US Bank,2023,March 2023,Outdoor,5304
-US Bank,2023,March 2023,Print,6010
-US Bank,2023,March 2023,Television,1291
-US Bank,2023,May 2023,Audio,59347
-US Bank,2023,May 2023,Digital,1295757
-US Bank,2023,May 2023,Outdoor,852485
-US Bank,2023,May 2023,Print,6010
-US Bank,2023,May 2023,Television,6782704
-US Bank,2023,November 2023,Audio,83714
-US Bank,2023,November 2023,Digital,482476
-US Bank,2023,November 2023,Outdoor,5625
-US Bank,2023,November 2023,Print,12171
-US Bank,2023,November 2023,Television,1234805
-US Bank,2023,October 2023,Audio,223123
-US Bank,2023,October 2023,Digital,372302
-US Bank,2023,October 2023,Outdoor,144891
-US Bank,2023,October 2023,Print,12291
-US Bank,2023,October 2023,Television,351991
-US Bank,2023,September 2023,Audio,382013
-US Bank,2023,September 2023,Digital,812441
-US Bank,2023,September 2023,Outdoor,207883
-US Bank,2023,September 2023,Print,22950
-US Bank,2023,September 2023,Television,6188023
-US Bank,2025,March 2025,Audio,0
-US Bank,2025,March 2025,Digital,251538
-US Bank,2025,March 2025,Television,3849086
-Wells Fargo,2023,April 2023,Audio,14988
-Wells Fargo,2023,April 2023,Digital,4706426
-Wells Fargo,2023,April 2023,Outdoor,10873
-Wells Fargo,2023,April 2023,Print,272
-Wells Fargo,2023,April 2023,Television,8530120
-Wells Fargo,2023,August 2023,Audio,488182
-Wells Fargo,2023,August 2023,Digital,2865152
-Wells Fargo,2023,August 2023,Outdoor,91705
-Wells Fargo,2023,August 2023,Print,9215
-Wells Fargo,2023,August 2023,Television,13894322
-Wells Fargo,2023,December 2023,Audio,825914
-Wells Fargo,2023,December 2023,Digital,4869392
-Wells Fargo,2023,December 2023,Outdoor,45892
-Wells Fargo,2023,December 2023,Print,105880
-Wells Fargo,2023,December 2023,Television,6254096
-Wells Fargo,2023,February 2023,Audio,665119
-Wells Fargo,2023,February 2023,Digital,3142865
-Wells Fargo,2023,February 2023,Television,3466941
-Wells Fargo,2023,July 2023,Audio,1444069
-Wells Fargo,2023,July 2023,Digital,3940256
-Wells Fargo,2023,July 2023,Outdoor,24871
-Wells Fargo,2023,July 2023,Print,12444
-Wells Fargo,2023,July 2023,Television,6057772
-Wells Fargo,2023,June 2023,Audio,1176197
-Wells Fargo,2023,June 2023,Digital,2391970
-Wells Fargo,2023,June 2023,Outdoor,39472
-Wells Fargo,2023,June 2023,Print,8882
-Wells Fargo,2023,June 2023,Television,6281032
-Wells Fargo,2023,March 2023,Audio,2012478
-Wells Fargo,2023,March 2023,Digital,1708254
-Wells Fargo,2023,March 2023,Outdoor,10414
-Wells Fargo,2023,March 2023,Print,13025
-Wells Fargo,2023,March 2023,Television,2876384
-Wells Fargo,2023,May 2023,Audio,358415
-Wells Fargo,2023,May 2023,Digital,3030781
-Wells Fargo,2023,May 2023,Outdoor,11338
-Wells Fargo,2023,May 2023,Print,18139
-Wells Fargo,2023,May 2023,Television,9355801
-Wells Fargo,2023,November 2023,Audio,827340
-Wells Fargo,2023,November 2023,Digital,4977533
-Wells Fargo,2023,November 2023,Outdoor,103703
-Wells Fargo,2023,November 2023,Print,125493
-Wells Fargo,2023,November 2023,Television,7602229
-Wells Fargo,2023,October 2023,Audio,50858
-Wells Fargo,2023,October 2023,Digital,2876127
-Wells Fargo,2023,October 2023,Outdoor,203171
-Wells Fargo,2023,October 2023,Print,62980
-Wells Fargo,2023,October 2023,Television,17801389
-Wells Fargo,2023,September 2023,Audio,477211
-Wells Fargo,2023,September 2023,Digital,1955904
-Wells Fargo,2023,September 2023,Outdoor,177952
-Wells Fargo,2023,September 2023,Television,7752056
-Wells Fargo,2025,March 2025,Audio,0
-Wells Fargo,2025,March 2025,Digital,3610094
-Wells Fargo,2025,March 2025,Outdoor,34423
-Wells Fargo,2025,March 2025,Television,3048805
-Bank of America,2024,April 2024,Audio,4434443
-Bank of America,2024,April 2024,Digital,10086899
+Bank of America,2023,September 2023,Print,37594
+Bank of America,2023,September 2023,Television,1940332
+Bank of America,2024,April 2024,Audio,4756664
+Bank of America,2024,April 2024,Digital,500986
 Bank of America,2024,April 2024,Outdoor,104968
-Bank of America,2024,April 2024,Print,945045
-Bank of America,2024,April 2024,Television,13141297
-Bank of America,2024,August 2024,Audio,5210724
-Bank of America,2024,August 2024,Digital,7666818
+Bank of America,2024,April 2024,Television,6751259
+Bank of America,2024,August 2024,Audio,5181582
+Bank of America,2024,August 2024,Digital,1223707
 Bank of America,2024,August 2024,Outdoor,138679
-Bank of America,2024,August 2024,Print,2306784
-Bank of America,2024,August 2024,Television,17899777
-Bank of America,2024,December 2024,Audio,342417
-Bank of America,2024,December 2024,Digital,5181576
-Bank of America,2024,December 2024,Print,916132
-Bank of America,2024,December 2024,Television,84471
-Bank of America,2024,February 2024,Audio,503265
-Bank of America,2024,February 2024,Digital,6274787
+Bank of America,2024,August 2024,Television,7176836
+Bank of America,2024,December 2024,Audio,338473
+Bank of America,2024,December 2024,Digital,151007
+Bank of America,2024,December 2024,Television,85550
+Bank of America,2024,February 2024,Audio,552064
+Bank of America,2024,February 2024,Digital,42253
 Bank of America,2024,February 2024,Outdoor,48970
-Bank of America,2024,February 2024,Print,21727
-Bank of America,2024,February 2024,Television,4377021
-Bank of America,2024,January 2024,Audio,605230
-Bank of America,2024,January 2024,Digital,6027092
+Bank of America,2024,February 2024,Television,3428839
+Bank of America,2024,January 2024,Audio,667903
+Bank of America,2024,January 2024,Digital,162505
 Bank of America,2024,January 2024,Outdoor,22372
-Bank of America,2024,January 2024,Print,82625
-Bank of America,2024,January 2024,Streaming,0
-Bank of America,2024,January 2024,Television,16903762
-Bank of America,2024,July 2024,Audio,1897656
-Bank of America,2024,July 2024,Digital,8865532
+Bank of America,2024,January 2024,Television,11040573
+Bank of America,2024,July 2024,Audio,3021013
+Bank of America,2024,July 2024,Digital,1102831
 Bank of America,2024,July 2024,Outdoor,108009
-Bank of America,2024,July 2024,Print,661908
-Bank of America,2024,July 2024,Television,12126845
-Bank of America,2024,June 2024,Audio,2463963
-Bank of America,2024,June 2024,Digital,6695859
+Bank of America,2024,July 2024,Print,37594
+Bank of America,2024,July 2024,Television,6252069
+Bank of America,2024,June 2024,Audio,2312226
+Bank of America,2024,June 2024,Digital,227491
 Bank of America,2024,June 2024,Outdoor,52119
-Bank of America,2024,June 2024,Print,843128
-Bank of America,2024,June 2024,Television,9357617
-Bank of America,2024,March 2024,Audio,1916055
-Bank of America,2024,March 2024,Digital,9098386
+Bank of America,2024,June 2024,Television,2332145
+Bank of America,2024,March 2024,Audio,1804583
+Bank of America,2024,March 2024,Digital,479203
 Bank of America,2024,March 2024,Outdoor,601979
-Bank of America,2024,March 2024,Print,1331484
-Bank of America,2024,March 2024,Television,26281601
-Bank of America,2024,May 2024,Audio,3161010
-Bank of America,2024,May 2024,Digital,7942085
+Bank of America,2024,March 2024,Print,15300
+Bank of America,2024,March 2024,Television,22599266
+Bank of America,2024,May 2024,Audio,2989825
+Bank of America,2024,May 2024,Digital,773070
 Bank of America,2024,May 2024,Outdoor,12619
-Bank of America,2024,May 2024,Print,1871688
-Bank of America,2024,May 2024,Television,4791518
-Bank of America,2024,November 2024,Audio,261770
-Bank of America,2024,November 2024,Digital,3626023
+Bank of America,2024,May 2024,Print,37594
+Bank of America,2024,May 2024,Television,4620243
+Bank of America,2024,November 2024,Audio,149200
+Bank of America,2024,November 2024,Digital,278038
 Bank of America,2024,November 2024,Outdoor,6240
-Bank of America,2024,November 2024,Print,732745
-Bank of America,2024,November 2024,Television,80314
-Bank of America,2024,October 2024,Audio,4898151
-Bank of America,2024,October 2024,Digital,3493122
+Bank of America,2024,November 2024,Television,83952
+Bank of America,2024,October 2024,Audio,3876927
+Bank of America,2024,October 2024,Digital,384629
 Bank of America,2024,October 2024,Outdoor,147170
-Bank of America,2024,October 2024,Print,871098
-Bank of America,2024,October 2024,Television,612519
-Bank of America,2024,September 2024,Audio,6393992
-Bank of America,2024,September 2024,Digital,6350537
+Bank of America,2024,October 2024,Television,179345
+Bank of America,2024,September 2024,Audio,6249970
+Bank of America,2024,September 2024,Digital,789373
 Bank of America,2024,September 2024,Outdoor,202802
-Bank of America,2024,September 2024,Print,2490583
-Bank of America,2024,September 2024,Television,15498345
-Bank of America,2025,February 2025,Audio,39588
-Bank of America,2025,February 2025,Digital,26896366
+Bank of America,2024,September 2024,Print,46344
+Bank of America,2024,September 2024,Television,3659020
+Bank of America,2025,February 2025,Audio,1813391
+Bank of America,2025,February 2025,Digital,20824204
 Bank of America,2025,February 2025,Outdoor,45132
-Bank of America,2025,February 2025,Print,39485
-Bank of America,2025,February 2025,Television,2102296
-Bank of America,2025,January 2025,Audio,325693
-Bank of America,2025,January 2025,Digital,2021959
+Bank of America,2025,February 2025,Television,10300
+Bank of America,2025,January 2025,Audio,315165
+Bank of America,2025,January 2025,Digital,1362903
 Bank of America,2025,January 2025,Outdoor,3282
-Bank of America,2025,January 2025,Print,16334
-Bank of America,2025,January 2025,Television,240534
-Capital One Bank,2024,April 2024,Audio,2004704
-Capital One Bank,2024,April 2024,Digital,21549513
+Bank of America,2025,January 2025,Television,85275
+Bank of America,2025,March 2025,Audio,0
+Bank of America,2025,March 2025,Digital,8291687
+Bank of America,2025,March 2025,Outdoor,28131
+Bank of America,2025,March 2025,Television,29920
+Capital One Bank,2023,April 2023,Audio,2176441
+Capital One Bank,2023,April 2023,Digital,985298
+Capital One Bank,2023,April 2023,Outdoor,1442039
+Capital One Bank,2023,April 2023,Television,9927428
+Capital One Bank,2023,August 2023,Audio,1509647
+Capital One Bank,2023,August 2023,Digital,1122168
+Capital One Bank,2023,August 2023,Outdoor,1425448
+Capital One Bank,2023,August 2023,Television,1750856
+Capital One Bank,2023,December 2023,Audio,1486737
+Capital One Bank,2023,December 2023,Digital,3712961
+Capital One Bank,2023,December 2023,Outdoor,445527
+Capital One Bank,2023,December 2023,Streaming,213517
+Capital One Bank,2023,December 2023,Television,11192862
+Capital One Bank,2023,July 2023,Audio,2642573
+Capital One Bank,2023,July 2023,Digital,1282436
+Capital One Bank,2023,July 2023,Outdoor,1270201
+Capital One Bank,2023,July 2023,Television,4199243
+Capital One Bank,2023,June 2023,Audio,1875124
+Capital One Bank,2023,June 2023,Digital,1010627
+Capital One Bank,2023,June 2023,Outdoor,801950
+Capital One Bank,2023,June 2023,Television,2445314
+Capital One Bank,2023,March 2023,Audio,1456321
+Capital One Bank,2023,March 2023,Digital,929391
+Capital One Bank,2023,March 2023,Outdoor,1391524
+Capital One Bank,2023,March 2023,Television,28581643
+Capital One Bank,2023,May 2023,Audio,2608568
+Capital One Bank,2023,May 2023,Digital,956205
+Capital One Bank,2023,May 2023,Outdoor,1449372
+Capital One Bank,2023,May 2023,Television,3684330
+Capital One Bank,2023,November 2023,Audio,1796671
+Capital One Bank,2023,November 2023,Digital,3649487
+Capital One Bank,2023,November 2023,Outdoor,444304
+Capital One Bank,2023,November 2023,Television,6535647
+Capital One Bank,2023,October 2023,Audio,2400773
+Capital One Bank,2023,October 2023,Cinema,493086
+Capital One Bank,2023,October 2023,Digital,1519990
+Capital One Bank,2023,October 2023,Outdoor,1882132
+Capital One Bank,2023,October 2023,Television,10253962
+Capital One Bank,2023,September 2023,Audio,1966602
+Capital One Bank,2023,September 2023,Digital,966914
+Capital One Bank,2023,September 2023,Outdoor,1810754
+Capital One Bank,2023,September 2023,Television,4228061
+Capital One Bank,2024,April 2024,Audio,2593114
+Capital One Bank,2024,April 2024,Digital,2610965
 Capital One Bank,2024,April 2024,Outdoor,258241
-Capital One Bank,2024,April 2024,Print,833177
-Capital One Bank,2024,April 2024,Television,25095356
-Capital One Bank,2024,August 2024,Audio,2542335
-Capital One Bank,2024,August 2024,Digital,20648588
+Capital One Bank,2024,April 2024,Television,8194539
+Capital One Bank,2024,August 2024,Audio,2505811
+Capital One Bank,2024,August 2024,Digital,3070582
 Capital One Bank,2024,August 2024,Outdoor,411035
-Capital One Bank,2024,August 2024,Print,1220978
-Capital One Bank,2024,August 2024,Television,10509473
-Capital One Bank,2024,December 2024,Audio,4104525
-Capital One Bank,2024,December 2024,Cinema,1167019
-Capital One Bank,2024,December 2024,Digital,50792007
-Capital One Bank,2024,December 2024,Outdoor,925261
-Capital One Bank,2024,December 2024,Print,1104610
-Capital One Bank,2024,December 2024,Streaming,1212243
-Capital One Bank,2024,December 2024,Television,75111023
-Capital One Bank,2024,February 2024,Audio,3381637
-Capital One Bank,2024,February 2024,Digital,19776845
+Capital One Bank,2024,August 2024,Television,4075705
+Capital One Bank,2024,December 2024,Audio,3763397
+Capital One Bank,2024,December 2024,Cinema,1162687
+Capital One Bank,2024,December 2024,Digital,3937579
+Capital One Bank,2024,December 2024,Outdoor,894538
+Capital One Bank,2024,December 2024,Streaming,309200
+Capital One Bank,2024,December 2024,Television,6841320
+Capital One Bank,2024,February 2024,Audio,2915381
+Capital One Bank,2024,February 2024,Digital,2335794
 Capital One Bank,2024,February 2024,Outdoor,351716
-Capital One Bank,2024,February 2024,Print,636150
-Capital One Bank,2024,February 2024,Television,9228927
-Capital One Bank,2024,January 2024,Audio,4363076
-Capital One Bank,2024,January 2024,Digital,17072635
+Capital One Bank,2024,February 2024,Television,2752099
+Capital One Bank,2024,January 2024,Audio,5162164
+Capital One Bank,2024,January 2024,Digital,2966989
 Capital One Bank,2024,January 2024,Outdoor,321560
-Capital One Bank,2024,January 2024,Print,601653
-Capital One Bank,2024,January 2024,Television,23667296
-Capital One Bank,2024,July 2024,Audio,2268196
-Capital One Bank,2024,July 2024,Digital,21194980
+Capital One Bank,2024,January 2024,Television,5772945
+Capital One Bank,2024,July 2024,Audio,2892200
+Capital One Bank,2024,July 2024,Digital,2808902
 Capital One Bank,2024,July 2024,Outdoor,273070
-Capital One Bank,2024,July 2024,Print,1520911
-Capital One Bank,2024,July 2024,Television,12542423
-Capital One Bank,2024,June 2024,Audio,2517674
-Capital One Bank,2024,June 2024,Digital,20183555
+Capital One Bank,2024,July 2024,Television,4186551
+Capital One Bank,2024,June 2024,Audio,2239031
+Capital One Bank,2024,June 2024,Digital,1511805
 Capital One Bank,2024,June 2024,Outdoor,325741
-Capital One Bank,2024,June 2024,Print,853660
-Capital One Bank,2024,June 2024,Television,15541042
-Capital One Bank,2024,March 2024,Audio,1999816
-Capital One Bank,2024,March 2024,Digital,24510627
+Capital One Bank,2024,June 2024,Television,4402661
+Capital One Bank,2024,March 2024,Audio,1657577
+Capital One Bank,2024,March 2024,Digital,2369409
 Capital One Bank,2024,March 2024,Outdoor,283046
-Capital One Bank,2024,March 2024,Print,1112636
-Capital One Bank,2024,March 2024,Television,71512162
-Capital One Bank,2024,May 2024,Audio,2044052
-Capital One Bank,2024,May 2024,Digital,20502537
+Capital One Bank,2024,March 2024,Television,15762041
+Capital One Bank,2024,May 2024,Audio,1728173
+Capital One Bank,2024,May 2024,Digital,2100032
 Capital One Bank,2024,May 2024,Outdoor,373549
-Capital One Bank,2024,May 2024,Print,2042460
-Capital One Bank,2024,May 2024,Television,14285047
-Capital One Bank,2024,November 2024,Audio,3322109
-Capital One Bank,2024,November 2024,Cinema,522893
-Capital One Bank,2024,November 2024,Digital,24706686
-Capital One Bank,2024,November 2024,Outdoor,557709
-Capital One Bank,2024,November 2024,Print,916118
-Capital One Bank,2024,November 2024,Streaming,144426
-Capital One Bank,2024,November 2024,Television,36255250
-Capital One Bank,2024,October 2024,Audio,2457549
-Capital One Bank,2024,October 2024,Digital,14152079
-Capital One Bank,2024,October 2024,Outdoor,526203
-Capital One Bank,2024,October 2024,Print,1186363
-Capital One Bank,2024,October 2024,Streaming,708993
-Capital One Bank,2024,October 2024,Television,38387993
-Capital One Bank,2024,September 2024,Audio,2068512
-Capital One Bank,2024,September 2024,Digital,23793910
-Capital One Bank,2024,September 2024,Outdoor,564106
-Capital One Bank,2024,September 2024,Print,2332999
-Capital One Bank,2024,September 2024,Streaming,422680
-Capital One Bank,2024,September 2024,Television,29392869
-Capital One Bank,2025,February 2025,Audio,585023
-Capital One Bank,2025,February 2025,Digital,33648910
-Capital One Bank,2025,February 2025,Outdoor,318739
-Capital One Bank,2025,February 2025,Print,1049412
-Capital One Bank,2025,February 2025,Television,12796916
-Capital One Bank,2025,January 2025,Audio,1960064
-Capital One Bank,2025,January 2025,Digital,33614077
-Capital One Bank,2025,January 2025,Outdoor,556692
-Capital One Bank,2025,January 2025,Print,367799
-Capital One Bank,2025,January 2025,Television,48898988
-Chase Bank,2024,April 2024,Audio,2241188
-Chase Bank,2024,April 2024,Digital,15589472
-Chase Bank,2024,April 2024,Outdoor,130657
-Chase Bank,2024,April 2024,Television,3576810
-Chase Bank,2024,August 2024,Audio,3645953
-Chase Bank,2024,August 2024,Digital,27792327
+Capital One Bank,2024,May 2024,Television,3868581
+Capital One Bank,2024,November 2024,Audio,3390910
+Capital One Bank,2024,November 2024,Cinema,521053
+Capital One Bank,2024,November 2024,Digital,3516600
+Capital One Bank,2024,November 2024,Outdoor,550709
+Capital One Bank,2024,November 2024,Streaming,151312
+Capital One Bank,2024,November 2024,Television,9234923
+Capital One Bank,2024,October 2024,Audio,2582481
+Capital One Bank,2024,October 2024,Digital,2465489
+Capital One Bank,2024,October 2024,Outdoor,521203
+Capital One Bank,2024,October 2024,Streaming,135609
+Capital One Bank,2024,October 2024,Television,9570977
+Capital One Bank,2024,September 2024,Audio,2164485
+Capital One Bank,2024,September 2024,Digital,4259528
+Capital One Bank,2024,September 2024,Outdoor,563106
+Capital One Bank,2024,September 2024,Streaming,265949
+Capital One Bank,2024,September 2024,Television,6736541
+Capital One Bank,2025,February 2025,Audio,2067124
+Capital One Bank,2025,February 2025,Digital,4825141
+Capital One Bank,2025,February 2025,Outdoor,310939
+Capital One Bank,2025,February 2025,Television,3033665
+Capital One Bank,2025,January 2025,Audio,1965000
+Capital One Bank,2025,January 2025,Digital,5828021
+Capital One Bank,2025,January 2025,Outdoor,466100
+Capital One Bank,2025,January 2025,Television,10617754
+Capital One Bank,2025,March 2025,Audio,0
+Capital One Bank,2025,March 2025,Digital,4974291
+Capital One Bank,2025,March 2025,Outdoor,327660
+Capital One Bank,2025,March 2025,Television,9807878
+Chase Bank,2023,April 2023,Audio,610123
+Chase Bank,2023,April 2023,Digital,145281
+Chase Bank,2023,April 2023,Outdoor,82919
+Chase Bank,2023,April 2023,Television,3581032
+Chase Bank,2023,August 2023,Audio,1402570
+Chase Bank,2023,August 2023,Cinema,97911
+Chase Bank,2023,August 2023,Digital,592879
+Chase Bank,2023,August 2023,Outdoor,3650
+Chase Bank,2023,August 2023,Television,5629479
+Chase Bank,2023,December 2023,Audio,1288001
+Chase Bank,2023,December 2023,Cinema,4104
+Chase Bank,2023,December 2023,Digital,1554584
+Chase Bank,2023,December 2023,Outdoor,14920
+Chase Bank,2023,December 2023,Television,7741663
+Chase Bank,2023,July 2023,Audio,2593560
+Chase Bank,2023,July 2023,Cinema,358206
+Chase Bank,2023,July 2023,Digital,758486
+Chase Bank,2023,July 2023,Outdoor,2906
+Chase Bank,2023,July 2023,Television,4517173
+Chase Bank,2023,June 2023,Audio,1414163
+Chase Bank,2023,June 2023,Digital,569137
+Chase Bank,2023,June 2023,Outdoor,1921
+Chase Bank,2023,June 2023,Television,6866664
+Chase Bank,2023,March 2023,Audio,1321105
+Chase Bank,2023,March 2023,Digital,191560
+Chase Bank,2023,March 2023,Outdoor,326568
+Chase Bank,2023,March 2023,Television,6645317
+Chase Bank,2023,May 2023,Audio,1692151
+Chase Bank,2023,May 2023,Digital,420066
+Chase Bank,2023,May 2023,Outdoor,6412
+Chase Bank,2023,May 2023,Television,7216728
+Chase Bank,2023,November 2023,Audio,3474382
+Chase Bank,2023,November 2023,Cinema,216
+Chase Bank,2023,November 2023,Digital,1260259
+Chase Bank,2023,November 2023,Outdoor,15874
+Chase Bank,2023,November 2023,Television,6993962
+Chase Bank,2023,October 2023,Audio,3737436
+Chase Bank,2023,October 2023,Digital,872679
+Chase Bank,2023,October 2023,Outdoor,15350
+Chase Bank,2023,October 2023,Television,10516937
+Chase Bank,2023,September 2023,Audio,2553840
+Chase Bank,2023,September 2023,Digital,847048
+Chase Bank,2023,September 2023,Outdoor,4146
+Chase Bank,2023,September 2023,Television,8120594
+Chase Bank,2024,April 2024,Audio,2861368
+Chase Bank,2024,April 2024,Digital,5804328
+Chase Bank,2024,April 2024,Outdoor,4094
+Chase Bank,2024,April 2024,Television,4158065
+Chase Bank,2024,August 2024,Audio,3711454
+Chase Bank,2024,August 2024,Digital,23038856
 Chase Bank,2024,August 2024,Outdoor,13062
-Chase Bank,2024,August 2024,Television,13511392
-Chase Bank,2024,December 2024,Audio,1813816
-Chase Bank,2024,December 2024,Digital,20558145
-Chase Bank,2024,December 2024,Outdoor,217740
-Chase Bank,2024,December 2024,Television,8852822
-Chase Bank,2024,February 2024,Audio,2061014
-Chase Bank,2024,February 2024,Digital,11308093
-Chase Bank,2024,February 2024,Outdoor,122864
-Chase Bank,2024,February 2024,Television,10227174
-Chase Bank,2024,January 2024,Audio,1268130
-Chase Bank,2024,January 2024,Digital,18912222
-Chase Bank,2024,January 2024,Outdoor,134145
-Chase Bank,2024,January 2024,Television,3255729
-Chase Bank,2024,July 2024,Audio,2368517
+Chase Bank,2024,August 2024,Television,15337940
+Chase Bank,2024,December 2024,Audio,1807880
+Chase Bank,2024,December 2024,Digital,3957687
+Chase Bank,2024,December 2024,Outdoor,109229
+Chase Bank,2024,December 2024,Television,8852705
+Chase Bank,2024,February 2024,Audio,2239070
+Chase Bank,2024,February 2024,Cinema,176
+Chase Bank,2024,February 2024,Digital,845958
+Chase Bank,2024,February 2024,Outdoor,520
+Chase Bank,2024,February 2024,Television,10535506
+Chase Bank,2024,January 2024,Audio,1794440
+Chase Bank,2024,January 2024,Digital,878284
+Chase Bank,2024,January 2024,Outdoor,3364
+Chase Bank,2024,January 2024,Television,4542946
+Chase Bank,2024,July 2024,Audio,3726045
 Chase Bank,2024,July 2024,Cinema,1920
-Chase Bank,2024,July 2024,Digital,12723257
+Chase Bank,2024,July 2024,Digital,3818945
 Chase Bank,2024,July 2024,Outdoor,6675
-Chase Bank,2024,July 2024,Television,5196504
-Chase Bank,2024,June 2024,Audio,3434378
-Chase Bank,2024,June 2024,Digital,18993456
-Chase Bank,2024,June 2024,Outdoor,76958
-Chase Bank,2024,June 2024,Television,8224158
-Chase Bank,2024,March 2024,Audio,3501697
-Chase Bank,2024,March 2024,Cinema,3550
-Chase Bank,2024,March 2024,Digital,14909865
-Chase Bank,2024,March 2024,Outdoor,131249
-Chase Bank,2024,March 2024,Television,13133863
-Chase Bank,2024,May 2024,Audio,2133440
-Chase Bank,2024,May 2024,Digital,16643472
-Chase Bank,2024,May 2024,Outdoor,134887
-Chase Bank,2024,May 2024,Television,6402282
-Chase Bank,2024,November 2024,Audio,2868543
-Chase Bank,2024,November 2024,Digital,18303127
-Chase Bank,2024,November 2024,Outdoor,70548
-Chase Bank,2024,November 2024,Television,10304775
-Chase Bank,2024,October 2024,Audio,3437785
-Chase Bank,2024,October 2024,Digital,21861924
+Chase Bank,2024,July 2024,Television,6628910
+Chase Bank,2024,June 2024,Audio,2745752
+Chase Bank,2024,June 2024,Digital,3900971
+Chase Bank,2024,June 2024,Outdoor,9458
+Chase Bank,2024,June 2024,Television,6632766
+Chase Bank,2024,March 2024,Audio,2797331
+Chase Bank,2024,March 2024,Cinema,3374
+Chase Bank,2024,March 2024,Digital,4206169
+Chase Bank,2024,March 2024,Outdoor,468
+Chase Bank,2024,March 2024,Television,11537457
+Chase Bank,2024,May 2024,Audio,2201886
+Chase Bank,2024,May 2024,Digital,5674596
+Chase Bank,2024,May 2024,Outdoor,4106
+Chase Bank,2024,May 2024,Television,7412018
+Chase Bank,2024,November 2024,Audio,2455824
+Chase Bank,2024,November 2024,Digital,4535324
+Chase Bank,2024,November 2024,Outdoor,541
+Chase Bank,2024,November 2024,Television,8586194
+Chase Bank,2024,October 2024,Audio,3827541
+Chase Bank,2024,October 2024,Digital,12055955
 Chase Bank,2024,October 2024,Outdoor,1307
-Chase Bank,2024,October 2024,Television,8411849
-Chase Bank,2024,September 2024,Audio,5555568
-Chase Bank,2024,September 2024,Digital,32635460
+Chase Bank,2024,October 2024,Television,10129786
+Chase Bank,2024,September 2024,Audio,4162795
+Chase Bank,2024,September 2024,Digital,15686112
 Chase Bank,2024,September 2024,Outdoor,5885
-Chase Bank,2024,September 2024,Television,20917898
-Chase Bank,2025,February 2025,Audio,555144
-Chase Bank,2025,February 2025,Digital,6044555
-Chase Bank,2025,February 2025,Outdoor,359693
-Chase Bank,2025,February 2025,Television,13762691
-Chase Bank,2025,January 2025,Audio,560032
-Chase Bank,2025,January 2025,Digital,4400880
-Chase Bank,2025,January 2025,Outdoor,351770
-Chase Bank,2025,January 2025,Television,3626137
-PNC Bank,2024,April 2024,Audio,50355
-PNC Bank,2024,April 2024,Digital,159705
+Chase Bank,2024,September 2024,Television,17658001
+Chase Bank,2025,February 2025,Audio,1957016
+Chase Bank,2025,February 2025,Digital,1872298
+Chase Bank,2025,February 2025,Television,13665236
+Chase Bank,2025,January 2025,Audio,1121821
+Chase Bank,2025,January 2025,Digital,1778234
+Chase Bank,2025,January 2025,Outdoor,268
+Chase Bank,2025,January 2025,Television,6093856
+Chase Bank,2025,March 2025,Audio,0
+Chase Bank,2025,March 2025,Digital,1905267
+Chase Bank,2025,March 2025,Outdoor,12668
+Chase Bank,2025,March 2025,Television,14309824
+Key Bank,2023,April 2023,Audio,13889
+Key Bank,2023,April 2023,Digital,20856
+Key Bank,2023,April 2023,Outdoor,6368
+Key Bank,2023,April 2023,Television,254384
+Key Bank,2023,August 2023,Audio,247613
+Key Bank,2023,August 2023,Digital,82370
+Key Bank,2023,August 2023,Outdoor,152262
+Key Bank,2023,August 2023,Television,261798
+Key Bank,2023,December 2023,Audio,33341
+Key Bank,2023,December 2023,Digital,13923
+Key Bank,2023,December 2023,Outdoor,6496
+Key Bank,2023,December 2023,Television,5464
+Key Bank,2023,July 2023,Audio,317560
+Key Bank,2023,July 2023,Digital,64128
+Key Bank,2023,July 2023,Outdoor,246862
+Key Bank,2023,July 2023,Television,185336
+Key Bank,2023,June 2023,Audio,213840
+Key Bank,2023,June 2023,Digital,27382
+Key Bank,2023,June 2023,Outdoor,279530
+Key Bank,2023,June 2023,Television,1179046
+Key Bank,2023,March 2023,Audio,19318
+Key Bank,2023,March 2023,Digital,13810
+Key Bank,2023,March 2023,Outdoor,6368
+Key Bank,2023,March 2023,Television,470818
+Key Bank,2023,May 2023,Audio,14243
+Key Bank,2023,May 2023,Digital,1766
+Key Bank,2023,May 2023,Outdoor,6368
+Key Bank,2023,May 2023,Television,225870
+Key Bank,2023,November 2023,Audio,57385
+Key Bank,2023,November 2023,Digital,37438
+Key Bank,2023,November 2023,Outdoor,20518
+Key Bank,2023,November 2023,Television,1571
+Key Bank,2023,October 2023,Audio,76470
+Key Bank,2023,October 2023,Digital,9037
+Key Bank,2023,October 2023,Outdoor,62968
+Key Bank,2023,October 2023,Television,386948
+Key Bank,2023,September 2023,Audio,62560
+Key Bank,2023,September 2023,Digital,67329
+Key Bank,2023,September 2023,Outdoor,79957
+Key Bank,2023,September 2023,Television,595605
+Key Bank,2024,April 2024,Audio,40108
+Key Bank,2024,April 2024,Digital,4561
+Key Bank,2024,April 2024,Outdoor,6496
+Key Bank,2024,April 2024,Television,313006
+Key Bank,2024,August 2024,Audio,236547
+Key Bank,2024,August 2024,Digital,1612
+Key Bank,2024,August 2024,Outdoor,29846
+Key Bank,2024,August 2024,Print,35002
+Key Bank,2024,August 2024,Television,518930
+Key Bank,2024,December 2024,Audio,48697
+Key Bank,2024,December 2024,Digital,22789
+Key Bank,2024,December 2024,Outdoor,6689
+Key Bank,2024,December 2024,Television,27226
+Key Bank,2024,February 2024,Audio,41644
+Key Bank,2024,February 2024,Digital,1300
+Key Bank,2024,February 2024,Outdoor,6496
+Key Bank,2024,February 2024,Television,254230
+Key Bank,2024,January 2024,Audio,74691
+Key Bank,2024,January 2024,Digital,2
+Key Bank,2024,January 2024,Outdoor,6496
+Key Bank,2024,January 2024,Television,528
+Key Bank,2024,July 2024,Audio,277977
+Key Bank,2024,July 2024,Digital,2785
+Key Bank,2024,July 2024,Outdoor,261657
+Key Bank,2024,July 2024,Television,160347
+Key Bank,2024,June 2024,Audio,230901
+Key Bank,2024,June 2024,Digital,7706
+Key Bank,2024,June 2024,Outdoor,161046
+Key Bank,2024,June 2024,Television,22204
+Key Bank,2024,March 2024,Audio,38697
+Key Bank,2024,March 2024,Digital,14526
+Key Bank,2024,March 2024,Outdoor,6496
+Key Bank,2024,March 2024,Television,309674
+Key Bank,2024,May 2024,Audio,75552
+Key Bank,2024,May 2024,Digital,5474
+Key Bank,2024,May 2024,Outdoor,6496
+Key Bank,2024,May 2024,Television,254603
+Key Bank,2024,November 2024,Audio,49782
+Key Bank,2024,November 2024,Digital,12200
+Key Bank,2024,November 2024,Outdoor,6496
+Key Bank,2024,November 2024,Television,53300
+Key Bank,2024,October 2024,Audio,35271
+Key Bank,2024,October 2024,Digital,29870
+Key Bank,2024,October 2024,Outdoor,7446
+Key Bank,2024,October 2024,Television,7184
+Key Bank,2024,September 2024,Audio,31191
+Key Bank,2024,September 2024,Digital,30431
+Key Bank,2024,September 2024,Outdoor,25546
+Key Bank,2024,September 2024,Print,8750
+Key Bank,2024,September 2024,Television,614542
+Key Bank,2025,February 2025,Audio,41395
+Key Bank,2025,February 2025,Digital,23623
+Key Bank,2025,February 2025,Outdoor,6689
+Key Bank,2025,January 2025,Audio,50210
+Key Bank,2025,January 2025,Digital,22038
+Key Bank,2025,January 2025,Outdoor,12189
+Key Bank,2025,January 2025,Television,9477
+Key Bank,2025,March 2025,Audio,0
+Key Bank,2025,March 2025,Digital,16416
+Key Bank,2025,March 2025,Outdoor,6689
+Key Bank,2025,March 2025,Television,383114
+PNC Bank,2023,April 2023,Audio,56137
+PNC Bank,2023,April 2023,Digital,42768
+PNC Bank,2023,April 2023,Outdoor,148813
+PNC Bank,2023,April 2023,Television,3793725
+PNC Bank,2023,August 2023,Audio,544722
+PNC Bank,2023,August 2023,Digital,58826
+PNC Bank,2023,August 2023,Outdoor,944055
+PNC Bank,2023,August 2023,Television,7072696
+PNC Bank,2023,December 2023,Audio,89035
+PNC Bank,2023,December 2023,Digital,60472
+PNC Bank,2023,December 2023,Outdoor,5625
+PNC Bank,2023,December 2023,Television,1264345
+PNC Bank,2023,July 2023,Audio,51146
+PNC Bank,2023,July 2023,Digital,52806
+PNC Bank,2023,July 2023,Outdoor,1399403
+PNC Bank,2023,July 2023,Television,4393321
+PNC Bank,2023,June 2023,Audio,30510
+PNC Bank,2023,June 2023,Digital,59301
+PNC Bank,2023,June 2023,Outdoor,1290646
+PNC Bank,2023,June 2023,Television,4454233
+PNC Bank,2023,March 2023,Audio,34163
+PNC Bank,2023,March 2023,Digital,14168
+PNC Bank,2023,March 2023,Outdoor,5304
+PNC Bank,2023,March 2023,Television,1293
+PNC Bank,2023,May 2023,Audio,75361
+PNC Bank,2023,May 2023,Digital,62105
+PNC Bank,2023,May 2023,Outdoor,852485
+PNC Bank,2023,May 2023,Television,7077037
+PNC Bank,2023,November 2023,Audio,87561
+PNC Bank,2023,November 2023,Digital,47043
+PNC Bank,2023,November 2023,Outdoor,5625
+PNC Bank,2023,November 2023,Television,1536370
+PNC Bank,2023,October 2023,Audio,186536
+PNC Bank,2023,October 2023,Digital,49136
+PNC Bank,2023,October 2023,Outdoor,144891
+PNC Bank,2023,October 2023,Television,213784
+PNC Bank,2023,September 2023,Audio,309508
+PNC Bank,2023,September 2023,Digital,33608
+PNC Bank,2023,September 2023,Outdoor,207883
+PNC Bank,2023,September 2023,Television,5357536
+PNC Bank,2024,April 2024,Audio,60748
+PNC Bank,2024,April 2024,Digital,134378
 PNC Bank,2024,April 2024,Outdoor,5625
-PNC Bank,2024,April 2024,Print,3410
-PNC Bank,2024,April 2024,Television,8286584
-PNC Bank,2024,August 2024,Audio,61587
-PNC Bank,2024,August 2024,Digital,145124
+PNC Bank,2024,April 2024,Television,8311830
+PNC Bank,2024,August 2024,Audio,59393
+PNC Bank,2024,August 2024,Digital,105520
 PNC Bank,2024,August 2024,Outdoor,5965
-PNC Bank,2024,August 2024,Television,2716536
-PNC Bank,2024,December 2024,Audio,215582
-PNC Bank,2024,December 2024,Digital,609934
-PNC Bank,2024,December 2024,Outdoor,312632
-PNC Bank,2024,December 2024,Television,3956224
-PNC Bank,2024,February 2024,Audio,62244
-PNC Bank,2024,February 2024,Digital,110943
+PNC Bank,2024,August 2024,Television,3399017
+PNC Bank,2024,December 2024,Audio,211753
+PNC Bank,2024,December 2024,Digital,283115
+PNC Bank,2024,December 2024,Outdoor,185757
+PNC Bank,2024,December 2024,Television,2668476
+PNC Bank,2024,February 2024,Audio,61836
+PNC Bank,2024,February 2024,Digital,20982
 PNC Bank,2024,February 2024,Outdoor,5625
-PNC Bank,2024,February 2024,Print,6530
-PNC Bank,2024,February 2024,Television,4093
-PNC Bank,2024,January 2024,Audio,85918
-PNC Bank,2024,January 2024,Digital,61759
+PNC Bank,2024,February 2024,Television,4095
+PNC Bank,2024,January 2024,Audio,96138
+PNC Bank,2024,January 2024,Digital,44572
 PNC Bank,2024,January 2024,Outdoor,5625
-PNC Bank,2024,January 2024,Television,19593
-PNC Bank,2024,July 2024,Audio,44182
-PNC Bank,2024,July 2024,Digital,195611
+PNC Bank,2024,January 2024,Television,18694
+PNC Bank,2024,July 2024,Audio,50625
+PNC Bank,2024,July 2024,Digital,144398
 PNC Bank,2024,July 2024,Outdoor,5965
-PNC Bank,2024,July 2024,Television,1254130
-PNC Bank,2024,June 2024,Audio,63267
-PNC Bank,2024,June 2024,Digital,337277
+PNC Bank,2024,July 2024,Television,1912196
+PNC Bank,2024,June 2024,Audio,43996
+PNC Bank,2024,June 2024,Digital,148674
 PNC Bank,2024,June 2024,Outdoor,5625
-PNC Bank,2024,June 2024,Television,4066956
-PNC Bank,2024,March 2024,Audio,53982
-PNC Bank,2024,March 2024,Digital,334138
+PNC Bank,2024,June 2024,Television,4056915
+PNC Bank,2024,March 2024,Audio,34815
+PNC Bank,2024,March 2024,Digital,158074
 PNC Bank,2024,March 2024,Outdoor,5625
-PNC Bank,2024,March 2024,Print,419587
-PNC Bank,2024,March 2024,Television,6105440
-PNC Bank,2024,May 2024,Audio,61956
-PNC Bank,2024,May 2024,Digital,89516
+PNC Bank,2024,March 2024,Television,6105426
+PNC Bank,2024,May 2024,Audio,53965
+PNC Bank,2024,May 2024,Digital,56121
 PNC Bank,2024,May 2024,Outdoor,5625
-PNC Bank,2024,May 2024,Print,13166
-PNC Bank,2024,May 2024,Television,7111093
-PNC Bank,2024,November 2024,Audio,154471
-PNC Bank,2024,November 2024,Digital,1156954
-PNC Bank,2024,November 2024,Outdoor,528131
-PNC Bank,2024,November 2024,Print,96052
-PNC Bank,2024,November 2024,Television,7760989
-PNC Bank,2024,October 2024,Audio,150736
-PNC Bank,2024,October 2024,Digital,1241900
-PNC Bank,2024,October 2024,Outdoor,497898
-PNC Bank,2024,October 2024,Print,34879
-PNC Bank,2024,October 2024,Television,11693852
-PNC Bank,2024,September 2024,Audio,199023
-PNC Bank,2024,September 2024,Digital,308748
-PNC Bank,2024,September 2024,Outdoor,156055
-PNC Bank,2024,September 2024,Print,38402
-PNC Bank,2024,September 2024,Television,6723195
-PNC Bank,2025,February 2025,Audio,15646
-PNC Bank,2025,February 2025,Digital,254861
+PNC Bank,2024,May 2024,Television,7085859
+PNC Bank,2024,November 2024,Audio,155375
+PNC Bank,2024,November 2024,Digital,303203
+PNC Bank,2024,November 2024,Outdoor,396881
+PNC Bank,2024,November 2024,Television,8969245
+PNC Bank,2024,October 2024,Audio,140592
+PNC Bank,2024,October 2024,Digital,354579
+PNC Bank,2024,October 2024,Outdoor,362273
+PNC Bank,2024,October 2024,Television,11497963
+PNC Bank,2024,September 2024,Audio,199088
+PNC Bank,2024,September 2024,Digital,165326
+PNC Bank,2024,September 2024,Outdoor,29180
+PNC Bank,2024,September 2024,Television,5645790
+PNC Bank,2025,February 2025,Audio,83652
+PNC Bank,2025,February 2025,Digital,149801
 PNC Bank,2025,February 2025,Outdoor,5965
-PNC Bank,2025,February 2025,Print,5809
-PNC Bank,2025,February 2025,Television,3276683
-PNC Bank,2025,January 2025,Audio,110360
-PNC Bank,2025,January 2025,Digital,146604
+PNC Bank,2025,February 2025,Television,5293690
+PNC Bank,2025,January 2025,Audio,98990
+PNC Bank,2025,January 2025,Digital,121760
 PNC Bank,2025,January 2025,Outdoor,9250
-PNC Bank,2025,January 2025,Print,9130
-PNC Bank,2025,January 2025,Television,4395045
-TD Bank,2024,April 2024,Audio,1524
-TD Bank,2024,April 2024,Digital,1396981
-TD Bank,2024,April 2024,Outdoor,50161
-TD Bank,2024,April 2024,Television,425980
-TD Bank,2024,August 2024,Digital,2160940
-TD Bank,2024,August 2024,Outdoor,14841
-TD Bank,2024,August 2024,Television,6266027
-TD Bank,2024,December 2024,Audio,4111
-TD Bank,2024,December 2024,Digital,1710082
-TD Bank,2024,December 2024,Outdoor,120921
-TD Bank,2024,December 2024,Television,339105
-TD Bank,2024,February 2024,Audio,6691
-TD Bank,2024,February 2024,Digital,989476
-TD Bank,2024,February 2024,Outdoor,385756
-TD Bank,2024,February 2024,Print,765
-TD Bank,2024,February 2024,Television,72757
+PNC Bank,2025,January 2025,Television,4406169
+PNC Bank,2025,March 2025,Audio,0
+PNC Bank,2025,March 2025,Digital,157243
+PNC Bank,2025,March 2025,Outdoor,5965
+PNC Bank,2025,March 2025,Television,3968461
+TD Bank,2023,April 2023,Audio,139
+TD Bank,2023,April 2023,Digital,422070
+TD Bank,2023,April 2023,Outdoor,297972
+TD Bank,2023,April 2023,Television,1754445
+TD Bank,2023,August 2023,Digital,766004
+TD Bank,2023,August 2023,Outdoor,50794
+TD Bank,2023,August 2023,Television,184127
+TD Bank,2023,December 2023,Audio,1207
+TD Bank,2023,December 2023,Digital,1495345
+TD Bank,2023,December 2023,Outdoor,4900
+TD Bank,2023,December 2023,Television,92784
+TD Bank,2023,July 2023,Digital,900191
+TD Bank,2023,July 2023,Outdoor,168670
+TD Bank,2023,July 2023,Television,443124
+TD Bank,2023,June 2023,Digital,727677
+TD Bank,2023,June 2023,Outdoor,26660
+TD Bank,2023,June 2023,Television,1346863
+TD Bank,2023,March 2023,Audio,333
+TD Bank,2023,March 2023,Digital,350654
+TD Bank,2023,March 2023,Outdoor,558933
+TD Bank,2023,March 2023,Television,560332
+TD Bank,2023,May 2023,Digital,814906
+TD Bank,2023,May 2023,Outdoor,103589
+TD Bank,2023,May 2023,Television,1322795
+TD Bank,2023,November 2023,Digital,1238984
+TD Bank,2023,November 2023,Outdoor,21175
+TD Bank,2023,November 2023,Television,94831
+TD Bank,2023,October 2023,Audio,30
+TD Bank,2023,October 2023,Digital,672482
+TD Bank,2023,October 2023,Outdoor,112724
+TD Bank,2023,October 2023,Television,188107
+TD Bank,2023,September 2023,Digital,759972
+TD Bank,2023,September 2023,Outdoor,173294
+TD Bank,2023,September 2023,Television,190758
+TD Bank,2024,April 2024,Audio,2043
+TD Bank,2024,April 2024,Digital,816989
+TD Bank,2024,April 2024,Outdoor,50145
+TD Bank,2024,April 2024,Television,146098
+TD Bank,2024,August 2024,Digital,1474254
+TD Bank,2024,August 2024,Outdoor,7270
+TD Bank,2024,August 2024,Television,6601254
+TD Bank,2024,December 2024,Audio,4683
+TD Bank,2024,December 2024,Digital,870211
+TD Bank,2024,December 2024,Outdoor,100359
+TD Bank,2024,December 2024,Television,66980
+TD Bank,2024,February 2024,Audio,7749
+TD Bank,2024,February 2024,Digital,743396
+TD Bank,2024,February 2024,Outdoor,263139
+TD Bank,2024,February 2024,Television,91337
 TD Bank,2024,January 2024,Audio,10602
-TD Bank,2024,January 2024,Digital,1243677
-TD Bank,2024,January 2024,Outdoor,46212
-TD Bank,2024,January 2024,Print,2689
-TD Bank,2024,January 2024,Television,165216
-TD Bank,2024,July 2024,Digital,1584211
-TD Bank,2024,July 2024,Outdoor,91932
-TD Bank,2024,July 2024,Television,332645
+TD Bank,2024,January 2024,Digital,1201578
+TD Bank,2024,January 2024,Outdoor,41196
+TD Bank,2024,January 2024,Television,122555
+TD Bank,2024,July 2024,Digital,1049010
+TD Bank,2024,July 2024,Outdoor,85136
+TD Bank,2024,July 2024,Television,260754
 TD Bank,2024,June 2024,Audio,1965
-TD Bank,2024,June 2024,Digital,1710032
-TD Bank,2024,June 2024,Outdoor,23466
-TD Bank,2024,June 2024,Print,10545
-TD Bank,2024,June 2024,Television,1104458
-TD Bank,2024,March 2024,Audio,2904
-TD Bank,2024,March 2024,Digital,1310787
-TD Bank,2024,March 2024,Outdoor,198364
-TD Bank,2024,March 2024,Television,639366
-TD Bank,2024,May 2024,Audio,1319
-TD Bank,2024,May 2024,Digital,1254464
-TD Bank,2024,May 2024,Outdoor,52825
-TD Bank,2024,May 2024,Television,736953
-TD Bank,2024,November 2024,Audio,887
-TD Bank,2024,November 2024,Digital,1230542
-TD Bank,2024,November 2024,Outdoor,102670
-TD Bank,2024,November 2024,Television,204343
-TD Bank,2024,October 2024,Audio,3948
-TD Bank,2024,October 2024,Digital,1106099
-TD Bank,2024,October 2024,Outdoor,28525
-TD Bank,2024,October 2024,Television,254094
-TD Bank,2024,September 2024,Audio,2803
-TD Bank,2024,September 2024,Digital,1270103
-TD Bank,2024,September 2024,Outdoor,23728
-TD Bank,2024,September 2024,Television,5170318
-TD Bank,2025,February 2025,Audio,939
-TD Bank,2025,February 2025,Digital,1462289
-TD Bank,2025,February 2025,Outdoor,103957
-TD Bank,2025,February 2025,Television,277168
-TD Bank,2025,January 2025,Audio,3802
-TD Bank,2025,January 2025,Digital,1813446
-TD Bank,2025,January 2025,Outdoor,178027
-TD Bank,2025,January 2025,Television,398219
-Wells Fargo,2024,April 2024,Audio,312840
-Wells Fargo,2024,April 2024,Digital,3997936
-Wells Fargo,2024,April 2024,Outdoor,84213
-Wells Fargo,2024,April 2024,Television,7462817
-Wells Fargo,2024,August 2024,Audio,228859
-Wells Fargo,2024,August 2024,Digital,5626231
-Wells Fargo,2024,August 2024,Outdoor,75547
-Wells Fargo,2024,August 2024,Television,15085268
-Wells Fargo,2024,December 2024,Audio,1005779
-Wells Fargo,2024,December 2024,Digital,3265297
-Wells Fargo,2024,December 2024,Outdoor,348975
-Wells Fargo,2024,December 2024,Print,93942
-Wells Fargo,2024,December 2024,Television,10087948
-Wells Fargo,2024,February 2024,Audio,1100267
-Wells Fargo,2024,February 2024,Digital,3890193
-Wells Fargo,2024,February 2024,Outdoor,65306
-Wells Fargo,2024,February 2024,Television,8824476
-Wells Fargo,2024,January 2024,Audio,52164
-Wells Fargo,2024,January 2024,Digital,5142753
-Wells Fargo,2024,January 2024,Outdoor,31295
-Wells Fargo,2024,January 2024,Print,99626
-Wells Fargo,2024,January 2024,Television,16294926
-Wells Fargo,2024,July 2024,Audio,205880
-Wells Fargo,2024,July 2024,Digital,5912553
-Wells Fargo,2024,July 2024,Outdoor,160331
-Wells Fargo,2024,July 2024,Print,11941
-Wells Fargo,2024,July 2024,Television,9914897
-Wells Fargo,2024,June 2024,Audio,2760218
-Wells Fargo,2024,June 2024,Digital,3281937
-Wells Fargo,2024,June 2024,Outdoor,64066
-Wells Fargo,2024,June 2024,Television,5461500
-Wells Fargo,2024,March 2024,Audio,2261391
-Wells Fargo,2024,March 2024,Digital,2486721
-Wells Fargo,2024,March 2024,Outdoor,85945
-Wells Fargo,2024,March 2024,Print,18139
-Wells Fargo,2024,March 2024,Television,4849991
-Wells Fargo,2024,May 2024,Audio,314805
-Wells Fargo,2024,May 2024,Digital,2862313
-Wells Fargo,2024,May 2024,Outdoor,56568
-Wells Fargo,2024,May 2024,Television,14920102
-Wells Fargo,2024,November 2024,Audio,565958
-Wells Fargo,2024,November 2024,Digital,1614759
-Wells Fargo,2024,November 2024,Outdoor,146682
-Wells Fargo,2024,November 2024,Print,97585
-Wells Fargo,2024,November 2024,Television,4960966
-Wells Fargo,2024,October 2024,Audio,57164
-Wells Fargo,2024,October 2024,Digital,1294782
-Wells Fargo,2024,October 2024,Outdoor,113675
-Wells Fargo,2024,October 2024,Print,11154
-Wells Fargo,2024,October 2024,Television,8187307
-Wells Fargo,2024,September 2024,Audio,1896432
-Wells Fargo,2024,September 2024,Digital,4510914
-Wells Fargo,2024,September 2024,Outdoor,185086
-Wells Fargo,2024,September 2024,Print,141921
-Wells Fargo,2024,September 2024,Television,4789261
-Wells Fargo,2025,February 2025,Audio,251644
-Wells Fargo,2025,February 2025,Digital,3622177
-Wells Fargo,2025,February 2025,Outdoor,66048
-Wells Fargo,2025,February 2025,Print,84784
-Wells Fargo,2025,February 2025,Television,6228189
-Wells Fargo,2025,January 2025,Audio,839385
-Wells Fargo,2025,January 2025,Digital,1760556
-Wells Fargo,2025,January 2025,Outdoor,111783
-Wells Fargo,2025,January 2025,Print,87720
-Wells Fargo,2025,January 2025,Television,15031526
-US Bank,2024,April 2024,Audio,46681
-US Bank,2024,April 2024,Digital,159704
-US Bank,2024,April 2024,Outdoor,5625
-US Bank,2024,April 2024,Television,8286601
-US Bank,2024,August 2024,Audio,55699
-US Bank,2024,August 2024,Digital,145124
-US Bank,2024,August 2024,Outdoor,5965
-US Bank,2024,August 2024,Television,2716532
-US Bank,2024,December 2024,Audio,215582
-US Bank,2024,December 2024,Digital,609934
-US Bank,2024,December 2024,Outdoor,185757
-US Bank,2024,December 2024,Television,3942908
-US Bank,2024,February 2024,Audio,56277
-US Bank,2024,February 2024,Digital,110950
-US Bank,2024,February 2024,Outdoor,5625
-US Bank,2024,February 2024,Print,6530
-US Bank,2024,February 2024,Television,4095
-US Bank,2024,January 2024,Audio,85918
-US Bank,2024,January 2024,Digital,61758
-US Bank,2024,January 2024,Outdoor,5625
-US Bank,2024,January 2024,Television,18694
-US Bank,2024,July 2024,Audio,38358
-US Bank,2024,July 2024,Digital,191838
-US Bank,2024,July 2024,Outdoor,5965
-US Bank,2024,July 2024,Television,1254125
-US Bank,2024,June 2024,Audio,56775
-US Bank,2024,June 2024,Digital,337282
-US Bank,2024,June 2024,Outdoor,5625
-US Bank,2024,June 2024,Television,4066491
-US Bank,2024,March 2024,Audio,50594
-US Bank,2024,March 2024,Digital,334144
-US Bank,2024,March 2024,Outdoor,5625
-US Bank,2024,March 2024,Print,258499
-US Bank,2024,March 2024,Television,6105426
-US Bank,2024,May 2024,Audio,55253
-US Bank,2024,May 2024,Digital,89517
-US Bank,2024,May 2024,Outdoor,5625
-US Bank,2024,May 2024,Print,10755
-US Bank,2024,May 2024,Television,7111088
-US Bank,2024,November 2024,Audio,147485
-US Bank,2024,November 2024,Digital,1156954
-US Bank,2024,November 2024,Outdoor,396881
-US Bank,2024,November 2024,Print,96052
-US Bank,2024,November 2024,Television,7755949
-US Bank,2024,October 2024,Audio,139978
-US Bank,2024,October 2024,Digital,1241900
-US Bank,2024,October 2024,Outdoor,362273
-US Bank,2024,October 2024,Print,34879
-US Bank,2024,October 2024,Television,11708157
-US Bank,2024,September 2024,Audio,191705
-US Bank,2024,September 2024,Digital,308748
-US Bank,2024,September 2024,Outdoor,29180
-US Bank,2024,September 2024,Print,38402
-US Bank,2024,September 2024,Television,6724034
-US Bank,2025,February 2025,Audio,74739
-US Bank,2025,February 2025,Digital,256018
-US Bank,2025,February 2025,Outdoor,5965
-US Bank,2025,February 2025,Print,5809
-US Bank,2025,February 2025,Television,5272497
-US Bank,2025,January 2025,Audio,110360
-US Bank,2025,January 2025,Digital,146604
-US Bank,2025,January 2025,Outdoor,9250
-US Bank,2025,January 2025,Print,9130
-US Bank,2025,January 2025,Television,4401191
-US Bank,2025,March 2025,Audio,25562
-US Bank,2025,March 2025,Digital,57949
-US Bank,2025,March 2025,Television,136981
+TD Bank,2024,June 2024,Digital,988600
+TD Bank,2024,June 2024,Outdoor,18949
+TD Bank,2024,June 2024,Television,418443
+TD Bank,2024,March 2024,Audio,1052
+TD Bank,2024,March 2024,Digital,670448
+TD Bank,2024,March 2024,Outdoor,141421
+TD Bank,2024,March 2024,Television,201929
+TD Bank,2024,May 2024,Audio,800
+TD Bank,2024,May 2024,Digital,742204
+TD Bank,2024,May 2024,Outdoor,52793
+TD Bank,2024,May 2024,Television,209175
+TD Bank,2024,November 2024,Audio,1278
+TD Bank,2024,November 2024,Digital,803576
+TD Bank,2024,November 2024,Outdoor,84803
+TD Bank,2024,November 2024,Television,134120
+TD Bank,2024,October 2024,Audio,418
+TD Bank,2024,October 2024,Digital,803451
+TD Bank,2024,October 2024,Outdoor,24859
+TD Bank,2024,October 2024,Television,244327
+TD Bank,2024,September 2024,Audio,6290
+TD Bank,2024,September 2024,Digital,814815
+TD Bank,2024,September 2024,Outdoor,12150
+TD Bank,2024,September 2024,Television,3194428
+TD Bank,2025,February 2025,Audio,2041
+TD Bank,2025,February 2025,Digital,729141
+TD Bank,2025,February 2025,Outdoor,85522
+TD Bank,2025,February 2025,Television,212647
+TD Bank,2025,January 2025,Audio,3566
+TD Bank,2025,January 2025,Digital,1078494
+TD Bank,2025,January 2025,Outdoor,157261
+TD Bank,2025,January 2025,Television,284171
+TD Bank,2025,March 2025,Audio,0
+TD Bank,2025,March 2025,Digital,930910
+TD Bank,2025,March 2025,Outdoor,84417
+TD Bank,2025,March 2025,Television,397252
+US Bank,2023,April 2023,Audio,1260149
+US Bank,2023,April 2023,Digital,862380
+US Bank,2023,April 2023,Television,3214181
+US Bank,2023,August 2023,Audio,888103
+US Bank,2023,August 2023,Digital,720423
+US Bank,2023,August 2023,Outdoor,38998
+US Bank,2023,August 2023,Television,1777446
+US Bank,2023,December 2023,Audio,113431
+US Bank,2023,December 2023,Digital,2714348
+US Bank,2023,December 2023,Outdoor,5527
+US Bank,2023,December 2023,Print,12510
+US Bank,2023,December 2023,Television,2395236
+US Bank,2023,July 2023,Audio,993875
+US Bank,2023,July 2023,Digital,733787
+US Bank,2023,July 2023,Outdoor,78899
+US Bank,2023,July 2023,Television,2296503
+US Bank,2023,June 2023,Audio,747628
+US Bank,2023,June 2023,Digital,768709
+US Bank,2023,June 2023,Outdoor,61404
+US Bank,2023,June 2023,Television,2824678
+US Bank,2023,March 2023,Audio,708259
+US Bank,2023,March 2023,Digital,799216
+US Bank,2023,March 2023,Outdoor,21403
+US Bank,2023,March 2023,Television,2851216
+US Bank,2023,May 2023,Audio,668526
+US Bank,2023,May 2023,Digital,879551
+US Bank,2023,May 2023,Outdoor,2654
+US Bank,2023,May 2023,Television,2863363
+US Bank,2023,November 2023,Audio,212663
+US Bank,2023,November 2023,Digital,3014135
+US Bank,2023,November 2023,Outdoor,34188
+US Bank,2023,November 2023,Television,3717713
+US Bank,2023,October 2023,Audio,659176
+US Bank,2023,October 2023,Digital,1934870
+US Bank,2023,October 2023,Outdoor,19431
+US Bank,2023,October 2023,Television,4376279
+US Bank,2023,September 2023,Audio,549946
+US Bank,2023,September 2023,Digital,1066710
+US Bank,2023,September 2023,Outdoor,14631
+US Bank,2023,September 2023,Print,7988
+US Bank,2023,September 2023,Television,4417681
+US Bank,2024,April 2024,Audio,4182
+US Bank,2024,April 2024,Digital,2135802
+US Bank,2024,April 2024,Outdoor,288
+US Bank,2024,April 2024,Television,469990
+US Bank,2024,August 2024,Audio,77113
+US Bank,2024,August 2024,Digital,2284671
+US Bank,2024,August 2024,Outdoor,293
+US Bank,2024,August 2024,Television,2186940
+US Bank,2024,December 2024,Audio,21361
+US Bank,2024,December 2024,Digital,1077051
+US Bank,2024,December 2024,Outdoor,8121
+US Bank,2024,December 2024,Television,2231140
+US Bank,2024,February 2024,Audio,44230
+US Bank,2024,February 2024,Digital,3253633
+US Bank,2024,February 2024,Outdoor,1327
+US Bank,2024,February 2024,Television,1142601
+US Bank,2024,January 2024,Audio,54265
+US Bank,2024,January 2024,Digital,3072899
+US Bank,2024,January 2024,Outdoor,1327
+US Bank,2024,January 2024,Print,7988
+US Bank,2024,January 2024,Television,2217919
+US Bank,2024,July 2024,Audio,73569
+US Bank,2024,July 2024,Digital,2812114
+US Bank,2024,July 2024,Outdoor,288
+US Bank,2024,July 2024,Television,2379001
+US Bank,2024,June 2024,Audio,3946
+US Bank,2024,June 2024,Digital,3689561
+US Bank,2024,June 2024,Outdoor,288
+US Bank,2024,June 2024,Television,2617939
+US Bank,2024,March 2024,Audio,7235
+US Bank,2024,March 2024,Digital,2769956
+US Bank,2024,March 2024,Outdoor,1327
+US Bank,2024,March 2024,Television,1165873
+US Bank,2024,May 2024,Audio,5166
+US Bank,2024,May 2024,Digital,2415069
+US Bank,2024,May 2024,Outdoor,288
+US Bank,2024,May 2024,Television,2956002
+US Bank,2024,November 2024,Audio,22244
+US Bank,2024,November 2024,Digital,915977
+US Bank,2024,November 2024,Outdoor,8279
+US Bank,2024,November 2024,Television,3515454
+US Bank,2024,October 2024,Audio,117006
+US Bank,2024,October 2024,Digital,1313755
+US Bank,2024,October 2024,Outdoor,18559
+US Bank,2024,October 2024,Television,3397032
+US Bank,2024,September 2024,Audio,200240
+US Bank,2024,September 2024,Digital,2351733
+US Bank,2024,September 2024,Outdoor,18238
+US Bank,2024,September 2024,Print,7988
+US Bank,2024,September 2024,Television,6951601
+US Bank,2025,February 2025,Audio,10440
+US Bank,2025,February 2025,Digital,1145130
+US Bank,2025,February 2025,Outdoor,379
+US Bank,2025,February 2025,Television,69928
+US Bank,2025,January 2025,Audio,10232
+US Bank,2025,January 2025,Digital,857036
+US Bank,2025,January 2025,Outdoor,337
+US Bank,2025,January 2025,Print,33008
+US Bank,2025,January 2025,Television,473948
+US Bank,2025,March 2025,Audio,0
+US Bank,2025,March 2025,Digital,1197289
+US Bank,2025,March 2025,Outdoor,329
+US Bank,2025,March 2025,Television,1191294
+Wells Fargo,2023,April 2023,Audio,13639
+Wells Fargo,2023,April 2023,Digital,150377
+Wells Fargo,2023,April 2023,Outdoor,4135
+Wells Fargo,2023,April 2023,Television,4691464
+Wells Fargo,2023,August 2023,Audio,234084
+Wells Fargo,2023,August 2023,Digital,469689
+Wells Fargo,2023,August 2023,Outdoor,75960
+Wells Fargo,2023,August 2023,Television,1778048
+Wells Fargo,2023,December 2023,Audio,435627
+Wells Fargo,2023,December 2023,Digital,434544
+Wells Fargo,2023,December 2023,Outdoor,36015
+Wells Fargo,2023,December 2023,Television,1641901
+Wells Fargo,2023,July 2023,Audio,1825773
+Wells Fargo,2023,July 2023,Digital,632609
+Wells Fargo,2023,July 2023,Outdoor,16439
+Wells Fargo,2023,July 2023,Television,1570036
+Wells Fargo,2023,June 2023,Audio,769071
+Wells Fargo,2023,June 2023,Digital,452365
+Wells Fargo,2023,June 2023,Outdoor,32734
+Wells Fargo,2023,June 2023,Television,2193412
+Wells Fargo,2023,March 2023,Audio,1348609
+Wells Fargo,2023,March 2023,Digital,215544
+Wells Fargo,2023,March 2023,Outdoor,3676
+Wells Fargo,2023,March 2023,Television,788541
+Wells Fargo,2023,May 2023,Audio,765851
+Wells Fargo,2023,May 2023,Digital,309480
+Wells Fargo,2023,May 2023,Outdoor,4600
+Wells Fargo,2023,May 2023,Print,18139
+Wells Fargo,2023,May 2023,Television,5331655
+Wells Fargo,2023,November 2023,Audio,1202568
+Wells Fargo,2023,November 2023,Digital,321541
+Wells Fargo,2023,November 2023,Outdoor,90531
+Wells Fargo,2023,November 2023,Print,8000
+Wells Fargo,2023,November 2023,Television,1333532
+Wells Fargo,2023,October 2023,Audio,59070
+Wells Fargo,2023,October 2023,Digital,155166
+Wells Fargo,2023,October 2023,Outdoor,186765
+Wells Fargo,2023,October 2023,Television,3540896
+Wells Fargo,2023,September 2023,Audio,356142
+Wells Fargo,2023,September 2023,Digital,241731
+Wells Fargo,2023,September 2023,Outdoor,162652
+Wells Fargo,2023,September 2023,Television,2002508
+Wells Fargo,2024,April 2024,Audio,471269
+Wells Fargo,2024,April 2024,Digital,323438
+Wells Fargo,2024,April 2024,Outdoor,70801
+Wells Fargo,2024,April 2024,Television,242710
+Wells Fargo,2024,August 2024,Audio,613943
+Wells Fargo,2024,August 2024,Digital,1984951
+Wells Fargo,2024,August 2024,Outdoor,57241
+Wells Fargo,2024,August 2024,Television,757259
+Wells Fargo,2024,December 2024,Audio,780227
+Wells Fargo,2024,December 2024,Digital,873589
+Wells Fargo,2024,December 2024,Outdoor,317720
+Wells Fargo,2024,December 2024,Television,41992
+Wells Fargo,2024,February 2024,Audio,2087031
+Wells Fargo,2024,February 2024,Digital,417168
+Wells Fargo,2024,February 2024,Outdoor,49918
+Wells Fargo,2024,February 2024,Television,1095233
+Wells Fargo,2024,January 2024,Audio,56013
+Wells Fargo,2024,January 2024,Digital,400746
+Wells Fargo,2024,January 2024,Outdoor,20539
+Wells Fargo,2024,January 2024,Television,8041292
+Wells Fargo,2024,July 2024,Audio,316743
+Wells Fargo,2024,July 2024,Digital,2055963
+Wells Fargo,2024,July 2024,Outdoor,149014
+Wells Fargo,2024,July 2024,Television,855337
+Wells Fargo,2024,June 2024,Audio,2061098
+Wells Fargo,2024,June 2024,Digital,889439
+Wells Fargo,2024,June 2024,Outdoor,52343
+Wells Fargo,2024,June 2024,Television,872331
+Wells Fargo,2024,March 2024,Audio,1270778
+Wells Fargo,2024,March 2024,Digital,454192
+Wells Fargo,2024,March 2024,Outdoor,70828
+Wells Fargo,2024,March 2024,Television,62500
+Wells Fargo,2024,May 2024,Audio,855496
+Wells Fargo,2024,May 2024,Digital,251825
+Wells Fargo,2024,May 2024,Outdoor,47194
+Wells Fargo,2024,May 2024,Television,4332633
+Wells Fargo,2024,November 2024,Audio,772299
+Wells Fargo,2024,November 2024,Digital,728585
+Wells Fargo,2024,November 2024,Outdoor,117031
+Wells Fargo,2024,November 2024,Television,61610
+Wells Fargo,2024,October 2024,Audio,81733
+Wells Fargo,2024,October 2024,Digital,518221
+Wells Fargo,2024,October 2024,Outdoor,92479
+Wells Fargo,2024,October 2024,Television,105396
+Wells Fargo,2024,September 2024,Audio,1402408
+Wells Fargo,2024,September 2024,Digital,1768573
+Wells Fargo,2024,September 2024,Outdoor,157361
+Wells Fargo,2024,September 2024,Television,35191
+Wells Fargo,2025,February 2025,Audio,1744745
+Wells Fargo,2025,February 2025,Digital,159517
+Wells Fargo,2025,February 2025,Outdoor,41403
+Wells Fargo,2025,February 2025,Television,859507
+Wells Fargo,2025,January 2025,Audio,1087321
+Wells Fargo,2025,January 2025,Digital,85753
+Wells Fargo,2025,January 2025,Outdoor,90395
+Wells Fargo,2025,January 2025,Television,1246103
+Wells Fargo,2025,March 2025,Audio,0
+Wells Fargo,2025,March 2025,Digital,774469
+Wells Fargo,2025,March 2025,Outdoor,53276
+Wells Fargo,2025,March 2025,Television,258

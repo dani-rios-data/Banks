@@ -211,19 +211,19 @@ const BankMediaMix = ({ bank }) => {
             return (
               <div 
                 key={`item-${index}`} 
-                className="flex items-start p-1.5"
+                className="flex items-start p-1"
               >
                 <div
-                  className="flex-shrink-0 w-4 h-4 rounded-full mt-0.5 mr-2"
+                  className="flex-shrink-0 w-3 h-3 rounded-full mt-0.5 mr-1.5"
                   style={{ backgroundColor: entry.color }}
                 />
-                <div>
-                  <div className="text-sm font-medium text-gray-800">
+                <div className="flex flex-col">
+                  <div className="text-xs font-medium text-gray-800 truncate max-w-[90px]">
                     {entry.value}
                   </div>
-                  <div className="text-xs text-gray-500 flex gap-2">
-                    <span>{formatPercentage(dataItem?.percentage)}</span>
-                    <span>{dataItem?.formattedValue}</span>
+                  <div className="text-xs text-gray-500">
+                    <div>{formatPercentage(dataItem?.percentage)}</div>
+                    <div>{dataItem?.formattedValue}</div>
                   </div>
                 </div>
               </div>
@@ -268,12 +268,12 @@ const BankMediaMix = ({ bank }) => {
         )}
       </h3>
       <div className="flex items-start flex-grow">
-        <div className="w-2/3 h-full">
+        <div className="w-3/5 h-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={mediaData}
-                cx="50%"
+                cx="40%"
                 cy="50%"
                 innerRadius={70}
                 outerRadius={100}
@@ -294,7 +294,7 @@ const BankMediaMix = ({ bank }) => {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="w-1/3 h-full flex items-center">
+        <div className="w-2/5 h-full flex items-center">
           {renderCustomLegend({ payload: mediaData.map(item => ({ value: item.name, color: mediaColors[item.name] })) })}
         </div>
       </div>
