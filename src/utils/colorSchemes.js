@@ -5,7 +5,8 @@ export const bankColors = {
     'Capital One': '#004977',
     'Chase Bank': '#117ACA',
     'Pnc Bank': '#FF5400',
-    'Td Bank': '#54B848'
+    'Td Bank': '#54B848',
+    'Key Bank': '#CC0000'
 };
 
 // Secondary colors for banks
@@ -13,7 +14,8 @@ export const bankSecondaryColors = {
     'Wells Fargo': '#FFC726',
     'Bank of America': '#DC1431',
     'Capital One': '#C9082A',
-    'Chase Bank': '#000000'
+    'Chase Bank': '#000000',
+    'Key Bank': '#B0B7BC'
 };
 
 // Color palette for media

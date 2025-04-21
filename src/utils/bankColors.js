@@ -33,6 +33,11 @@ export const bankColors = {
     primary: '#0046AD',    // Azul US Bank
     secondary: '#D52B1E',  // Rojo US Bank
     accent: '#FFFFFF'      // Blanco
+  },
+  'Key Bank': {
+    primary: '#CC0000',    // Rojo Key Bank
+    secondary: '#B0B7BC',  // Gris Key Bank
+    accent: '#FFFFFF'      // Blanco
   }
 };
 
@@ -44,5 +49,6 @@ export const chartColors = {
   'Capital One Bank': '#004977',
   'PNC Bank': '#FF5400',
   'Chase Bank': '#117ACA',
-  'US Bank': '#0046AD'
+  'US Bank': '#0046AD',
+  'Key Bank': '#CC0000'
 }; 
