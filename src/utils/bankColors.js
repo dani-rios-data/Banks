@@ -38,6 +38,11 @@ export const bankColors = {
     primary: '#CC0000',    // Rojo Key Bank
     secondary: '#B0B7BC',  // Gris Key Bank
     accent: '#FFFFFF'      // Blanco
+  },
+  'Chime Bank': {
+    primary: '#1EC677',    // Verde Chime
+    secondary: '#17A266',  // Verde Chime oscuro
+    accent: '#FFFFFF'      // Blanco
   }
 };
 
@@ -50,5 +55,6 @@ export const chartColors = {
   'PNC Bank': '#FF5400',
   'Chase Bank': '#117ACA',
   'US Bank': '#0046AD',
-  'Key Bank': '#CC0000'
+  'Key Bank': '#CC0000',
+  'Chime Bank': '#1EC677'
 }; 

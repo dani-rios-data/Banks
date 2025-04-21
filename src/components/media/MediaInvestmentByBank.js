@@ -17,6 +17,7 @@ const enhancedBankColors = {
   'Chase Bank': '#0284C7',        // Brighter Chase Blue
   'US Bank': '#1D4ED8',           // Brighter US Bank Blue
   'Key Bank': '#CC0000',          // Bright Red
+  'Chime Bank': '#1EC677',        // Chime Green
 };
 
 // Function to format values in millions with one decimal
