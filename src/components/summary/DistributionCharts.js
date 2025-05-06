@@ -9,22 +9,6 @@ import _ from 'lodash';
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    
-    // Calcular el porcentaje correcto para el tipo de gráfico
-    let totalInvestment = 0;
-    let correctShare = 0;
-    
-    // Verificar si es un banco o una categoría de medios para usar el total correcto
-    if (payload[0]?.name === "investment") {
-      // Es una categoría de medios o un banco, buscar en los datos padres
-      const parentData = payload[0]?.payload?.parent || [];
-      totalInvestment = parentData.reduce((sum, item) => sum + (item.investment || 0), 0);
-      correctShare = totalInvestment > 0 ? (data.investment / totalInvestment) * 100 : 0;
-    } else {
-      // Calcular directamente
-      correctShare = data.share;
-    }
-    
     return (
       <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-200">
         <p className="font-semibold text-gray-800">{data.name}</p>
@@ -32,12 +16,46 @@ const CustomTooltip = ({ active, payload }) => {
           Investment: {formatCurrency(data.investment)}
         </p>
         <p className="text-sm text-gray-600">
-          Share: {formatPercentage(correctShare)}
+          Share: {formatPercentage(data.share)}
         </p>
       </div>
     );
   }
   return null;
+};
+
+// Función auxiliar para normalizar datos y detectar anomalías
+const normalizeAndCheckData = (dataArray, keyField = 'investment') => {
+  if (!dataArray || dataArray.length === 0) return [];
+  
+  // 1. Verificar si hay valores extremadamente pequeños en comparación con el máximo
+  const maxValue = Math.max(...dataArray.map(item => item[keyField] || 0));
+  const minValue = Math.min(...dataArray.map(item => item[keyField] || 0));
+  
+  // Si hay una diferencia de 5 órdenes de magnitud (100,000x), puede haber un problema con las unidades
+  if (maxValue / minValue > 100000 && minValue > 0) {
+    console.warn(`⚠️ Posible problema de unidades: máximo ${maxValue}, mínimo ${minValue}`);
+  }
+  
+  // 2. Verificar por valores inusualmente grandes o pequeños
+  const average = dataArray.reduce((sum, item) => sum + (item[keyField] || 0), 0) / dataArray.length;
+  
+  dataArray.forEach(item => {
+    if (item[keyField] > average * 100) {
+      console.warn(`⚠️ Valor anormalmente grande: ${item.name} = ${item[keyField]} (${(item[keyField]/average).toFixed(2)}x el promedio)`);
+    }
+    if (item[keyField] < average / 100 && item[keyField] > 0) {
+      console.warn(`⚠️ Valor anormalmente pequeño: ${item.name} = ${item[keyField]} (${(average/item[keyField]).toFixed(2)}x menor que el promedio)`);
+    }
+  });
+  
+  // 3. Recalcular shares basados en la suma total real
+  const total = dataArray.reduce((sum, item) => sum + (item[keyField] || 0), 0);
+  
+  return dataArray.map(item => ({
+    ...item,
+    share: total > 0 ? ((item[keyField] || 0) / total) * 100 : 0
+  }));
 };
 
 /**
@@ -71,8 +89,16 @@ const DistributionCharts = ({ filteredData }) => {
       return { bankData: [], mediaData: [], wellsFargoVsIndustry: [], topBank: null, totalInvestment: 0 };
     }
     
-    // Obtener el total de inversión general
-    const totalInvestment = dataSource.totalInvestment || 0;
+    // Calcular el total de inversión global (independiente de los filtros)
+    let totalInvestment = 0;
+    let bankData = [];
+    let mediaData = [];
+    
+    // Si tenemos datos filtrados, podemos usar el totalInvestment que ya viene calculado
+    if (dataSource.totalInvestment) {
+      totalInvestment = dataSource.totalInvestment;
+      console.log("Usando totalInvestment preexistente:", totalInvestment);
+    }
     
     // Actualizar el estado para usarlo en el renderizado
     setTotalInvestment(totalInvestment);
@@ -80,192 +106,111 @@ const DistributionCharts = ({ filteredData }) => {
     // Datos mensuales
     const monthlyData = dataSource.monthlyTrends || [];
     
-    // Verificar si tenemos datos
-    if (!monthlyData || monthlyData.length === 0) {
-      return { 
-      bankData: [], 
-      mediaData: [],
-      wellsFargoMediaBreakdown: [],
-      mediaComparison: [],
-        totalInvestment: 0,
-      overallTotals: {
-        total: 0,
-        digital: 0,
-        traditional: 0,
-        other: 0
-      },
-      exactPercentages: { 
-        digital: { wellsFargo: 0, industry: 0, difference: 0 },
-        tv: { wellsFargo: 0, industry: 0, difference: 0 },
-        audio: { wellsFargo: 0, industry: 0, difference: 0 },
-        print: { wellsFargo: 0, industry: 0, difference: 0 },
-        outdoor: { wellsFargo: 0, industry: 0, difference: 0 }
+    // Calcular bank data
+    if (dataSource.banks && dataSource.banks.length > 0) {
+      // Calcular el total de inversión sumando todos los bancos
+      const calculatedTotalInvestment = dataSource.banks.reduce((sum, bank) => 
+        sum + (bank.totalInvestment || 0), 0);
+      
+      if (calculatedTotalInvestment > 0) {
+        totalInvestment = calculatedTotalInvestment;
+        console.log("Total calculado sumando bancos:", totalInvestment);
       }
-    };
+      
+      // Crear datos para cada banco con porcentajes correctos
+      bankData = dataSource.banks.map(bank => {
+        const investment = bank.totalInvestment || 0;
+        const share = totalInvestment > 0 ? (investment / totalInvestment) * 100 : 0;
+      
+      return {
+        name: bank.name,
+        investment,
+          share
+        };
+      }).sort((a, b) => b.investment - a.investment); // Ordenar por inversión
     }
     
-    // Get all media categories to ensure we have a complete list
-    const allMediaCategories = [...new Set(
-      dataSource.banks.flatMap(bank => 
-        (bank.mediaBreakdown || []).map(media => media.category)
-      )
-    )];
-    
-    // Calculate bank market share distribution
-    const bankData = [];
-    let bankTotalInvestment = 0; // Variable para almacenar el total real
-    
-    // Process data for bank distribution calculations - either based on month filter or all data
-    if (selectedMonths && selectedMonths.length > 0) {
-      // Month filter applied, calculate bank data from monthly data
-      console.log("Calculating bank data based on selected months:", selectedMonths);
+    // Calcular media data
+    if (dataSource.mediaCategories && dataSource.mediaCategories.length > 0) {
+      // Verificar si el total coincide con el de los bancos
+      const calculatedMediaTotal = dataSource.mediaCategories.reduce((sum, category) => 
+        sum + (category.totalInvestment || 0), 0);
       
-      // Get bank totals for selected months
-      const bankTotals = {};
-      
-      // Process each selected month
-    monthlyData.forEach(month => {
-        // Process each bank's data for this month
-        (month.bankShares || []).forEach(bankShare => {
-          // Initialize this bank if not already in the totals
-          if (!bankTotals[bankShare.bank]) {
-            bankTotals[bankShare.bank] = 0;
-          }
-          
-          // Add this month's investment to the bank's total
-          bankTotals[bankShare.bank] += bankShare.amount || 0;
-          
-          // Add to the overall bank total
-          bankTotalInvestment += bankShare.amount || 0;
-        });
-      });
-      
-      // Convert bank totals to the required format
-      Object.entries(bankTotals).forEach(([bankName, investment]) => {
-        // Calculate the correct share based on the actual total
-        const share = bankTotalInvestment > 0 ? (investment / bankTotalInvestment) * 100 : 0;
+      mediaData = dataSource.mediaCategories.map(category => {
+        const investment = category.totalInvestment || 0;
+        const share = totalInvestment > 0 ? (investment / totalInvestment) * 100 : 0;
         
-        bankData.push({
-          name: bankName,
+        return {
+          name: category.category,
           investment,
-          share  // Porcentaje corregido
-        });
-      });
-      
-      // Sort by investment descending
-      bankData.sort((a, b) => b.investment - a.investment);
-    } else {
-      // No month filter, use all data directly from banks
-      
-      // Calculate total investment across all banks first
-      bankTotalInvestment = dataSource.banks.reduce((sum, bank) => sum + (bank.totalInvestment || 0), 0);
-      
-      // Create bank data for each bank
-      dataSource.banks.forEach(bank => {
-        // Calculate correct share
-        const share = bankTotalInvestment > 0 ? (bank.totalInvestment / bankTotalInvestment) * 100 : 0;
-        
-        bankData.push({
-          name: bank.name,
-          investment: bank.totalInvestment || 0,
-          share  // Porcentaje corregido
-        });
-      });
-      
-      // Sort by investment descending
-      bankData.sort((a, b) => b.investment - a.investment);
+          share
+        };
+      }).sort((a, b) => b.investment - a.investment); // Ordenar por inversión
     }
     
-    // Calculate media category distribution
-    const mediaData = [];
-    let mediaTotalInvestment = 0; // Variable para el total real
+    // Verificar los totales para depuración
+    const bankTotalCheck = bankData.reduce((sum, bank) => sum + bank.investment, 0);
+    const bankShareSum = bankData.reduce((sum, bank) => sum + bank.share, 0);
+    const mediaTotalCheck = mediaData.reduce((sum, media) => sum + media.investment, 0);
+    const mediaShareSum = mediaData.reduce((sum, media) => sum + media.share, 0);
     
-    // Process data for media categories - either based on month filter or all data
-    if (selectedMonths && selectedMonths.length > 0) {
-      // Month filter applied, calculate media data from monthly data
-      console.log("Calculating media data based on selected months");
-      
-      // Get media totals for selected months
-      const mediaTotals = {};
-      
-      // Process each selected month
-      monthlyData.forEach(month => {
-        // Process each media category for this month
-        (month.mediaShares || []).forEach(mediaShare => {
-          // Initialize this category if not already in the totals
-          if (!mediaTotals[mediaShare.category]) {
-            mediaTotals[mediaShare.category] = 0;
-          }
-          
-          // Add this month's investment to the category's total
-          mediaTotals[mediaShare.category] += mediaShare.amount || 0;
-          
-          // Add to the overall media total
-          mediaTotalInvestment += mediaShare.amount || 0;
-        });
-      });
-      
-      // Create the mediaData array from month-filtered totals
-      Object.entries(mediaTotals).forEach(([category, investment]) => {
-        // Calculate correct share
-        const share = mediaTotalInvestment > 0 ? (investment / mediaTotalInvestment) * 100 : 0;
-        
-        mediaData.push({
-          name: category,
-          investment,
-          share  // Porcentaje corregido
-        });
-      });
-    } else {
-      // No month filter, add up all media categories across banks
-      
-      // Sum investments for each media category across all banks
-      allMediaCategories.forEach(category => {
-        let categoryTotalInvestment = 0;
-        
-        // Sum this category's investment across all banks
-        (dataSource?.banks || []).forEach(bank => {
-          const mediaItem = (bank.mediaBreakdown || []).find(media => media.category === category);
-          if (mediaItem) {
-            categoryTotalInvestment += mediaItem.amount || 0;
-          }
-        });
-        
-        // Add to the overall media total
-        mediaTotalInvestment += categoryTotalInvestment;
-        
-        // Add this category to the mediaData array
-        mediaData.push({
-          name: category,
-          investment: categoryTotalInvestment,
-          share: 0  // Inicializamos a 0, se calculará después
-        });
-      });
-      
-      // Now calculate the share for each category using the actual total
-      mediaData.forEach(category => {
-        category.share = mediaTotalInvestment > 0 ? (category.investment / mediaTotalInvestment) * 100 : 0;
-      });
+    console.log("=== DISTRIBUCIONES CALCULADAS ===");
+    console.log("Bancos - Total inversión:", bankTotalCheck);
+    console.log("Bancos - Suma shares:", bankShareSum.toFixed(2) + "%");
+    console.log("Medios - Total inversión:", mediaTotalCheck);
+    console.log("Medios - Suma shares:", mediaShareSum.toFixed(2) + "%");
+    
+    // Verificar que los porcentajes de bancos suman 100%
+    if (Math.abs(bankShareSum - 100) > 1) {
+      console.warn("⚠️ Los porcentajes de bancos no suman 100%:", bankShareSum.toFixed(2) + "%");
+      // Normalizar los porcentajes para que sumen 100%
+      if (bankData.length > 0 && bankShareSum > 0) {
+        bankData = bankData.map(bank => ({
+          ...bank,
+          share: (bank.share / bankShareSum) * 100
+        }));
+        console.log("Porcentajes de bancos normalizados.");
+      }
     }
     
-    // Sort media data by investment descending
-    mediaData.sort((a, b) => b.investment - a.investment);
+    // Verificar que los porcentajes de medios suman 100%
+    if (Math.abs(mediaShareSum - 100) > 1) {
+      console.warn("⚠️ Los porcentajes de medios no suman 100%:", mediaShareSum.toFixed(2) + "%");
+      // Normalizar los porcentajes para que sumen 100%
+      if (mediaData.length > 0 && mediaShareSum > 0) {
+        mediaData = mediaData.map(media => ({
+          ...media,
+          share: (media.share / mediaShareSum) * 100
+        }));
+        console.log("Porcentajes de medios normalizados.");
+      }
+    }
     
-    // Resto del código...
+    // Normalizar y verificar los datos
+    const normalizedBankData = normalizeAndCheckData(bankData);
+    const normalizedMediaData = normalizeAndCheckData(mediaData);
     
-    // Devolver el objeto con las distribuciones calculadas correctamente
     return {
-      bankData,
-      mediaData,
-      wellsFargoMediaBreakdown: [], // Mantener las propiedades existentes
-      topBank: bankData[0] || null,
-      totalInvestment: bankTotalInvestment, // Usar el total calculado real
-      mediaTotalInvestment, // Añadir el total calculado para las categorías de medios
+      bankData: normalizedBankData,
+      mediaData: normalizedMediaData,
+      wellsFargoMediaBreakdown: [],
+      topBank: normalizedBankData[0] || null,
+      totalInvestment,
+      bankTotalInvestment: normalizedBankData.reduce((sum, bank) => sum + bank.investment, 0),
+      mediaTotalInvestment: normalizedMediaData.reduce((sum, media) => sum + media.investment, 0),
       overallTotals: {
-      total: totalInvestment,
-        digital: 0, // Estos valores deberían calcularse si son necesarios
-      traditional: 0,
-      other: 0
+        total: totalInvestment,
+        digital: normalizedMediaData.find(m => m.name === 'Digital')?.investment || 0,
+        traditional: (
+          (normalizedMediaData.find(m => m.name === 'Television')?.investment || 0) +
+          (normalizedMediaData.find(m => m.name === 'Print')?.investment || 0) +
+          (normalizedMediaData.find(m => m.name === 'Audio')?.investment || 0)
+        ),
+        other: (
+          (normalizedMediaData.find(m => m.name === 'Outdoor')?.investment || 0) +
+          (normalizedMediaData.find(m => m.name === 'Cinema')?.investment || 0) +
+          (normalizedMediaData.find(m => m.name === 'Streaming')?.investment || 0)
+        )
       }
     };
   }, [filteredData, dashboardData, selectedMonths]);
@@ -386,7 +331,7 @@ const DistributionCharts = ({ filteredData }) => {
                   const startPos = distributions.bankData.slice(0, index).reduce((acc, b) => acc + b.share, 0);
                   // Calcular el share directamente aquí para garantizar que sea correcto
                   const bankTotalInvestment = distributions.bankData.reduce((sum, b) => sum + b.investment, 0);
-                  const share = bankTotalInvestment > 0 ? (bank.investment / bankTotalInvestment) : 0;
+                  const share = bankTotalInvestment > 0 ? (bank.investment / bankTotalInvestment) * 100 : 0;
   return (
                     <div
                       key={index}
@@ -683,18 +628,7 @@ const DistributionCharts = ({ filteredData }) => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
                       <Pie
-                        data={distributions.bankData.map(bank => {
-                          // Calcular el porcentaje correcto
-                          const bankTotalInvestment = distributions.bankData.reduce((sum, b) => sum + b.investment, 0);
-                          const share = bankTotalInvestment > 0 ? (bank.investment / bankTotalInvestment) : 0;
-                          
-                          // Retornar objeto con todos los datos necesarios
-                          return {
-                            ...bank,
-                            share,
-                            parent: distributions.bankData // Incluir referencia a todos los datos para el tooltip
-                          };
-                        })}
+                        data={distributions.bankData}
                         dataKey="investment"
                         nameKey="name"
                         cx="50%"
@@ -706,10 +640,10 @@ const DistributionCharts = ({ filteredData }) => {
                         label={false}
                         labelLine={false}
                       >
-                        {distributions.bankData.map((bank, index) => (
+                        {distributions.bankData.map((entry, index) => (
                           <Cell 
                             key={`cell-${index}`} 
-                            fill={chartColors[bank.name] || `hsl(${index * 45}, 70%, 50%)`}
+                            fill={chartColors[entry.name] || `hsl(${index * 45}, 70%, 50%)`}
                             stroke="white"
                             strokeWidth={2}
                           />
@@ -720,7 +654,7 @@ const DistributionCharts = ({ filteredData }) => {
                   </ResponsiveContainer>
                 </div>
                 
-                {/* Bank Leaders Table - REDISEÑADO PARA CÁLCULOS CORRECTOS */}
+                {/* Bank Leaders Table */}
                 <div className="mt-3">
                   <table className="w-full text-sm">
                     <thead>
@@ -731,30 +665,34 @@ const DistributionCharts = ({ filteredData }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(() => {
-                        const bankTotalInvestment = distributions.bankData.reduce((sum, b) => sum + b.investment, 0);
-                        return distributions.bankData.map((bank, index) => {
-                          const share = bankTotalInvestment > 0 ? (bank.investment / bankTotalInvestment) : 0;
-                          
-                          return (
-                            <tr key={index} className="border-b border-gray-100">
-                              <td className="py-2">
-                                <div className="flex items-center">
-                                  <div 
-                                    className="w-2 h-2 rounded-full mr-2" 
-                                    style={{backgroundColor: chartColors[bank.name]}}
-                                  ></div>
-                                  <span className={bank.name === 'Wells Fargo' ? 'font-medium' : ''}>
-                                    {bank.name}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="text-right py-2">{formatCurrency(bank.investment)}</td>
-                              <td className="text-right py-2">{formatPercentage(share)}</td>
-                            </tr>
-                          );
-                        });
-                      })()}
+                      {distributions.bankData.map((bank, index) => {
+                        // Recalcular el share directamente en la visualización por seguridad
+                        const bankTotal = distributions.bankData.reduce((sum, b) => sum + b.investment, 0);
+                        const share = bankTotal > 0 ? (bank.investment / bankTotal) * 100 : 0;
+                        
+                        // Debug logs para detectar valores anómalos
+                        if (index === 0 || index === distributions.bankData.length - 1) {
+                          console.log(`${bank.name}: ${bank.investment} => ${share.toFixed(2)}%`);
+                        }
+                        
+                        return (
+                        <tr key={index} className="border-b border-gray-100">
+                          <td className="py-2">
+                            <div className="flex items-center">
+                              <div 
+                                className="w-2 h-2 rounded-full mr-2" 
+                                style={{backgroundColor: chartColors[bank.name]}}
+                              ></div>
+                              <span className={bank.name === 'Wells Fargo' ? 'font-medium' : ''}>
+                                {bank.name}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="text-right py-2">{formatCurrency(bank.investment)}</td>
+                            <td className="text-right py-2">{formatPercentage(share)}</td>
+                        </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -767,19 +705,11 @@ const DistributionCharts = ({ filteredData }) => {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={distributions.mediaData.map(media => {
-                          const mediaTotalInvestment = distributions.mediaData.reduce((sum, m) => sum + m.investment, 0);
-                          const share = mediaTotalInvestment > 0 ? (media.investment / mediaTotalInvestment) : 0;
-                          return {
-                            ...media,
-                            share,
-                            parent: distributions.mediaData
-                          };
-                        })}
+                        data={distributions.mediaData}
                         dataKey="investment"
                         nameKey="name"
-                        cx="50%"
-                        cy="50%"
+                cx="50%"
+                cy="50%"
                         innerRadius={60}
                         outerRadius={90}
                         paddingAngle={1}
@@ -787,21 +717,31 @@ const DistributionCharts = ({ filteredData }) => {
                         label={false}
                         labelLine={false}
                       >
-                        {distributions.mediaData.map((media, index) => (
+                        {distributions.mediaData.map((media, index) => {
+                          // Recalcular el share directamente en la visualización por seguridad
+                          const mediaTotal = distributions.mediaData.reduce((sum, m) => sum + m.investment, 0);
+                          const share = mediaTotal > 0 ? (media.investment / mediaTotal) * 100 : 0;
+                          
+                          // Debug logs para detectar valores anómalos
+                          if (index === 0 || index === distributions.mediaData.length - 1) {
+                            console.log(`${media.name}: ${media.investment} => ${share.toFixed(2)}%`);
+                          }
+                          
+                          return (
                           <Cell 
                             key={`cell-${index}`} 
                             fill={mediaCategoryColors[media.name] || `hsl(${index * 45}, 70%, 50%)`}
                             stroke="white"
-                            strokeWidth={2}
+                strokeWidth={2}
                           />
-                        ))}
-                      </Pie>
+                )})}
+              </Pie>
                       <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
                 
-                {/* Media Category Table - REDISEÑADO PARA CÁLCULOS CORRECTOS */}
+                {/* Media Category Table */}
                 <div className="mt-3">
                   <table className="w-full text-sm">
                     <thead>
@@ -812,30 +752,34 @@ const DistributionCharts = ({ filteredData }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(() => {
-                        const mediaTotalInvestment = distributions.mediaData.reduce((sum, m) => sum + m.investment, 0);
-                        return distributions.mediaData.map((media, index) => {
-                          const share = mediaTotalInvestment > 0 ? (media.investment / mediaTotalInvestment) : 0;
-                          
-                          return (
-                            <tr key={index} className="border-b border-gray-100">
-                              <td className="py-2">
-                                <div className="flex items-center">
-                                  <div 
-                                    className="w-2 h-2 rounded-full mr-2" 
-                                    style={{backgroundColor: mediaCategoryColors[media.name]}}
-                                  ></div>
-                                  <span>
-                                    {media.name}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="text-right py-2">{formatCurrency(media.investment)}</td>
-                              <td className="text-right py-2">{formatPercentage(share)}</td>
-                            </tr>
-                          );
-                        });
-                      })()}
+                      {distributions.mediaData.map((media, index) => {
+                        // Recalcular el share directamente en la visualización por seguridad
+                        const mediaTotal = distributions.mediaData.reduce((sum, m) => sum + m.investment, 0);
+                        const share = mediaTotal > 0 ? (media.investment / mediaTotal) * 100 : 0;
+                        
+                        // Debug logs para detectar valores anómalos
+                        if (index === 0 || index === distributions.mediaData.length - 1) {
+                          console.log(`${media.name}: ${media.investment} => ${share.toFixed(2)}%`);
+                        }
+                        
+                        return (
+                        <tr key={index} className="border-b border-gray-100">
+                          <td className="py-2">
+                            <div className="flex items-center">
+                              <div 
+                                className="w-2 h-2 rounded-full mr-2" 
+                                style={{backgroundColor: mediaCategoryColors[media.name]}}
+                              ></div>
+                              <span>
+                                {media.name}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="text-right py-2">{formatCurrency(media.investment)}</td>
+                            <td className="text-right py-2">{formatPercentage(share)}</td>
+                        </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

@@ -54,33 +54,12 @@ const fixPercentages = (items, totalAmount) => {
 const recalculatePercentages = (items, totalAmount) => {
   if (!items || items.length === 0 || !totalAmount || totalAmount === 0) return items;
   
-  console.log(`Recalculando porcentajes para ${items.length} elementos. Total: ${totalAmount}`);
-  
-  // Primero calculamos el total real (por si acaso el pasado no fuera correcto)
-  const realTotal = items.reduce((sum, item) => {
-    const amount = item.investment || item.amount || item.totalInvestment || 0;
-    return sum + amount;
-  }, 0);
-  
-  // Usamos el total calculado para asegurar consistencia
-  const totalToUse = realTotal > 0 ? realTotal : totalAmount;
-  
-  // Ahora actualizamos cada elemento
   return items.map(item => {
     // Determinar el monto a utilizar (puede tener diferentes nombres según el objeto)
     const amount = item.investment || item.amount || item.totalInvestment || 0;
     
     // Calcular el porcentaje correcto
-    const percentage = totalToUse > 0 ? (amount / totalToUse) * 100 : 0;
-    
-    // Registrar si hay una diferencia significativa para depuración
-    const oldPercentage = item.percentage || item.share || item.marketShare || 0;
-    if (Math.abs(percentage - oldPercentage) > 5) {
-      console.log(`Corrigiendo porcentaje para ${item.name || item.category || 'elemento desconocido'}: 
-        Original: ${oldPercentage.toFixed(2)}%, 
-        Corregido: ${percentage.toFixed(2)}% 
-        (${amount} / ${totalToUse})`);
-    }
+    const percentage = totalAmount > 0 ? (amount / totalAmount) * 100 : 0;
     
     // Devolver el objeto con todos los porcentajes corregidos
     return {
@@ -90,6 +69,67 @@ const recalculatePercentages = (items, totalAmount) => {
       marketShare: percentage
     };
   });
+};
+
+// Imprimir valores para depurar
+const debugBankValues = (banks) => {
+  console.log("===== VALORES DE BANCOS (ORDENADOS) =====");
+  // Ordenar por valor de inversión descendente
+  const sortedBanks = [...banks].sort((a, b) => b.totalInvestment - a.totalInvestment);
+  
+  // Imprimir totales para cada banco
+  sortedBanks.forEach((bank, index) => {
+    console.log(`${index + 1}. ${bank.name}: ${bank.totalInvestment.toFixed(2)} (${bank.marketShare.toFixed(2)}%)`);
+  });
+  
+  // Validar que los porcentajes suman aproximadamente 100%
+  const totalShare = sortedBanks.reduce((sum, bank) => sum + bank.marketShare, 0);
+  console.log(`Total porcentajes: ${totalShare.toFixed(2)}%`);
+  
+  // Verificar si hay valores anómalos (muy grandes o muy pequeños)
+  const maxValue = Math.max(...sortedBanks.map(bank => bank.totalInvestment));
+  const minValue = Math.min(...sortedBanks.filter(bank => bank.totalInvestment > 0).map(bank => bank.totalInvestment));
+  
+  if (maxValue / minValue > 1000) {
+    console.warn(`⚠️ Posible problema con unidades: Mayor valor (${maxValue}) es ${(maxValue/minValue).toFixed(2)}x el menor valor (${minValue})`);
+  }
+  
+  return sortedBanks;
+};
+
+// Función para procesar y depurar categorías de medios
+const debugMediaValues = (mediaCategories) => {
+  console.log("===== VALORES DE CATEGORÍAS DE MEDIOS (ORDENADOS) =====");
+  // Ordenar por valor de inversión descendente
+  const sortedMedia = [...mediaCategories].sort((a, b) => b.totalInvestment - a.totalInvestment);
+  
+  // Imprimir totales para cada categoría
+  sortedMedia.forEach((media, index) => {
+    console.log(`${index + 1}. ${media.category}: ${media.totalInvestment.toFixed(2)} (${media.marketShare.toFixed(2)}%)`);
+  });
+  
+  // Validar que los porcentajes suman aproximadamente 100%
+  const totalShare = sortedMedia.reduce((sum, media) => sum + media.marketShare, 0);
+  console.log(`Total porcentajes medios: ${totalShare.toFixed(2)}%`);
+  
+  // Verificar si hay valores anómalos (muy grandes o muy pequeños)
+  const maxValue = Math.max(...sortedMedia.map(media => media.totalInvestment));
+  const minValue = Math.min(...sortedMedia.filter(media => media.totalInvestment > 0).map(media => media.totalInvestment));
+  
+  if (maxValue / minValue > 1000) {
+    console.warn(`⚠️ Posible problema con unidades en medios: Mayor valor (${maxValue}) es ${(maxValue/minValue).toFixed(2)}x el menor valor (${minValue})`);
+  }
+  
+  // Normalizar los porcentajes si no suman 100%
+  if (Math.abs(totalShare - 100) > 1) {
+    console.warn(`Los porcentajes de medios no suman 100% (${totalShare.toFixed(2)}%). Normalizando...`);
+    return sortedMedia.map(media => ({
+      ...media,
+      marketShare: (media.marketShare / totalShare) * 100
+    }));
+  }
+  
+  return sortedMedia;
 };
 
 // Proveedor del contexto
@@ -166,11 +206,34 @@ export const DashboardProvider = ({ children }) => {
     });
   };
   
-  // Función auxiliar para convertir valor de dólares del CSV
+  // Función auxiliar para convertir valor de dólares del CSV con mejor manejo de unidades
   const parseDollarValue = (dollarStr) => {
     if (!dollarStr) return 0;
-    const numericValue = parseFloat(dollarStr.replace(/[^\d.-]/g, ''));
-    return isNaN(numericValue) ? 0 : numericValue;
+    
+    // Asegurarse de que estamos trabajando con un string
+    const strValue = String(dollarStr).trim();
+    
+    // Detectar sufijos de unidades (K, M, B)
+    let multiplier = 1;
+    if (strValue.toUpperCase().includes('K')) {
+      multiplier = 1000;
+    } else if (strValue.toUpperCase().includes('M')) {
+      multiplier = 1000000;
+    } else if (strValue.toUpperCase().includes('B')) {
+      multiplier = 1000000000;
+    }
+    
+    // Eliminar cualquier caracter que no sea número, punto o signo negativo
+    const numericValue = parseFloat(strValue.replace(/[^\d.-]/g, ''));
+    
+    // Verificar si es un número válido
+    if (isNaN(numericValue)) {
+      console.warn(`Valor inválido para conversión: "${dollarStr}" => Se utilizará 0`);
+      return 0;
+    }
+    
+    // Aplicar el multiplicador según la unidad
+    return numericValue * multiplier;
   };
 
   // Función para obtener el orden numérico del mes
@@ -365,9 +428,6 @@ export const DashboardProvider = ({ children }) => {
           };
         }).sort((a, b) => b.totalInvestment - a.totalInvestment);
         
-        // Aplicar recalculate para corregir todos los porcentajes
-        filteredData.banks = recalculatePercentages(filteredData.banks, totalFilteredInvestment);
-        
         // Recalcular categorías de medios en base a los datos filtrados
         const mediaCategoryMap = new Map();
         
@@ -407,9 +467,6 @@ export const DashboardProvider = ({ children }) => {
             bankShares
           };
         }).sort((a, b) => b.totalInvestment - a.totalInvestment);
-        
-        // Aplicar recalculate para corregir todos los porcentajes
-        filteredData.mediaCategories = recalculatePercentages(filteredData.mediaCategories, totalFilteredInvestment);
       } else {
         // Si no hay datos después de filtrar, inicializar estructuras vacías
         filteredData.banks = [];
@@ -650,29 +707,57 @@ export const DashboardProvider = ({ children }) => {
               // Calcular categorías de medios principales
               const mediaCategories = [...new Set(csvData.map(row => row.Media_Category || row['Media Category']))];
               const mediaCategoryData = mediaCategories.map(category => {
+                // Filtrar filas para esta categoría
                 const categoryRows = csvData.filter(row => (row.Media_Category || row['Media Category']) === category);
-                const categoryInvestment = categoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+                
+                // Sumar inversión para esta categoría
+                const categoryInvestment = categoryRows.reduce((sum, row) => {
+                  const value = parseDollarValue(row.dollars);
+                  return sum + value;
+                }, 0);
+                
+                // Calcular porcentaje de mercado para esta categoría
+                const marketShare = (totalInvestment > 0) ? (categoryInvestment / totalInvestment) * 100 : 0;
                 
                 // Calcular inversiones por banco para esta categoría
                 const bankShares = bankNames.map(bankName => {
+                  // Filtrar filas de esta categoría para este banco
                   const bankCategoryRows = categoryRows.filter(row => row.Bank === bankName);
-                  const bankCategoryInvestment = bankCategoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+                  
+                  // Sumar inversión de este banco en esta categoría
+                  const bankCategoryInvestment = bankCategoryRows.reduce((sum, row) => {
+                    const value = parseDollarValue(row.dollars);
+                    return sum + value;
+                  }, 0);
+                  
+                  // Calcular porcentaje de este banco en esta categoría
+                  const percentage = (categoryInvestment > 0) ? (bankCategoryInvestment / categoryInvestment) * 100 : 0;
                   
                   return {
                     bank: bankName,
                     investment: bankCategoryInvestment,
-                    percentage: (bankCategoryInvestment / categoryInvestment) * 100
+                    percentage: percentage
                   };
                 }).filter(share => share.investment > 0)
                   .sort((a, b) => b.investment - a.investment);
               
-              return {
+                return {
                   category,
                   totalInvestment: categoryInvestment,
-                  marketShare: (categoryInvestment / totalInvestment) * 100,
+                  marketShare: marketShare,
                   bankShares
                 };
               }).sort((a, b) => b.totalInvestment - a.totalInvestment);
+              
+              // Verificar cálculos para categorías de medios
+              const mediaTotalCheck = mediaCategoryData.reduce((sum, category) => sum + category.totalInvestment, 0);
+              const mediaShareSum = mediaCategoryData.reduce((sum, category) => sum + category.marketShare, 0);
+              console.log("Verificación de totales para categorías de medios:", {
+                totalInvestment,
+                mediaTotalCheck,
+                diferencia: totalInvestment - mediaTotalCheck,
+                sumaPorcentajes: mediaShareSum
+              });
               
               // Procesar datos de meses con información de categorías de medios
               const processedMonthsData = processBankMediaMonthlyData(monthsData, banks);
@@ -720,16 +805,32 @@ export const DashboardProvider = ({ children }) => {
                   description: yoyDescription,
                   currentTotal: monthData.total,
                   previousYearTotal: previousYearData ? previousYearData.total : 0
-              };
-            });
-            
-              // Crear el objeto de datos del dashboard
+                };
+              });
+              
+              // Verificar cálculos para bancos
+              const bankTotalCheck = banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
+              const bankShareSum = banks.reduce((sum, bank) => sum + bank.marketShare, 0);
+              console.log("Verificación de totales para bancos:", {
+                totalInvestment,
+                bankTotalCheck,
+                diferencia: totalInvestment - bankTotalCheck,
+                sumaPorcentajes: bankShareSum
+              });
+              
+              // Procesar y depurar los datos de bancos
+              const processedBanks = debugBankValues(banks);
+
+              // Procesar y depurar categorías de medios
+              const processedMediaCategories = debugMediaValues(mediaCategoryData);
+
+              // Crear el objeto de datos del dashboard usando los bancos procesados
               const dashboardData = {
-                banks: recalculatePercentages(banks, totalInvestment),
+                banks: processedBanks,
                 totalInvestment,
                 monthlyTrends: processedMonthsData,
                 allMonthlyTrends: processedMonthsData,
-                mediaCategories: recalculatePercentages(mediaCategoryData, totalInvestment),
+                mediaCategories: processedMediaCategories,
                 sortedMonthData: sortedMonths,
                 availableYears: years,
                 availableMonths: months,
@@ -873,8 +974,11 @@ export const DashboardProvider = ({ children }) => {
             console.log("Muestra de datos filtrados:", csvData.slice(0, 3));
           }
             
-            // Calcular inversión total
-            const totalInvestment = csvData.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+            // Calcular inversión total sumando todos los valores de dollars
+            const totalInvestment = csvData.reduce((sum, row) => {
+              const value = parseDollarValue(row.dollars);
+              return sum + value;
+            }, 0);
           console.log("Inversión total calculada:", totalInvestment);
             
             // Obtener lista de bancos únicos
@@ -903,36 +1007,58 @@ export const DashboardProvider = ({ children }) => {
             
             // Procesar datos de bancos
             const banks = bankNames.map(bankName => {
+              // Filtrar todas las filas para este banco
               const bankRows = csvData.filter(row => row.Bank === bankName);
-              const bankInvestment = bankRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
               
-              // Procesar categorías de medios
+              // Calcular el total de inversión para este banco sumando sus valores de dollars
+              const bankInvestment = bankRows.reduce((sum, row) => {
+                const value = parseDollarValue(row.dollars);
+                return sum + value;
+              }, 0);
+              
+              // Procesar categorías de medios para este banco
               const mediaCategories = [...new Set(bankRows.map(row => row.Media_Category || row['Media Category']))];
+              
               const mediaBreakdown = mediaCategories.map(category => {
+                // Filtrar filas de este banco para esta categoría
                 const categoryRows = bankRows.filter(row => (row.Media_Category || row['Media Category']) === category);
-                const categoryInvestment = categoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+                
+                // Sumar inversión para esta categoría
+                const categoryInvestment = categoryRows.reduce((sum, row) => {
+                  const value = parseDollarValue(row.dollars);
+                  return sum + value;
+                }, 0);
+                
+                // Calcular porcentaje de esta categoría respecto al total del banco
+                const percentage = (bankInvestment > 0) ? (categoryInvestment / bankInvestment) * 100 : 0;
                 
                 return {
                   category,
                   amount: categoryInvestment,
-                  percentage: (categoryInvestment / bankInvestment) * 100
+                  percentage: percentage
                 };
-              }).sort((a, b) => b.amount - a.amount);
+              }).sort((a, b) => b.amount - a.amount); // Ordenar por monto descendente
+              
+              // Calcular porcentaje de mercado de este banco respecto al total
+              const marketShare = (totalInvestment > 0) ? (bankInvestment / totalInvestment) * 100 : 0;
               
               return {
                 name: bankName,
                 totalInvestment: bankInvestment,
                 mediaBreakdown,
-                marketShare: (bankInvestment / totalInvestment) * 100
+                marketShare: marketShare
               };
-            }).sort((a, b) => b.totalInvestment - a.totalInvestment);
+            }).sort((a, b) => b.totalInvestment - a.totalInvestment); // Ordenar bancos por inversión total
           
-          // DEBUG: Ver bancos procesados
-          console.log("===== BANCOS PROCESADOS =====");
-          console.log("Número de bancos procesados:", banks.length);
-          if (banks.length > 0) {
-            console.log("Primer banco procesado:", banks[0]);
-          }
+          // Verificar cálculos para bancos
+          const bankTotalCheck = banks.reduce((sum, bank) => sum + bank.totalInvestment, 0);
+          const bankShareSum = banks.reduce((sum, bank) => sum + bank.marketShare, 0);
+          console.log("Verificación de totales para bancos:", {
+            totalInvestment,
+            bankTotalCheck,
+            diferencia: totalInvestment - bankTotalCheck,
+            sumaPorcentajes: bankShareSum
+          });
             
             // Procesar tendencias mensuales
             const monthsData = [];
@@ -1037,18 +1163,36 @@ export const DashboardProvider = ({ children }) => {
             // Calcular categorías de medios principales
             const mediaCategories = [...new Set(csvData.map(row => row.Media_Category || row['Media Category']))];
             const mediaCategoryData = mediaCategories.map(category => {
+              // Filtrar filas para esta categoría
               const categoryRows = csvData.filter(row => (row.Media_Category || row['Media Category']) === category);
-              const categoryInvestment = categoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+              
+              // Sumar inversión para esta categoría
+              const categoryInvestment = categoryRows.reduce((sum, row) => {
+                const value = parseDollarValue(row.dollars);
+                return sum + value;
+              }, 0);
+              
+              // Calcular porcentaje de mercado para esta categoría
+              const marketShare = (totalInvestment > 0) ? (categoryInvestment / totalInvestment) * 100 : 0;
               
               // Calcular inversiones por banco para esta categoría
               const bankShares = bankNames.map(bankName => {
+                // Filtrar filas de esta categoría para este banco
                 const bankCategoryRows = categoryRows.filter(row => row.Bank === bankName);
-                const bankCategoryInvestment = bankCategoryRows.reduce((sum, row) => sum + parseDollarValue(row.dollars), 0);
+                
+                // Sumar inversión de este banco en esta categoría
+                const bankCategoryInvestment = bankCategoryRows.reduce((sum, row) => {
+                  const value = parseDollarValue(row.dollars);
+                  return sum + value;
+                }, 0);
+                
+                // Calcular porcentaje de este banco en esta categoría
+                const percentage = (categoryInvestment > 0) ? (bankCategoryInvestment / categoryInvestment) * 100 : 0;
                 
                 return {
                   bank: bankName,
                   investment: bankCategoryInvestment,
-                  percentage: (bankCategoryInvestment / categoryInvestment) * 100
+                  percentage: percentage
                 };
               }).filter(share => share.investment > 0)
                 .sort((a, b) => b.investment - a.investment);
@@ -1056,10 +1200,20 @@ export const DashboardProvider = ({ children }) => {
             return {
                 category,
                 totalInvestment: categoryInvestment,
-                marketShare: (categoryInvestment / totalInvestment) * 100,
+                marketShare: marketShare,
                 bankShares
               };
             }).sort((a, b) => b.totalInvestment - a.totalInvestment);
+            
+            // Verificar cálculos para categorías de medios
+            const mediaTotalCheck = mediaCategoryData.reduce((sum, category) => sum + category.totalInvestment, 0);
+            const mediaShareSum = mediaCategoryData.reduce((sum, category) => sum + category.marketShare, 0);
+            console.log("Verificación de totales para categorías de medios:", {
+              totalInvestment,
+              mediaTotalCheck,
+              diferencia: totalInvestment - mediaTotalCheck,
+              sumaPorcentajes: mediaShareSum
+            });
             
             // Procesar datos de meses con información de categorías de medios
             const processedMonthsData = processBankMediaMonthlyData(monthsData, banks);
@@ -1110,13 +1264,16 @@ export const DashboardProvider = ({ children }) => {
             };
           });
           
+            // Procesar y depurar categorías de medios
+            const processedMediaCategories = debugMediaValues(mediaCategoryData);
+
             // Crear el objeto de datos del dashboard
             const dashboardData = {
               banks: recalculatePercentages(banks, totalInvestment),
               totalInvestment,
               monthlyTrends: processedMonthsData,
               allMonthlyTrends: processedMonthsData,
-              mediaCategories: recalculatePercentages(mediaCategoryData, totalInvestment),
+              mediaCategories: processedMediaCategories,
               sortedMonthData: sortedMonths,
               availableYears: years,
               availableMonths: months,

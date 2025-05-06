@@ -4,48 +4,19 @@
  * @returns {string} Valor formateado con 2 decimales exactos y sufijo apropiado
  */
 export const formatCurrency = (value) => {
-  if (value === undefined || value === null) return '$0.00';
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  if (isNaN(numValue)) return '$0.00';
+  // Asegurar que value es un número
+  const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : value;
   
-  // Función para extraer exactamente 2 decimales sin redondeo
-  const getExactDecimals = (num) => {
-    const numStr = num.toString();
-    const decimalPos = numStr.indexOf('.');
-    
-    if (decimalPos === -1) {
-      return `${numStr}.00`;
-    } else {
-      const intPart = numStr.substring(0, decimalPos);
-      const decPart = numStr.substring(decimalPos + 1);
-      const formattedDecPart = decPart.length >= 2 
-        ? decPart.substring(0, 2) 
-        : decPart.padEnd(2, '0');
-      
-      return `${intPart}.${formattedDecPart}`;
-    }
-  };
+  if (isNaN(numValue)) return '$0';
   
-  // Solo para valores iguales o mayores a 1 billón (1,000 millones)
-  if (numValue >= 1000000000) {
-    const billions = numValue / 1000000000;
-    return `$${getExactDecimals(billions)}B`;
+  // Para valores grandes, usa notación abreviada
+  if (Math.abs(numValue) >= 1000000) {
+    return `$${(numValue / 1000000).toFixed(2)}M`;
+  } else if (Math.abs(numValue) >= 1000) {
+    return `$${(numValue / 1000).toFixed(2)}K`;
+  } else {
+    return `$${numValue.toFixed(2)}`;
   }
-  
-  // Para valores mayores o iguales a 1 millón
-  if (numValue >= 1000000) {
-    const millions = numValue / 1000000;
-    return `$${getExactDecimals(millions)}M`;
-  }
-  
-  // Para valores mayores o iguales a 1 mil
-  if (numValue >= 1000) {
-    const thousands = numValue / 1000;
-    return `$${getExactDecimals(thousands)}K`;
-  }
-  
-  // Para valores menores a 1000, mostrar con centavos
-  return `$${getExactDecimals(numValue)}`;
 };
 
 /**
@@ -114,30 +85,35 @@ export const formatDollarValue = (value) => {
  */
 export const formatPercentage = (value) => {
   // Asegurar que value es un número
-  const numValue = Number(value);
-  if (isNaN(numValue)) return '0.00%';
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
   
-  // Determinar si el valor ya está en formato porcentual (mayor que 1 generalmente indica un porcentaje)
-  // Esto evita la doble multiplicación para valores que ya son porcentajes
-  const percentValue = numValue > 1 ? numValue : numValue * 100;
+  if (isNaN(numValue)) return '0%';
   
-  // Obtener el valor con 2 decimales sin redondear
-  const valueStr = String(percentValue);
-  const decimalPos = valueStr.indexOf('.');
+  // Limitar a 2 decimales para porcentajes
+  return `${numValue.toFixed(2)}%`;
+};
+
+// Función para convertir strings monetarios a valores numéricos
+export const parseCurrencyValue = (currencyStr) => {
+  if (!currencyStr) return 0;
   
-  if (decimalPos === -1) {
-    // Si no tiene parte decimal, agregar ".00"
-    return `${valueStr}.00%`;
-  } else {
-    // Tomar solo los primeros dos decimales sin redondear
-    const intPart = valueStr.substring(0, decimalPos);
-    const decPart = valueStr.substring(decimalPos + 1);
-    
-    // Asegurar que hay al menos 2 decimales
-    const formattedDecPart = decPart.length >= 2 
-      ? decPart.substring(0, 2) 
-      : decPart.padEnd(2, '0');
-    
-    return `${intPart}.${formattedDecPart}%`;
+  // Convertir a string si no lo es
+  const strValue = String(currencyStr);
+  
+  // Determinar el multiplicador basado en sufijos
+  let multiplier = 1;
+  if (strValue.includes('K') || strValue.includes('k')) {
+    multiplier = 1000;
+  } else if (strValue.includes('M') || strValue.includes('m')) {
+    multiplier = 1000000;
+  } else if (strValue.includes('B') || strValue.includes('b')) {
+    multiplier = 1000000000;
   }
+  
+  // Extraer el valor numérico
+  const numericPart = parseFloat(strValue.replace(/[^0-9.-]+/g, ''));
+  
+  if (isNaN(numericPart)) return 0;
+  
+  return numericPart * multiplier;
 };
