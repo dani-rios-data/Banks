@@ -1,4 +1,5 @@
 import KeyMetrics from '../components/summary/KeyMetrics';
+import ExecutiveSummaryComp from '../components/summary/ExecutiveSummary';
 import { useDashboard } from '../context/DashboardContext';
 
 const ExecutiveSummary = () => {
@@ -11,14 +12,8 @@ const ExecutiveSummary = () => {
         <p className="text-gray-600">Financial Services Advertising Landscape</p>
       </div>
       
-      {/* Bank Performance Metrics */}
-      <div className="mb-10">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Bank's Performance Metrics</h2>
-        <KeyMetrics filteredData={filteredData} />
-      </div>
-      
-      {/* Rest of your component */}
-      // ... existing code ...
+      {/* Component from summary folder with correct calculations */}
+      <ExecutiveSummaryComp filteredData={filteredData} />
     </div>
   );
 };

@@ -7,7 +7,11 @@ export const bankColors = {
     'Pnc Bank': '#FF5400',
     'Td Bank': '#54B848',
     'Key Bank': '#CC0000',
-    'Chime Bank': '#1EC677'
+    'Chime Bank': '#1EC677',
+    'Cash App': '#00C244',
+    'Rocket Mortgage': '#C8102E',
+    'Cash App Bank': '#00C244',
+    'Rocket Mortgage Bank': '#C8102E'
 };
 
 // Secondary colors for banks

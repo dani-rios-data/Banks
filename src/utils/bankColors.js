@@ -43,6 +43,16 @@ export const bankColors = {
     primary: '#1EC677',    // Verde Chime
     secondary: '#17A266',  // Verde Chime oscuro
     accent: '#FFFFFF'      // Blanco
+  },
+  'Cash App Bank': {
+    primary: '#00C244',    // Verde Cash App
+    secondary: '#00A33A',  // Verde Cash App oscuro
+    accent: '#FFFFFF'      // Blanco
+  },
+  'Rocket Mortgage Bank': {
+    primary: '#C8102E',    // Rojo Rocket Mortgage
+    secondary: '#A30D25',  // Rojo Rocket Mortgage oscuro
+    accent: '#FFFFFF'      // Blanco
   }
 };
 
@@ -56,5 +66,7 @@ export const chartColors = {
   'Chase Bank': '#117ACA',
   'US Bank': '#0046AD',
   'Key Bank': '#CC0000',
-  'Chime Bank': '#1EC677'
+  'Chime Bank': '#1EC677',
+  'Cash App Bank': '#00C244',
+  'Rocket Mortgage Bank': '#C8102E'
 }; 

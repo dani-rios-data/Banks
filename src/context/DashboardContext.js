@@ -18,6 +18,80 @@ export const useDashboard = () => {
   return context;
 };
 
+// Función auxiliar para corregir porcentajes y asegurar que sumen 100%
+const fixPercentages = (items, totalAmount) => {
+  if (!items || !totalAmount || totalAmount === 0) return items;
+
+  // Log para depuración
+  console.log(`Fixing percentages for ${items.length} items. Total amount: ${totalAmount}`);
+  
+  return items.map(item => {
+    // Obtener el monto de inversión, sin importar cómo se llame la propiedad
+    const amount = item.investment || item.amount || item.totalInvestment || 0;
+    
+    // Calcular el porcentaje correcto basado en el total
+    const correctPercentage = totalAmount > 0 ? (amount / totalAmount) * 100 : 0;
+    
+    // Log para depuración
+    if (Math.abs(correctPercentage - (item.percentage || item.share || item.marketShare || 0)) > 5) {
+      console.log(`Corrigiendo porcentaje para ${item.name || item.bank || item.category || 'desconocido'}: 
+        Original: ${item.percentage || item.share || item.marketShare || 0}%, 
+        Corregido: ${correctPercentage}% 
+        (${amount} / ${totalAmount})`);
+    }
+    
+    // Actualizar todas las propiedades posibles de porcentaje
+    return {
+      ...item,
+      percentage: correctPercentage,
+      share: correctPercentage,
+      marketShare: correctPercentage
+    };
+  });
+};
+
+// Función para recalcular y corregir porcentajes basados en el total real
+const recalculatePercentages = (items, totalAmount) => {
+  if (!items || items.length === 0 || !totalAmount || totalAmount === 0) return items;
+  
+  console.log(`Recalculando porcentajes para ${items.length} elementos. Total: ${totalAmount}`);
+  
+  // Primero calculamos el total real (por si acaso el pasado no fuera correcto)
+  const realTotal = items.reduce((sum, item) => {
+    const amount = item.investment || item.amount || item.totalInvestment || 0;
+    return sum + amount;
+  }, 0);
+  
+  // Usamos el total calculado para asegurar consistencia
+  const totalToUse = realTotal > 0 ? realTotal : totalAmount;
+  
+  // Ahora actualizamos cada elemento
+  return items.map(item => {
+    // Determinar el monto a utilizar (puede tener diferentes nombres según el objeto)
+    const amount = item.investment || item.amount || item.totalInvestment || 0;
+    
+    // Calcular el porcentaje correcto
+    const percentage = totalToUse > 0 ? (amount / totalToUse) * 100 : 0;
+    
+    // Registrar si hay una diferencia significativa para depuración
+    const oldPercentage = item.percentage || item.share || item.marketShare || 0;
+    if (Math.abs(percentage - oldPercentage) > 5) {
+      console.log(`Corrigiendo porcentaje para ${item.name || item.category || 'elemento desconocido'}: 
+        Original: ${oldPercentage.toFixed(2)}%, 
+        Corregido: ${percentage.toFixed(2)}% 
+        (${amount} / ${totalToUse})`);
+    }
+    
+    // Devolver el objeto con todos los porcentajes corregidos
+    return {
+      ...item,
+      percentage: percentage,
+      share: percentage,
+      marketShare: percentage
+    };
+  });
+};
+
 // Proveedor del contexto
 export const DashboardProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState('summary');
@@ -291,6 +365,9 @@ export const DashboardProvider = ({ children }) => {
           };
         }).sort((a, b) => b.totalInvestment - a.totalInvestment);
         
+        // Aplicar recalculate para corregir todos los porcentajes
+        filteredData.banks = recalculatePercentages(filteredData.banks, totalFilteredInvestment);
+        
         // Recalcular categorías de medios en base a los datos filtrados
         const mediaCategoryMap = new Map();
         
@@ -330,6 +407,9 @@ export const DashboardProvider = ({ children }) => {
             bankShares
           };
         }).sort((a, b) => b.totalInvestment - a.totalInvestment);
+        
+        // Aplicar recalculate para corregir todos los porcentajes
+        filteredData.mediaCategories = recalculatePercentages(filteredData.mediaCategories, totalFilteredInvestment);
       } else {
         // Si no hay datos después de filtrar, inicializar estructuras vacías
         filteredData.banks = [];
@@ -645,11 +725,11 @@ export const DashboardProvider = ({ children }) => {
             
               // Crear el objeto de datos del dashboard
               const dashboardData = {
-                banks,
+                banks: recalculatePercentages(banks, totalInvestment),
                 totalInvestment,
                 monthlyTrends: processedMonthsData,
                 allMonthlyTrends: processedMonthsData,
-                mediaCategories: mediaCategoryData,
+                mediaCategories: recalculatePercentages(mediaCategoryData, totalInvestment),
                 sortedMonthData: sortedMonths,
                 availableYears: years,
                 availableMonths: months,
@@ -1032,11 +1112,11 @@ export const DashboardProvider = ({ children }) => {
           
             // Crear el objeto de datos del dashboard
             const dashboardData = {
-              banks,
+              banks: recalculatePercentages(banks, totalInvestment),
               totalInvestment,
               monthlyTrends: processedMonthsData,
               allMonthlyTrends: processedMonthsData,
-              mediaCategories: mediaCategoryData,
+              mediaCategories: recalculatePercentages(mediaCategoryData, totalInvestment),
               sortedMonthData: sortedMonths,
               availableYears: years,
               availableMonths: months,

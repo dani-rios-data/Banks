@@ -23,22 +23,32 @@ const ExecutiveSummary = () => {
     const banks = filteredData.banks;
     
     // Calculate bank totals and shares
-    const banksData = banks.map(bank => ({
-      name: bank.name,
-      investment: bank.totalInvestment,
-      percentage: bank.marketShare
-    })).sort((a, b) => b.investment - a.investment);
+    const banksData = banks.map(bank => {
+      // Aseguramos que el porcentaje esté correctamente calculado
+      const percentage = totalInvestment > 0 ? (bank.totalInvestment / totalInvestment) * 100 : 0;
+      
+      return {
+        name: bank.name,
+        investment: bank.totalInvestment,
+        percentage: percentage  // Recalculamos el porcentaje para asegurar consistencia
+      };
+    }).sort((a, b) => b.investment - a.investment);
     
     // Find leading bank
     const leadingBank = banksData[0] || { name: '', investment: 0, percentage: 0 };
     
     // Calculate media category distribution
     const mediaCategories = filteredData.mediaCategories || [];
-    const mediaDistribution = mediaCategories.map(media => ({
-      name: media.category,
-      investment: media.totalInvestment,
-      percentage: media.marketShare
-    })).sort((a, b) => b.investment - a.investment);
+    const mediaDistribution = mediaCategories.map(media => {
+      // Aseguramos que el porcentaje esté correctamente calculado
+      const percentage = totalInvestment > 0 ? (media.totalInvestment / totalInvestment) * 100 : 0;
+      
+      return {
+        name: media.category,
+        investment: media.totalInvestment,
+        percentage: percentage  // Recalculamos el porcentaje para asegurar consistencia
+      };
+    }).sort((a, b) => b.investment - a.investment);
     
     // Calculate top media category
     const topMedia = mediaDistribution[0] || { name: '', investment: 0, percentage: 0 };
