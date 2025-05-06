@@ -462,27 +462,40 @@ const MonthlyTrends = ({ filteredData }) => {
         name: month.month,
       };
       
-      // Calcular porcentajes para todos los bancos excepto Wells Fargo
+      // Asegurar que todos los bancos en dataSource.banks estén incluidos en el resultado
+      // para evitar espacios en blanco en el gráfico apilado
+      if (dataSource?.banks) {
+        // Primero inicializar todos los bancos con 0
+        dataSource.banks.forEach(bank => {
+          result[bank.name] = 0;
+        });
+      }
+      
+      // Ahora asignar los valores reales de participación de mercado
       month.bankShares.forEach(share => {
-        if (share.bank !== 'Wells Fargo') {
+        // Calcular el porcentaje de participación correctamente
+        if (total > 0) {
           result[share.bank] = (share.investment / total) * 100;
+        } else {
+          result[share.bank] = 0;
         }
       });
       
-      // Buscar los datos de Wells Fargo del archivo JSON para este mes
-      const wfDataForMonth = wfTrends.find(item => item.month === month.month);
-      if (wfDataForMonth) {
-        // Usar el marketShare del archivo JSON
-        result['Wells Fargo'] = wfDataForMonth.marketShare;
-      } else {
-        // Si no se encuentra en el JSON, usar el cálculo estándar como respaldo
-        const wfShare = month.bankShares.find(share => share.bank === 'Wells Fargo');
-        if (wfShare) {
-          result['Wells Fargo'] = (wfShare.investment / total) * 100;
-        } else {
-          // Valor predeterminado si no hay datos
-          result['Wells Fargo'] = 0;
+      // Verificar que todos los porcentajes sumen 100%
+      let totalPercentage = 0;
+      Object.entries(result).forEach(([key, value]) => {
+        if (key !== 'name') {
+          totalPercentage += value;
         }
+      });
+      
+      // Si no suman 100%, normalizar para evitar espacios en blanco
+      if (Math.abs(totalPercentage - 100) > 0.1 && totalPercentage > 0) {
+        Object.keys(result).forEach(key => {
+          if (key !== 'name') {
+            result[key] = (result[key] / totalPercentage) * 100;
+          }
+        });
       }
       
       return result;
@@ -972,18 +985,23 @@ const MonthlyTrends = ({ filteredData }) => {
                   paddingTop: '10px'
                 }}
               />
-              {dataSource?.banks && dataSource.banks.map((bank) => (
-                <Area 
-                  key={bank.name}
-                  type="monotone" 
-                  dataKey={bank.name} 
-                  stackId="1"
-                  stroke={chartColors[bank.name]}
-                  fill={chartColors[bank.name]}
-                />
-              ))}
+              {dataSource?.banks && 
+                // Ordenar los bancos por total de inversión para que los más importantes estén más visibles
+                [...dataSource.banks]
+                  .sort((a, b) => b.totalInvestment - a.totalInvestment)
+                  .map((bank) => (
+                    <Area 
+                      key={bank.name}
+                      type="monotone" 
+                      dataKey={bank.name} 
+                      stackId="1"
+                      stroke={chartColors[bank.name]}
+                      fill={chartColors[bank.name]}
+                    />
+                  ))
+              }
             </AreaChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
         </div>
       </div>
       
