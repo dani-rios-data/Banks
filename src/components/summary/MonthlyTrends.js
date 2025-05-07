@@ -313,14 +313,21 @@ const MonthlyTrends = ({ filteredData }) => {
 
     // Prepare data for the charts
     const trendsData = filteredMonthlyData.map(month => {
+      // Inicializa todos los bancos en 0
+      const allBanks = {};
+      if (dataSource?.banks) {
+        dataSource.banks.forEach(bank => {
+          allBanks[bank.name] = 0;
+        });
+      }
+      // Sobrescribe con los valores reales de inversión
+      month.bankShares.forEach(share => {
+        allBanks[share.bank] = share.investment;
+      });
       return {
         name: month.month,
         total: month.total,
-        // En lugar de usar solo los primeros 5 bancos, incluir todos los bancos
-        ...month.bankShares.reduce((acc, share) => {
-          acc[share.bank] = share.investment;
-          return acc;
-        }, {})
+        ...allBanks
       };
     });
 
